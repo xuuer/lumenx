@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="atelier-dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LumenX Studio · 五主题实时切换演示</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--color-bg-base);
+    color:var(--color-text-primary);
+    font-family:var(--font-inter);
+    -webkit-font-smoothing:antialiased;
+    transition:background .4s cubic-bezier(.22,1,.36,1),color .4s cubic-bezier(.22,1,.36,1);
+    min-height:100vh;
+    position:relative;
+    overflow-x:hidden;
+  }
+  /* 氛围层：bloom + grain，随主题切换 */
+  body::before{content:"";position:fixed;inset:0;background:var(--bloom);pointer-events:none;z-index:0;transition:background .4s}
+  body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--grain-op);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    transition:opacity .4s}
+  .wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:32px 28px 80px}
+
+  /* ── 顶部预设列表 ── */
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:10px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand img{width:34px;height:34px;object-fit:contain;filter:var(--logo-filter);transition:filter .4s}
+  .brand .name{font-family:var(--font-display);font-size:20px;font-weight:600;letter-spacing:-.01em}
+  .brand .name .x{color:var(--color-primary)}
+  .brand .tag{font-family:var(--font-jetbrains-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--color-text-muted)}
+  .hint{font-family:var(--font-jetbrains-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-text-muted)}
+
+  .presets{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 28px}
+  .preset{
+    position:relative;display:flex;flex-direction:column;gap:8px;min-width:148px;
+    padding:12px 14px;border-radius:12px;cursor:pointer;text-align:left;
+    background:var(--color-bg-surface);border:1px solid var(--color-border-default);
+    color:var(--color-text-primary);font-family:var(--font-inter);
+    transition:transform .15s,box-shadow .25s,border-color .25s;
+  }
+  .preset:hover{transform:translateY(-2px)}
+  .preset.on{border-color:var(--color-primary);box-shadow:var(--glow-primary)}
+  .preset .swatches{display:flex;gap:5px}
+  .preset .swatches i{width:18px;height:18px;border-radius:5px;display:block;border:1px solid rgba(128,128,128,.2)}
+  .preset .pn{font-size:13px;font-weight:600}
+  .preset .pm{font-family:var(--font-jetbrains-mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-text-muted)}
+  .preset .def{position:absolute;top:10px;right:10px;font-size:9px;font-family:var(--font-jetbrains-mono);
+    color:var(--color-on-accent);background:var(--color-accent);padding:1px 6px;border-radius:999px;letter-spacing:.1em}
+
+  /* swatch 固定预览色（不随当前主题变，便于辨识） */
+  .sw-atelier-dark i:nth-child(1){background:#0c0b0e}.sw-atelier-dark i:nth-child(2){background:#34d8c4}.sw-atelier-dark i:nth-child(3){background:#ffa94d}
+  .sw-bridge-dark i:nth-child(1){background:#0a0a0d}.sw-bridge-dark i:nth-child(2){background:#646cff}.sw-bridge-dark i:nth-child(3){background:#ffa94d}
+  .sw-brand-dark i:nth-child(1){background:#050508}.sw-brand-dark i:nth-child(2){background:#646cff}.sw-brand-dark i:nth-child(3){background:#ff0080}
+  .sw-atelier-light i:nth-child(1){background:#f6f1e9}.sw-atelier-light i:nth-child(2){background:#1d9c8d}.sw-atelier-light i:nth-child(3){background:#e8852b}
+  .sw-brand-light i:nth-child(1){background:#f8f9fa}.sw-brand-light i:nth-child(2){background:#646cff}.sw-brand-light i:nth-child(3){background:#ff0080}
+
+  /* ── 演示工作台（单段 DOM，随主题重渲染） ── */
+  .stage-label{font-family:var(--font-jetbrains-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:12px}
+  .board{display:grid;grid-template-columns:1.4fr 1fr;gap:18px}
+  @media(max-width:880px){.board{grid-template-columns:1fr}}
+
+  .card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--card-radius);
+    overflow:hidden;transition:background .4s,border-color .4s}
+  .card-pad{padding:16px}
+
+  .shot-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--color-border-subtle)}
+  .shot-id{font-family:var(--font-jetbrains-mono);font-size:11px;letter-spacing:.16em;color:var(--color-text-secondary)}
+  .tabs{display:flex;gap:4px;background:var(--color-bg-inset);padding:3px;border-radius:8px}
+  .tab{font-family:var(--font-jetbrains-mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:5px 9px;border-radius:6px;border:none;background:none;color:var(--color-text-muted);cursor:pointer}
+  .tab.on{background:var(--color-primary);color:var(--btn-pri-fg)}
+
+  .preview{position:relative;aspect-ratio:16/9;background:var(--color-bg-inset);overflow:hidden}
+  .preview img{width:100%;height:100%;object-fit:cover;display:block}
+  .preview.glow{box-shadow:var(--halation)}
+  .preview .star{position:absolute;top:10px;left:10px;font-size:10px;font-family:var(--font-jetbrains-mono);
+    color:var(--color-status-starred-fg);background:var(--color-status-starred-bg);border:1px solid var(--color-status-starred-border);padding:2px 8px;border-radius:999px}
+
+  .chips{display:flex;gap:6px;flex-wrap:wrap;padding:12px 16px}
+  .chip{font-family:var(--font-jetbrains-mono);font-size:9.5px;letter-spacing:.08em;padding:3px 8px;border-radius:6px;
+    background:var(--color-bg-inset);border:1px solid var(--color-border-subtle);color:var(--color-text-secondary)}
+
+  .statusrow{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 14px}
+  .st{font-family:var(--font-jetbrains-mono);font-size:9.5px;letter-spacing:.08em;padding:3px 9px;border-radius:999px;border:1px solid}
+  .st.pending{color:var(--color-status-pending-fg);border-color:var(--color-status-pending-border);background:var(--color-status-pending-bg)}
+  .st.processing{color:var(--color-status-processing-fg);border-color:var(--color-status-processing-border);background:var(--color-status-processing-bg)}
+  .st.completed{color:var(--color-status-completed-fg);border-color:var(--color-status-completed-border);background:var(--color-status-completed-bg)}
+  .st.failed{color:var(--color-status-failed-fg);border-color:var(--color-status-failed-border);background:var(--color-status-failed-bg)}
+  .st.starred{color:var(--color-status-starred-fg);border-color:var(--color-status-starred-border);background:var(--color-status-starred-bg)}
+
+  .actions{display:flex;gap:8px;padding:14px 16px;border-top:1px solid var(--color-border-subtle)}
+  .btn{font-family:var(--font-inter);font-size:12px;font-weight:600;padding:8px 14px;border-radius:9px;cursor:pointer;border:1px solid var(--color-border-default);background:var(--color-bg-hover);color:var(--color-text-primary);transition:.15s}
+  .btn.pri{background:var(--btn-pri-bg);color:var(--btn-pri-fg);border-color:transparent;box-shadow:var(--btn-pri-glow)}
+  .btn:hover{transform:translateY(-1px)}
+
+  .panel h4{font-family:var(--font-display);font-size:15px;margin-bottom:4px}
+  .panel .sub{color:var(--color-text-secondary);font-size:12px;margin-bottom:14px;line-height:1.5}
+  .field{margin-bottom:12px}
+  .field label{display:block;font-family:var(--font-jetbrains-mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:5px}
+  .field .inp{background:var(--input-bg);border:1px solid var(--input-border);border-radius:8px;padding:9px 11px;font-size:12px;color:var(--color-text-primary)}
+  .cands{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+  .cand{aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid var(--color-border-subtle);position:relative}
+  .cand img{width:100%;height:100%;object-fit:cover}
+  .cand.sel{border-color:var(--color-primary);box-shadow:var(--glow-primary)}
+  .cand.sel::after{content:"★";position:absolute;top:3px;right:5px;font-size:11px;color:var(--color-status-starred-fg)}
+
+  .meta-now{margin-top:24px;font-family:var(--font-jetbrains-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-text-muted)}
+  .meta-now b{color:var(--color-primary)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">
+      <img id="logo" src="assets/logo-dark.png" alt="LumenX">
+      <div>
+        <div class="name">Lumen<span class="x">X</span> Studio</div>
+        <div class="tag">Render Noise into Narrative</div>
+      </div>
+    </div>
+    <div class="hint">点击预设 · 同一段工作台 DOM 实时换肤 + Logo 联动</div>
+  </div>
+
+  <div class="presets" id="presets">
+    <button class="preset on sw-atelier-dark" data-theme="atelier-dark">
+      <span class="def">默认</span>
+      <span class="swatches"><i></i><i></i><i></i></span>
+      <span class="pn">Full Atelier</span><span class="pm">atelier-dark · 暗</span>
+    </button>
+    <button class="preset sw-bridge-dark" data-theme="bridge-dark">
+      <span class="swatches"><i></i><i></i><i></i></span>
+      <span class="pn">Warm Bridge</span><span class="pm">bridge-dark · 暗</span>
+    </button>
+    <button class="preset sw-brand-dark" data-theme="brand-dark">
+      <span class="swatches"><i></i><i></i><i></i></span>
+      <span class="pn">Brand-True</span><span class="pm">brand-dark · 暗</span>
+    </button>
+    <button class="preset sw-atelier-light" data-theme="atelier-light">
+      <span class="swatches"><i></i><i></i><i></i></span>
+      <span class="pn">暖亮 Atelier</span><span class="pm">atelier-light · 亮</span>
+    </button>
+    <button class="preset sw-brand-light" data-theme="brand-light">
+      <span class="swatches"><i></i><i></i><i></i></span>
+      <span class="pn">品牌亮色</span><span class="pm">brand-light · 亮</span>
+    </button>
+  </div>
+
+  <div class="stage-label">// 演示工作台 — 分镜 R2V（同一 DOM，随主题重渲染）</div>
+  <div class="board">
+    <!-- ShotCard -->
+    <div class="card">
+      <div class="shot-head">
+        <span class="shot-id">SHOT_03 · 雨夜对峙</span>
+        <div class="tabs">
+          <button class="tab on">T2I · I2V</button>
+          <button class="tab">DIRECT · R2V</button>
+        </div>
+      </div>
+      <div class="preview glow">
+        <span class="star">★ STARRED</span>
+        <img src="assets/shot-03.png" alt="shot">
+      </div>
+      <div class="chips">
+        <span class="chip">时长 5s</span>
+        <span class="chip">景别 · 近景</span>
+        <span class="chip">机位 · 平视</span>
+        <span class="chip">运镜 · 推镜</span>
+        <span class="chip">转场 · 硬切</span>
+      </div>
+      <div class="statusrow">
+        <span class="st pending">PENDING</span>
+        <span class="st processing">PROCESSING</span>
+        <span class="st completed">COMPLETED</span>
+        <span class="st failed">FAILED</span>
+        <span class="st starred">STARRED</span>
+      </div>
+      <div class="actions">
+        <button class="btn pri">智能生成</button>
+        <button class="btn">配音工作台</button>
+        <button class="btn">展开面板</button>
+      </div>
+    </div>
+
+    <!-- ShotPanel -->
+    <div class="card card-pad panel">
+      <h4>生成参数</h4>
+      <div class="sub">ParamsSection — 模型 / 时长 / 分辨率 / 候选批次。换主题时表单与候选栅格同步换肤。</div>
+      <div class="field"><label>模型</label><div class="inp">Wan 2.5 · R2V</div></div>
+      <div class="field"><label>提示词</label><div class="inp">雨夜，霓虹倒影，侦探转身，景深虚化背景人群…</div></div>
+      <div class="field">
+        <label>候选 · selected_id</label>
+        <div class="cands">
+          <div class="cand sel"><img src="assets/shot-01.png" alt=""></div>
+          <div class="cand"><img src="assets/shot-02.png" alt=""></div>
+          <div class="cand"><img src="assets/shot-05.png" alt=""></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="meta-now">当前主题：<b id="nowName">Full Atelier</b> · <span id="nowId">atelier-dark</span></div>
+</div>
+
+<script>
+(function(){
+  var NAMES={
+    'atelier-dark':'Full Atelier','bridge-dark':'Warm Bridge','brand-dark':'Brand-True',
+    'atelier-light':'暖亮 Atelier','brand-light':'品牌亮色'
+  };
+  // Logo 变体：暗用白描边 PNG（teal 主题靠 --logo-filter 着色），亮用各自 PNG
+  var LOGO={
+    'atelier-dark':'assets/logo-dark.png',
+    'bridge-dark':'assets/logo-dark.png',
+    'brand-dark':'assets/logo-dark.png',
+    'atelier-light':'assets/logo-light-teal.png',  // 同形深墨描边 + teal 棱形核心
+    'brand-light':'assets/logo-light.png'
+  };
+  var root=document.documentElement;
+  var logo=document.getElementById('logo');
+  var nowName=document.getElementById('nowName');
+  var nowId=document.getElementById('nowId');
+  var btns=document.querySelectorAll('.preset');
+  btns.forEach(function(b){
+    b.addEventListener('click',function(){
+      var t=b.dataset.theme;
+      root.setAttribute('data-theme',t);
+      btns.forEach(function(x){x.classList.remove('on')});
+      b.classList.add('on');
+      logo.src=LOGO[t];
+      nowName.textContent=NAMES[t];
+      nowId.textContent=t;
+    });
+  });
+})();
+</script>
+</body>
+</html>

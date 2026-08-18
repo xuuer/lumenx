@@ -1,0 +1,188 @@
+family: pixverse
+display_name: PixVerse
+provider: pixverse
+routing_prefixes:
+  - pixverse/pixverse-
+  - pixverse-
+supported_backends:
+  - dashscope
+default_backend: dashscope
+credential_sources:
+  dashscope:
+    - DASHSCOPE_API_KEY
+supported_modalities:
+  - t2v
+  - i2v
+  - r2v
+transport:
+  image_input_mode:
+    dashscope: dashscope_image_to_video
+  audio_input_mode:
+    dashscope: dashscope_temp_file_url
+  reference_video_input_mode:
+    dashscope: dashscope_temp_file_url
+docs:
+  official_snapshot_ids:
+    - pixverse/2026-04-25
+models:
+  - id: pixverse/pixverse-v6-video
+    display_name: PixVerse V6 Video
+    description: PixVerse V6 image-to-video with multi-shot support
+    status: active
+    release_stage: stable
+    capabilities: [i2v]
+    runtime:
+      dashscope:
+        gateway: dashscope
+        api_model_id: pixverse/pixverse-v6-it2v
+    docs:
+      context_hub_doc_ids: [pixverse/dashscope-proxy]
+    ui:
+      selection_group: i2v
+      visible_in: [project_settings, series_settings, video_sidebar, global_settings]
+      order: 90
+      badges: [new]
+    duration:
+      type: slider
+      min: 1
+      max: 15
+      step: 1
+      default: 5
+    params:
+      resolution:
+        options: [360p, 540p, 720p, 1080p]
+        default: 720p
+      shotType:
+        options: [single, multi]
+        default: single
+      audio: true
+      watermark: true
+      seed: true
+      negativePrompt: false
+      promptExtend: false
+    inputs:
+      reference_images:
+        max: 1
+        reference_type: image
+
+  - id: pixverse/pixverse-c1-video
+    display_name: PixVerse C1 Video
+    description: PixVerse C1 with I2V and R2V modes
+    status: active
+    release_stage: stable
+    runtime:
+      dashscope:
+        gateway: dashscope
+    docs:
+      context_hub_doc_ids: [pixverse/dashscope-proxy]
+    modes:
+      i2v:
+        legacy_id: pixverse-c1-i2v
+        display_name: PixVerse C1 I2V
+        description: PixVerse C1 image-to-video generation
+        capabilities: [i2v]
+        runtime:
+          dashscope:
+            api_model_id: pixverse/pixverse-c1-it2v
+        ui:
+          selection_group: i2v
+          visible_in: [project_settings, series_settings, video_sidebar, global_settings]
+          order: 85
+        duration:
+          type: slider
+          min: 1
+          max: 15
+          step: 1
+          default: 5
+        params:
+          resolution:
+            options: [360p, 540p, 720p, 1080p]
+            default: 720p
+          audio: true
+          watermark: true
+          seed: true
+          negativePrompt: false
+          promptExtend: false
+        inputs:
+          reference_images:
+            max: 1
+            reference_type: image
+      r2v:
+        legacy_id: pixverse-c1-r2v
+        display_name: PixVerse C1 R2V
+        description: PixVerse C1 reference-to-video with multi-image support
+        capabilities: [r2v]
+        runtime:
+          dashscope:
+            api_model_id: pixverse/pixverse-c1-r2v
+        ui:
+          selection_group: r2v
+          visible_in: [project_settings, series_settings, video_sidebar, global_settings]
+          order: 70
+        duration:
+          type: slider
+          min: 3
+          max: 8
+          step: 1
+          default: 5
+        params:
+          resolution:
+            options: [720p, 1080p]
+            default: 720p
+          seed: true
+          negativePrompt: false
+          promptExtend: false
+          watermark: false
+        inputs:
+          reference_images:
+            max: 7
+            reference_type: image
+
+  - id: pixverse-v5.6-r2v
+    display_name: PixVerse V5.6 R2V
+    description: PixVerse V5.6 reference-to-video
+    status: active
+    release_stage: stable
+    capabilities: [r2v]
+    runtime:
+      dashscope:
+        gateway: dashscope
+        api_model_id: pixverse/pixverse-v5.6-r2v
+    docs:
+      context_hub_doc_ids: [pixverse/dashscope-proxy]
+    ui:
+      selection_group: r2v
+      visible_in: [project_settings, series_settings, video_sidebar, global_settings]
+      order: 70
+    duration:
+      type: slider
+      min: 3
+      max: 8
+      step: 1
+      default: 5
+    params:
+      resolution:
+        options: [720p, 1080p]
+        default: 720p
+      seed: true
+      negativePrompt: false
+      promptExtend: false
+      watermark: false
+    inputs:
+      reference_images:
+        max: 7
+        reference_type: image
+
+  # ── Deprecated: PixVerse V4 ────────────────────────────────────────
+  - id: pixverse-v4-i2v
+    display_name: PixVerse V4 I2V
+    description: Legacy PixVerse model
+    status: deprecated
+    release_stage: preview
+    capabilities: [i2v]
+    docs:
+      context_hub_doc_ids: [pixverse/vendor-api]
+    ui:
+      selection_group: i2v
+      visible_in: []
+      order: 10

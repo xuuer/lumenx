@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="atelier-dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LumenX Studio · 工作区（定稿）</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--color-bg-base);color:var(--color-text-primary);font-family:var(--font-inter);
+    -webkit-font-smoothing:antialiased;font-size:13px;transition:background .4s cubic-bezier(.22,1,.36,1),color .4s;overflow-x:hidden}
+  body::before{content:"";position:fixed;inset:0;background:var(--bloom);pointer-events:none;z-index:0;transition:background .4s}
+  body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--grain-op);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");transition:opacity .4s}
+  .wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:30px 28px 80px}
+
+  .top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:8px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand img{width:38px;height:38px;object-fit:contain;filter:var(--logo-filter);transition:filter .4s}
+  .brand .nm{font-family:var(--font-display);font-size:21px;font-weight:600;letter-spacing:-.01em}
+  .brand .nm .x{color:var(--color-primary)}
+  .brand .sl{font-family:var(--font-jetbrains-mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--color-text-muted)}
+  .themepick{display:flex;gap:5px;background:var(--color-bg-inset);padding:4px;border-radius:10px;border:1px solid var(--color-border-subtle)}
+  .tdot{width:22px;height:22px;border-radius:7px;cursor:pointer;border:2px solid transparent;transition:.15s}
+  .tdot:hover{transform:scale(1.12)}.tdot.on{border-color:var(--color-text-primary)}
+  .tdot[data-t="atelier-dark"]{background:linear-gradient(135deg,#0c0b0e 50%,#34d8c4 50%)}
+  .tdot[data-t="bridge-dark"]{background:linear-gradient(135deg,#0a0a0d 50%,#646cff 50%)}
+  .tdot[data-t="brand-dark"]{background:linear-gradient(135deg,#050508 50%,#ff0080 50%)}
+  .tdot[data-t="atelier-light"]{background:linear-gradient(135deg,#f6f1e9 50%,#1d9c8d 50%)}
+  .tdot[data-t="brand-light"]{background:linear-gradient(135deg,#f8f9fa 50%,#646cff 50%)}
+
+  .lead{font-family:var(--font-display);font-size:30px;font-weight:600;letter-spacing:-.02em;margin:26px 0 4px}
+  .sub{color:var(--color-text-secondary);font-size:13px;margin-bottom:22px}
+
+  /* toolbar */
+  .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
+  .search{flex:1;min-width:200px;background:var(--input-bg);border:1px solid var(--input-border);border-radius:10px;padding:9px 13px;font-size:12.5px;color:var(--color-text-primary)}
+  .btn{font-family:var(--font-inter);font-size:12px;font-weight:600;padding:9px 14px;border-radius:10px;cursor:pointer;
+    border:1px solid var(--color-border-default);background:var(--color-bg-hover);color:var(--color-text-primary);transition:.15s;display:inline-flex;align-items:center;gap:6px}
+  .btn:hover{transform:translateY(-1px)}
+  .btn.pri{background:var(--btn-pri-bg);color:var(--btn-pri-fg);border-color:transparent;box-shadow:var(--btn-pri-glow)}
+
+  .secttitle{font-family:var(--font-jetbrains-mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-text-muted);margin:8px 0 12px}
+
+  /* card grid */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px;margin-bottom:34px}
+  .card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--card-radius);overflow:hidden;
+    transition:transform .15s,box-shadow .25s,background .4s,border-color .4s;cursor:pointer}
+  .card:hover{transform:translateY(-3px);box-shadow:var(--glow-primary)}
+  .cover{aspect-ratio:16/9;background:var(--color-bg-inset);overflow:hidden;position:relative}
+  .cover img{width:100%;height:100%;object-fit:cover}
+  .cover .kind{position:absolute;top:9px;left:9px;font-family:var(--font-jetbrains-mono);font-size:8.5px;letter-spacing:.1em;
+    padding:2px 8px;border-radius:999px;background:var(--color-overlay);color:#fff}
+  .cover .shared{position:absolute;top:9px;right:9px;font-family:var(--font-jetbrains-mono);font-size:8.5px;
+    padding:2px 8px;border-radius:999px;background:var(--color-primary);color:var(--btn-pri-fg)}
+  .cbody{padding:13px 15px}
+  .cbody h3{font-family:var(--font-display);font-size:15px;margin-bottom:5px;display:flex;align-items:center;gap:7px}
+  .cbody .desc{color:var(--color-text-secondary);font-size:11.5px;line-height:1.5;margin-bottom:10px}
+  .cmeta{display:flex;gap:6px;flex-wrap:wrap}
+  .tag{font-family:var(--font-jetbrains-mono);font-size:8.5px;letter-spacing:.06em;padding:2px 8px;border-radius:6px;
+    background:var(--color-bg-inset);border:1px solid var(--color-border-subtle);color:var(--color-text-secondary)}
+  .badge{font-family:var(--font-jetbrains-mono);font-size:8.5px;padding:2px 8px;border-radius:999px;border:1px solid}
+  .badge.completed{color:var(--color-status-completed-fg);border-color:var(--color-status-completed-border);background:var(--color-status-completed-bg)}
+  .badge.processing{color:var(--color-status-processing-fg);border-color:var(--color-status-processing-border);background:var(--color-status-processing-bg)}
+  .badge.pending{color:var(--color-status-pending-fg);border-color:var(--color-status-pending-border);background:var(--color-status-pending-bg)}
+
+  .ep{display:flex;align-items:center;gap:6px;font-family:var(--font-jetbrains-mono);font-size:9px;color:var(--color-text-muted);margin-top:9px}
+  .ep .dot{width:5px;height:5px;border-radius:50%;background:var(--color-primary)}
+
+  /* empty states */
+  .empties{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media(max-width:780px){.empties{grid-template-columns:1fr}}
+  .ecard{border:1px dashed var(--color-border-default);border-radius:var(--card-radius);padding:24px 18px;text-align:center;background:var(--color-bg-inset)}
+  .ecard .ic{font-size:26px;margin-bottom:10px}
+  .ecard h4{font-family:var(--font-display);font-size:14px;margin-bottom:5px}
+  .ecard p{font-size:11px;color:var(--color-text-secondary);line-height:1.5;margin-bottom:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <img id="logo" src="assets/logo-dark.png" alt="LumenX">
+      <div>
+        <div class="nm">Lumen<span class="x">X</span> Studio</div>
+        <div class="sl">Render Noise into Narrative</div>
+      </div>
+    </div>
+    <div class="themepick" id="themepick">
+      <span class="tdot on" data-t="atelier-dark" title="Full Atelier"></span>
+      <span class="tdot" data-t="bridge-dark" title="Warm Bridge"></span>
+      <span class="tdot" data-t="brand-dark" title="Brand-True"></span>
+      <span class="tdot" data-t="atelier-light" title="暖亮 Atelier"></span>
+      <span class="tdot" data-t="brand-light" title="品牌亮色"></span>
+    </div>
+  </div>
+
+  <div class="lead">我的工作区</div>
+  <div class="sub">系列与单集项目混排 · 共 3 个系列 · 8 个项目</div>
+
+  <div class="toolbar">
+    <input class="search" placeholder="搜索系列 / 项目…">
+    <button class="btn">↻ 同步</button>
+    <button class="btn">⬆ 导入</button>
+    <button class="btn pri">＋ 新建 ▾</button>
+  </div>
+
+  <div class="secttitle">// 系列与项目（SeriesCard + ProjectCard 混排）</div>
+  <div class="grid">
+    <!-- SeriesCard -->
+    <div class="card">
+      <div class="cover">
+        <span class="kind">SERIES · 剧集模式</span>
+        <img src="assets/shot-03.png" alt="">
+      </div>
+      <div class="cbody">
+        <h3>雨夜追踪 <span class="badge processing">连载中</span></h3>
+        <div class="desc">赛博侦探短剧。共享角色/场景/道具池，跨集人物一致性。</div>
+        <div class="cmeta">
+          <span class="tag">workflow · r2v</span>
+          <span class="tag">content · scripted</span>
+          <span class="tag">default · r2v</span>
+        </div>
+        <div class="ep"><span class="dot"></span> 4 集 · S01E01–E04 · 共享 6 角色 / 5 场景</div>
+      </div>
+    </div>
+
+    <!-- ProjectCard (single episode) completed -->
+    <div class="card">
+      <div class="cover">
+        <span class="kind">PROJECT · 单集</span>
+        <img src="assets/shot-01.png" alt="">
+      </div>
+      <div class="cbody">
+        <h3>霓虹告别 <span class="badge completed">已完成</span></h3>
+        <div class="desc">独立单集。脚本→分镜→R2V→合成全流程已跑通，已导出成片。</div>
+        <div class="cmeta">
+          <span class="tag">episode · 1</span>
+          <span class="tag">workflow · i2v_legacy</span>
+          <span class="tag">12 帧</span>
+        </div>
+        <div class="ep"><span class="dot"></span> 成片 1080p · 02:14 · 更新于 2 天前</div>
+      </div>
+    </div>
+
+    <!-- ProjectCard pending -->
+    <div class="card">
+      <div class="cover">
+        <span class="kind">PROJECT · 单集</span>
+        <span class="shared">SERIES 共享</span>
+        <img src="assets/shot-02.png" alt="">
+      </div>
+      <div class="cbody">
+        <h3>地铁追逐 <span class="badge pending">待处理</span></h3>
+        <div class="desc">隶属「雨夜追踪」系列 E02。复用系列共享角色，分镜进行中。</div>
+        <div class="cmeta">
+          <span class="tag">series · 雨夜追踪</span>
+          <span class="tag">episode · 2</span>
+          <span class="tag">default · r2v</span>
+        </div>
+        <div class="ep"><span class="dot"></span> 8 帧草稿 · 0 帧已渲染</div>
+      </div>
+    </div>
+
+    <!-- SeriesCard freeform -->
+    <div class="card">
+      <div class="cover">
+        <span class="kind">SERIES · 自由模式</span>
+        <img src="assets/shot-05.png" alt="">
+      </div>
+      <div class="cbody">
+        <h3>城市切片 <span class="badge pending">草稿</span></h3>
+        <div class="desc">freeform 内容模式：无脚本，直接堆叠分镜做氛围短片。</div>
+        <div class="cmeta">
+          <span class="tag">content · freeform</span>
+          <span class="tag">workflow · r2v</span>
+        </div>
+        <div class="ep"><span class="dot"></span> 2 集 · 共享 3 场景</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="secttitle">// 快速开始（空态三卡）</div>
+  <div class="empties">
+    <div class="ecard">
+      <div class="ic">✍</div>
+      <h4>粘贴脚本创建</h4>
+      <p>贴入剧本文本，AI 自动拆解角色、场景与分镜。</p>
+      <button class="btn pri">新建脚本项目</button>
+    </div>
+    <div class="ecard">
+      <div class="ic">📺</div>
+      <h4>创建系列</h4>
+      <p>多集连载，共享角色/场景资产池，保持跨集一致性。</p>
+      <button class="btn">新建系列</button>
+    </div>
+    <div class="ecard">
+      <div class="ic">⬆</div>
+      <h4>导入已有项目</h4>
+      <p>从备份或其他工作区导入 projects.json 与资产。</p>
+      <button class="btn">导入</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement,logo=document.getElementById('logo');
+  var LOGO={'atelier-dark':'assets/logo-dark.png','bridge-dark':'assets/logo-dark.png','brand-dark':'assets/logo-dark.png','atelier-light':'assets/logo-light-teal.png','brand-light':'assets/logo-light.png'};
+  document.querySelectorAll('.tdot').forEach(function(d){d.addEventListener('click',function(){
+    var t=d.dataset.t;root.setAttribute('data-theme',t);
+    document.querySelectorAll('.tdot').forEach(function(x){x.classList.remove('on')});d.classList.add('on');
+    logo.src=LOGO[t];
+  });});
+})();
+</script>
+</body>
+</html>

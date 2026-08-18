@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="atelier-dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LumenX Studio · StoryboardGenerate + PromptExpand（补稿）</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--color-bg-base);color:var(--color-text-primary);font-family:var(--font-inter);
+    -webkit-font-smoothing:antialiased;font-size:13px;transition:background .4s cubic-bezier(.22,1,.36,1),color .4s;min-height:100%}
+  body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--grain-op);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");transition:opacity .4s}
+
+  .pagetop{position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:16px;
+    padding:18px 26px;border-bottom:1px solid var(--color-border-subtle);flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:11px}
+  .brand img{width:34px;height:34px;object-fit:contain;filter:var(--logo-filter);transition:filter .4s}
+  .brand .nm{font-family:var(--font-display);font-size:18px;font-weight:600;letter-spacing:-.01em}
+  .brand .nm .x{color:var(--color-primary)}
+  .themepick{display:flex;gap:5px;background:var(--color-bg-inset);padding:4px;border-radius:10px;border:1px solid var(--color-border-subtle)}
+  .tdot{width:22px;height:22px;border-radius:7px;cursor:pointer;border:2px solid transparent;transition:.15s}
+  .tdot:hover{transform:scale(1.12)}.tdot.on{border-color:var(--color-text-primary)}
+  .tdot[data-t="atelier-dark"]{background:linear-gradient(135deg,#0c0b0e 50%,#34d8c4 50%)}
+  .tdot[data-t="bridge-dark"]{background:linear-gradient(135deg,#0a0a0d 50%,#646cff 50%)}
+  .tdot[data-t="brand-dark"]{background:linear-gradient(135deg,#050508 50%,#ff0080 50%)}
+  .tdot[data-t="atelier-light"]{background:linear-gradient(135deg,#f6f1e9 50%,#1d9c8d 50%)}
+  .tdot[data-t="brand-light"]{background:linear-gradient(135deg,#f8f9fa 50%,#646cff 50%)}
+
+  .caption{position:relative;z-index:3;max-width:1180px;margin:0 auto;padding:18px 26px 6px}
+  .caption h1{font-family:var(--font-display);font-size:22px;font-weight:600;letter-spacing:-.02em}
+  .caption p{color:var(--color-text-secondary);font-size:12.5px;margin-top:4px;max-width:800px;line-height:1.55}
+
+  .stage{position:relative;z-index:1;max-width:1180px;margin:14px auto 30px;padding:0 26px;display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+  @media(max-width:900px){.stage{grid-template-columns:1fr}}
+  .col h3{font-family:var(--font-jetbrains-mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:12px}
+
+  .ico{width:13px;height:13px;display:inline-block;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle}
+
+  /* ===== StoryboardGenerateDialog ===== */
+  .gdlg{border-radius:16px;border:1px solid var(--card-border);background:var(--color-bg-elevated);box-shadow:0 24px 64px -12px rgba(0,0,0,.7);overflow:hidden}
+  .gdlg .gh{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 18px;border-bottom:1px solid var(--color-border-subtle)}
+  .gdlg .gh .ti{display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-size:16px;font-weight:500}
+  .gdlg .gh .ti svg{color:var(--color-primary)}
+  .gx{width:28px;height:28px;border-radius:8px;border:none;background:transparent;color:var(--color-text-muted);cursor:pointer;display:grid;place-items:center}
+  .gx:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+  .gbody{padding:16px 18px;display:flex;flex-direction:column;gap:14px}
+  .ctx{font-size:12px;color:var(--color-text-secondary)}.ctx b{color:var(--color-text-primary)}
+  .pftitle{font-family:var(--font-jetbrains-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--color-text-muted)}
+  .check{display:flex;align-items:flex-start;gap:9px;border-radius:8px;border:1px solid;padding:9px 11px}
+  .check.pass{border-color:color-mix(in srgb,var(--color-status-completed-fg) 30%,transparent);background:var(--color-status-completed-bg)}
+  .check.fail{border-color:var(--color-status-starred-border);background:var(--color-status-starred-bg)}
+  .bullet{width:16px;height:16px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:700;flex-shrink:0}
+  .check.pass .bullet{background:color-mix(in srgb,var(--color-status-completed-fg) 22%,transparent);color:var(--color-status-completed-fg)}
+  .check.fail .bullet{background:color-mix(in srgb,var(--color-status-starred-fg) 22%,transparent);color:var(--color-status-starred-fg)}
+  .check .lbl{font-size:12.5px;color:var(--color-text-primary)}
+  .check .ch{font-size:11px;color:var(--color-text-muted);margin-top:2px;line-height:1.5}
+  .gofix{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--color-primary);background:none;border:none;cursor:pointer}
+  .freshhint{font-size:12px;color:var(--color-text-muted);display:flex;align-items:center;gap:6px}
+  .gfoot{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:13px 18px;border-top:1px solid var(--color-border-subtle)}
+  .btn{font-family:var(--font-inter);font-size:12px;font-weight:600;padding:8px 13px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--color-border-default);background:var(--input-bg);color:var(--color-text-primary);transition:.15s}
+  .btn.ghost{background:transparent;border-color:transparent;color:var(--color-text-secondary)}
+  .btn.pri{border-color:transparent;background:var(--btn-pri-bg);color:var(--btn-pri-fg);box-shadow:var(--btn-pri-glow)}
+
+  /* ===== PromptExpandModal ===== */
+  .pdlg{display:flex;flex-direction:column;height:520px;border-radius:12px;border:1px solid var(--card-border);background:var(--color-bg-elevated);box-shadow:0 24px 60px -22px rgba(0,0,0,.9);overflow:hidden}
+  .ph{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--color-border-subtle)}
+  .ph .pl{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .ph .ptitle{font-family:var(--font-display);font-size:16px;font-weight:600;letter-spacing:-.01em}
+  .ph .pcount{font-family:var(--font-jetbrains-mono);font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-muted)}
+  .ph .pr{display:flex;align-items:center;gap:6px}
+  .savebtn{height:32px;display:inline-flex;align-items:center;gap:6px;border-radius:8px;border:none;cursor:pointer;padding:0 12px;
+    background:var(--btn-pri-bg);color:var(--btn-pri-fg);font-family:var(--font-display);font-size:14px;font-weight:600;box-shadow:var(--btn-pri-glow)}
+  .pxbtn{width:36px;height:36px;border-radius:8px;border:none;background:transparent;color:var(--color-text-muted);cursor:pointer;display:grid;place-items:center}
+  .pxbtn:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+  .pbody{flex:1;display:flex;flex-direction:column;padding:16px;overflow:hidden}
+  .pbody textarea{flex:1;width:100%;resize:none;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);
+    padding:13px 15px;font-family:var(--font-inter);font-size:13px;color:var(--color-text-primary);line-height:1.65;outline:none}
+  .pbody textarea:focus{border-color:color-mix(in srgb,var(--color-primary) 55%,transparent)}
+  .pfoot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;border-top:1px solid var(--color-border-subtle);
+    font-family:var(--font-jetbrains-mono);font-size:10px;letter-spacing:.02em;color:var(--color-text-muted)}
+
+  /* delta */
+  .delta{position:relative;z-index:3;max-width:1180px;margin:0 auto 60px;padding:0 26px}
+  .delta .box{border-radius:14px;border:1px solid var(--color-status-failed-border);background:var(--color-status-failed-bg);padding:18px 20px}
+  .delta h2{font-family:var(--font-display);font-size:15px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .delta .lead{font-size:12px;color:var(--color-text-secondary);margin-bottom:14px}
+  .delta table{width:100%;border-collapse:collapse;font-size:12px}
+  .delta th,.delta td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--color-border-subtle);vertical-align:top;line-height:1.5}
+  .delta th{font-family:var(--font-jetbrains-mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-text-muted)}
+  .delta td b{color:var(--color-text-primary)}
+  .delta .sec{font-family:var(--font-display);font-size:13px;color:var(--color-text-primary);margin:16px 0 6px}
+  .rk{font-family:var(--font-jetbrains-mono);font-size:9px;padding:2px 7px;border-radius:999px;white-space:nowrap}
+  .rk.same{color:var(--color-status-completed-fg);background:var(--color-status-completed-bg);border:1px solid var(--color-status-completed-border)}
+  .rk.low{color:var(--color-status-processing-fg);background:var(--color-status-processing-bg);border:1px solid var(--color-status-processing-border)}
+  .rk.med{color:var(--color-status-starred-fg);background:var(--color-status-starred-bg);border:1px solid var(--color-status-starred-border)}
+  .rk.hi{color:var(--color-status-failed-fg);background:var(--color-status-failed-bg);border:1px solid var(--color-status-failed-border)}
+</style>
+</head>
+<body>
+<div class="pagetop">
+  <div class="brand">
+    <img id="logo" src="assets/logo-dark.png" alt="LumenX">
+    <div class="nm">Lumen<span class="x">X</span> · Generate + PromptExpand</div>
+  </div>
+  <div class="themepick" id="themepick">
+    <span class="tdot on" data-t="atelier-dark" title="Full Atelier"></span>
+    <span class="tdot" data-t="bridge-dark" title="Warm Bridge"></span>
+    <span class="tdot" data-t="brand-dark" title="Brand-True"></span>
+    <span class="tdot" data-t="atelier-light" title="暖亮 Atelier"></span>
+    <span class="tdot" data-t="brand-light" title="品牌亮色"></span>
+  </div>
+</div>
+
+<div class="caption">
+  <h1>智能分镜确认弹窗 + Prompt 展开编辑器</h1>
+  <p>左：<code>StoryboardGenerateDialog</code>（前置检查 + 覆盖警告 + 确认，<u>非</u>批量参数选择器）。右：<code>PromptExpandModal</code>（Cmd/Ctrl+E 全屏编辑单条 prompt，<u>单语</u>；双语润色在 PolishPanel）。</p>
+</div>
+
+<div class="stage">
+  <!-- ===== Generate Dialog ===== -->
+  <div class="col">
+    <h3>① StoryboardGenerateDialog · 全通过 + 已有分镜</h3>
+    <div class="gdlg" role="dialog" aria-label="从剧本生成分镜">
+      <div class="gh">
+        <div class="ti"><svg class="ico" viewBox="0 0 24 24" style="width:15px;height:15px"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>✨ 从剧本生成分镜</div>
+        <button class="gx" aria-label="关闭"><svg class="ico" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <div class="gbody">
+        <div class="ctx">项目：<b>雨夜侦探 · 第 3 话</b></div>
+        <div class="pftitle">前置检查</div>
+        <div class="check pass">
+          <span class="bullet">✓</span>
+          <div><div class="lbl">剧本文本已就绪</div></div>
+        </div>
+        <div class="check pass">
+          <span class="bullet">✓</span>
+          <div><div class="lbl">已抽取实体（角色等）</div></div>
+        </div>
+        <div class="check fail" style="margin-top:2px;display:none">
+          <span class="bullet">!</span>
+          <div><div class="lbl">已抽取实体（角色等）</div><div class="ch">需要先在 Script 步骤点「提取实体」。AI 借助角色/场景信息生成更准确的分镜。</div></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:9px;border-radius:8px;border:1px solid var(--color-status-starred-border);background:var(--color-status-starred-bg);padding:9px 11px">
+          <svg class="ico" viewBox="0 0 24 24" style="color:var(--color-status-starred-fg);flex-shrink:0"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12" y2="17"/></svg>
+          <div style="font-size:12px;color:var(--color-status-starred-fg);line-height:1.5">继续将清空现有的 <b>8</b> 个分镜并用 AI 生成的版本替换。无法撤销。</div>
+        </div>
+      </div>
+      <div class="gfoot">
+        <button class="btn ghost">取消</button>
+        <button class="btn pri"><svg class="ico" viewBox="0 0 24 24"><path d="M15 4V2M15 16v-2M8 9h2M20 9h2M17.8 11.8l1.4 1.4M17.8 6.2l1.4-1.4M12.2 6.2 10.8 4.8M3 21l9-9M12.2 11.8 10.8 13.2"/></svg>重新生成</button>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--color-text-muted);margin-top:12px;line-height:1.6">
+      首次生成态：无警告，仅「✨ 首次生成 — AI 会根据剧本切镜头、配场景、归角色。」+ Confirm 文案「✨ 智能分镜」。<br>
+      检查未过态：失败行变 amber + 出现「去 Script 步骤补充 →」链接，Confirm 禁用。</p>
+  </div>
+
+  <!-- ===== PromptExpand Modal ===== -->
+  <div class="col">
+    <h3>② PromptExpandModal · Cmd/Ctrl+E 全屏编辑</h3>
+    <div class="pdlg" role="dialog" aria-label="编辑描述">
+      <div class="ph">
+        <div class="pl">
+          <span class="ptitle">编辑 Shot 3 的描述</span>
+          <span class="pcount">428 字符</span>
+        </div>
+        <div class="pr">
+          <button class="savebtn" title="保存并关闭 (Cmd/Ctrl + Enter)"><svg class="ico" viewBox="0 0 24 24" style="width:13px;height:13px"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>保存</button>
+          <button class="pxbtn" aria-label="关闭"><svg class="ico" viewBox="0 0 24 24" style="width:14px;height:14px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+      </div>
+      <div class="pbody">
+        <textarea spellcheck="false">雨夜，霓虹招牌在湿漉漉的柏油路上拉出长长的倒影。侦探立于巷口，风衣下摆被夜风掀起，帽檐压低遮住半张脸。镜头从低角度缓缓推近，背景的全息广告牌闪烁着冷蓝色调，雨丝在光束中划出细密的银线。他的右手插在口袋里，左手夹着一支即将熄灭的香烟，烟头的微光映出他紧绷的下颌线。远处传来警笛的回响，在空旷的街区里忽远忽近。</textarea>
+      </div>
+      <div class="pfoot">
+        <span>Esc 关闭 · Cmd/Ctrl+Enter 保存</span>
+        <span>Cmd/Ctrl + E 也能保存</span>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--color-text-muted);margin-top:12px;line-height:1.6">
+      入口：分镜内 prompt 文本框右上角 <svg class="ico" viewBox="0 0 24 24" style="width:11px;height:11px"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg> 图标，或文本框内 Cmd/Ctrl+E。<b>本模态单语，无双语切换</b>——双语在 PolishPanel。</p>
+  </div>
+</div>
+
+<div class="delta">
+  <div class="box">
+    <h2>⚠ 与现状/我先前假设的差异 & 交互风险（落地前必读）</h2>
+    <p class="lead">这两个模态曾被我先前粗略归为「批量参数」「双语展开」，<u>实际并非如此</u>。以下为关键纠偏，风险等级偏高，请重点 Review。</p>
+
+    <div class="sec">StoryboardGenerateDialog</div>
+    <table>
+      <thead><tr><th style="width:20%">维度</th><th style="width:30%">现状（真实组件）</th><th style="width:34%">本补稿处理</th><th style="width:16%">风险</th></tr></thead>
+      <tbody>
+        <tr><td><b>本质纠偏</b></td><td>它是「前置检查 + 覆盖警告 + 确认」弹窗，<u>不暴露 范围/数量/画风/模型 任何参数</u>；真正生成在父级 toast 流跑</td><td>不臆造参数控件；只还原两项检查 + 警告 + 确认</td><td><span class="rk hi">高·纠偏</span></td></tr>
+        <tr><td><b>两项检查</b></td><td>剧本 ≥40 字 / 已抽取实体（&gt;0）。pass 绿、fail amber，fail 带 hint + 「去 Script 步骤补充」</td><td>展示双 pass；表下说明 fail 态与首次态</td><td><span class="rk same">一致</span></td></tr>
+        <tr><td><b>覆盖警告</b></td><td>allPass 且已有分镜&gt;0 才出 amber「清空现有 N 个分镜…无法撤销」</td><td>展示 N=8 覆盖警告；Confirm 文案「重新生成」</td><td><span class="rk low">低</span></td></tr>
+        <tr><td><b>确认即关闭</b></td><td>handleConfirm 先关弹窗再 onConfirm()，<u>弹窗内无 loading</u>，进度走全局 toast + GenerationBanner</td><td>无内置 loading 态；落地须保留此时序</td><td><span class="rk med">需确认</span></td></tr>
+        <tr><td><b>token</b></td><td>backdrop 用 <code>bg-overlay</code>，panel <code>bg-elevated</code>，footer 用 WorkflowActionButton</td><td>backdrop→--color-overlay，panel→--color-bg-elevated，按钮还原 ghost/pri</td><td><span class="rk same">一致</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sec">PromptExpandModal</div>
+    <table>
+      <thead><tr><th style="width:20%">维度</th><th style="width:30%">现状（真实组件）</th><th style="width:34%">本补稿处理</th><th style="width:16%">风险</th></tr></thead>
+      <tbody>
+        <tr><td><b>双语纠偏</b></td><td>本模态<u>单语</u>——只有 1 个 textarea，无语言切换；「双语 CN/EN + Copy/Apply + 再优化」是<u>同级 PolishPanel</u> 的能力</td><td>只画单 textarea + 字符计数；表注明双语归属 PolishPanel</td><td><span class="rk hi">高·纠偏</span></td></tr>
+        <tr><td><b>快捷键</b></td><td>Esc 关闭丢弃草稿；Cmd/Ctrl+Enter 与 Cmd/Ctrl+E 均保存；入口图标 + 文本框 Cmd/Ctrl+E 打开</td><td>页脚双提示 1:1；入口说明在表下</td><td><span class="rk same">一致</span></td></tr>
+        <tr><td><b>标题/计数</b></td><td>标题「编辑 {shot} 的描述」(i18n)，实时「{N} 字符」</td><td>还原「编辑 Shot 3 的描述」+「428 字符」</td><td><span class="rk same">一致</span></td></tr>
+        <tr><td><b>草稿丢弃</b></td><td>本地 draft；Cancel/Esc 丢弃，Save 提交 onSave(next) 回写父级</td><td>静态展示；落地须保留本地草稿语义</td><td><span class="rk low">低</span></td></tr>
+        <tr><td><b>视觉同源</b></td><td>与 CompareModal 同视觉register（#0a0a10 / z-60-61 / compareModalIn）</td><td>沿用同一卡面 token + 阴影；尺寸 800×80vh</td><td><span class="rk same">一致</span></td></tr>
+        <tr><td><b>布局变化</b></td><td>—</td><td>两模态结构、控件、层级 1:1，仅颜色 token 化。<b>无布局重构</b></td><td><span class="rk same">一致</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement,logo=document.getElementById('logo');
+  var LOGO={'atelier-dark':'assets/logo-dark.png','bridge-dark':'assets/logo-dark.png','brand-dark':'assets/logo-dark.png','atelier-light':'assets/logo-light-teal.png','brand-light':'assets/logo-light.png'};
+  document.querySelectorAll('.tdot').forEach(function(d){d.addEventListener('click',function(){
+    var t=d.dataset.t;root.setAttribute('data-theme',t);
+    document.querySelectorAll('.tdot').forEach(function(x){x.classList.remove('on')});d.classList.add('on');logo.src=LOGO[t];
+  });});
+})();
+</script>
+</body>
+</html>

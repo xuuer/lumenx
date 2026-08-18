@@ -1,0 +1,15 @@
+node_modules
+frontend/node_modules
+frontend/.next
+frontend/out
+static/
+output/
+.git
+__pycache__
+*.pyc
+.env
+.DS_Store
+*.spec
+demand/
+.agent/
+.claude/

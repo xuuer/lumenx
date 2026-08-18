@@ -1,0 +1,1080 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Serif+JP:wght@400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Theme: 5-preset token system (Tasty Sam) ───
+   架构：seed (品牌 DNA) → semantic (语义角色) → component (组件级)。
+   命名 100% 对齐组件用的 Tailwind 语义类（bg-surface/text-foreground/...）。
+   默认 :root === atelier-dark。落地选择器用 html.<id>（与 Providers/layout 一致）。
+   每个 block 额外保留 --foreground-rgb / --background-*-rgb（body 渐变在用，
+   tokens.css 未含，故在此补齐）。 */
+
+/* ===== 主题 1 · atelier-dark · Full Atelier（★ 默认）===== */
+:root,
+html.atelier-dark {
+  color-scheme: dark;
+
+  --seed-primary:   #34d8c4;
+  --seed-primary-2: #5ee9d6;
+  --seed-accent:    #ffa94d;
+  --seed-accent-2:  #ffbf73;
+  --seed-ink:       #f2ede4;
+  --seed-base:      #0c0b0e;
+
+  --color-bg-base:     #0c0b0e;
+  --color-bg-surface:  #131116;
+  --color-bg-elevated: #181620;
+  --color-bg-inset:    #0a090c;
+  --color-bg-input:    rgba(0, 0, 0, 0.28);
+  --color-bg-hover:    rgba(255, 255, 255, 0.045);
+  --color-glass:       rgba(255, 255, 255, 0.045);
+  --color-overlay:     rgba(8, 7, 10, 0.8);
+
+  --color-border-default: rgba(255, 255, 255, 0.06);
+  --color-border-subtle:  rgba(255, 255, 255, 0.03);
+
+  --color-text-primary:   #f2ede4;
+  --color-text-secondary: #a8a2b0;
+  --color-text-muted:     #8b8597;
+
+  --color-primary:       var(--seed-primary);
+  --color-primary-hover: var(--seed-primary-2);
+  --color-accent:        var(--seed-accent);
+  --color-accent-hover:  var(--seed-accent-2);
+  --color-on-accent:     #0c0b0e;
+  --color-on-warm:       oklch(0.18 0.01 280);
+
+  /* body 渐变（保留现有机制，tokens.css 未含）*/
+  --foreground-rgb:      242, 237, 228;
+  --background-start-rgb: 12, 11, 14;
+  --background-end-rgb:   12, 11, 14;
+
+  --color-status-pending-fg:     oklch(0.85 0.13 230);
+  --color-status-pending-border: oklch(0.75 0.16 230 / 0.45);
+  --color-status-pending-bg:     oklch(0.75 0.16 230 / 0.10);
+  --color-status-processing-fg:     oklch(0.88 0.16 80);
+  --color-status-processing-border: oklch(0.78 0.18 80 / 0.45);
+  --color-status-processing-bg:     oklch(0.78 0.18 80 / 0.10);
+  --color-status-completed-fg:     oklch(0.85 0.15 175);
+  --color-status-completed-border: oklch(0.78 0.16 175 / 0.45);
+  --color-status-completed-bg:     oklch(0.78 0.16 175 / 0.10);
+  --color-status-failed-fg:     oklch(0.78 0.20 25);
+  --color-status-failed-border: oklch(0.68 0.21 25 / 0.45);
+  --color-status-failed-bg:     oklch(0.68 0.21 25 / 0.10);
+  --color-status-starred-fg:     oklch(0.90 0.15 70);
+  --color-status-starred-border: oklch(0.82 0.16 70 / 0.55);
+  --color-status-starred-bg:     oklch(0.82 0.16 70 / 0.18);
+  --color-status-starred-solid:  oklch(0.82 0.16 70);
+
+  --glow-primary: 0 0 0 1px rgba(52, 216, 196, 0.30), 0 0 24px -6px rgba(52, 216, 196, 0.45);
+  --glow-accent:  0 0 0 1px rgba(255, 169, 77, 0.35), 0 0 28px -6px rgba(255, 169, 77, 0.50);
+  --halation:     inset 0 0 42px -8px rgba(255, 169, 77, 0.27);
+  --bloom:        radial-gradient(60% 50% at 18% 0%, rgba(52, 216, 196, 0.10), transparent 70%),
+                  radial-gradient(55% 45% at 88% 100%, rgba(255, 169, 77, 0.08), transparent 70%);
+  --grain-op: 0.08;
+
+  --font-inter:          'Space Grotesk', sans-serif;
+  --font-jetbrains-mono: 'JetBrains Mono', monospace;
+  --font-space-grotesk:  'Space Grotesk', sans-serif;
+  --font-display:        'Fraunces', Georgia, serif;
+
+  --card-bg:      var(--color-bg-surface);
+  --card-border:  var(--color-border-default);
+  --card-radius:  14px;
+  --btn-pri-bg:   var(--color-primary);
+  --btn-pri-fg:   var(--color-on-accent);
+  --btn-pri-glow: var(--glow-primary);
+  --input-bg:     var(--color-bg-input);
+  --input-border: var(--color-border-default);
+  --sidebar-bg:   var(--color-bg-inset);
+  --logo-filter:  hue-rotate(-64deg) saturate(1.35) brightness(1.08);
+}
+
+/* ===== 主题 2 · bridge-dark · Warm Bridge ===== */
+html.bridge-dark {
+  color-scheme: dark;
+
+  --seed-primary:   #646cff;
+  --seed-primary-2: #7d84ff;
+  --seed-accent:    #ffa94d;
+  --seed-accent-2:  #ffbf73;
+  --seed-ink:       #ece9e6;
+  --seed-base:      #0a0a0d;
+
+  --color-bg-base:     #0a0a0d;
+  --color-bg-surface:  #141318;
+  --color-bg-elevated: #1a1820;
+  --color-bg-inset:    #060608;
+  --color-bg-input:    rgba(0, 0, 0, 0.28);
+  --color-bg-hover:    rgba(255, 255, 255, 0.045);
+  --color-glass:       rgba(255, 255, 255, 0.045);
+  --color-overlay:     rgba(6, 6, 8, 0.8);
+
+  --color-border-default: rgba(255, 255, 255, 0.07);
+  --color-border-subtle:  rgba(255, 255, 255, 0.035);
+
+  --color-text-primary:   #ece9e6;
+  --color-text-secondary: #a4a0a8;
+  --color-text-muted:     #6f6b74;
+
+  --color-primary:       var(--seed-primary);
+  --color-primary-hover: var(--seed-primary-2);
+  --color-accent:        var(--seed-accent);
+  --color-accent-hover:  var(--seed-accent-2);
+  --color-on-accent:     #0a0a0d;
+  --color-on-warm:       oklch(0.18 0.01 280);
+
+  --foreground-rgb:      236, 233, 230;
+  --background-start-rgb: 10, 10, 13;
+  --background-end-rgb:   10, 10, 13;
+
+  --color-status-pending-fg:     oklch(0.85 0.13 230);
+  --color-status-pending-border: oklch(0.75 0.16 230 / 0.45);
+  --color-status-pending-bg:     oklch(0.75 0.16 230 / 0.10);
+  --color-status-processing-fg:     oklch(0.88 0.16 80);
+  --color-status-processing-border: oklch(0.78 0.18 80 / 0.45);
+  --color-status-processing-bg:     oklch(0.78 0.18 80 / 0.10);
+  --color-status-completed-fg:     oklch(0.82 0.14 250);
+  --color-status-completed-border: oklch(0.75 0.16 250 / 0.45);
+  --color-status-completed-bg:     oklch(0.75 0.16 250 / 0.10);
+  --color-status-failed-fg:     oklch(0.78 0.20 25);
+  --color-status-failed-border: oklch(0.68 0.21 25 / 0.45);
+  --color-status-failed-bg:     oklch(0.68 0.21 25 / 0.10);
+  --color-status-starred-fg:     oklch(0.88 0.15 75);
+  --color-status-starred-border: oklch(0.82 0.16 75 / 0.55);
+  --color-status-starred-bg:     oklch(0.82 0.16 75 / 0.18);
+  --color-status-starred-solid:  oklch(0.82 0.16 75);
+
+  --glow-primary: 0 0 0 1px rgba(100, 108, 255, 0.30), 0 0 24px -6px rgba(100, 108, 255, 0.50);
+  --glow-accent:  0 0 0 1px rgba(255, 169, 77, 0.35), 0 0 28px -6px rgba(255, 169, 77, 0.50);
+  --halation:     inset 0 0 42px -8px rgba(255, 169, 77, 0.27);
+  --bloom:        radial-gradient(60% 50% at 18% 0%, rgba(100, 108, 255, 0.09), transparent 70%),
+                  radial-gradient(55% 45% at 88% 100%, rgba(255, 169, 77, 0.08), transparent 70%);
+  --grain-op: 0.045;
+
+  --font-inter:          'Inter', sans-serif;
+  --font-jetbrains-mono: 'JetBrains Mono', monospace;
+  --font-space-grotesk:  'Space Grotesk', sans-serif;
+  --font-display:        'Space Grotesk', sans-serif;
+
+  --card-bg:      var(--color-bg-surface);
+  --card-border:  var(--color-border-default);
+  --card-radius:  14px;
+  --btn-pri-bg:   var(--color-primary);
+  --btn-pri-fg:   #ffffff;
+  --btn-pri-glow: var(--glow-primary);
+  --input-bg:     var(--color-bg-input);
+  --input-border: var(--color-border-default);
+  --sidebar-bg:   var(--color-bg-inset);
+  --logo-filter:  none;
+}
+
+/* ===== 主题 3 · brand-dark · Brand-True（原产品基线配色）===== */
+html.brand-dark {
+  color-scheme: dark;
+
+  --seed-primary:   #646cff;
+  --seed-primary-2: #7d84ff;
+  --seed-accent:    #ff0080;
+  --seed-accent-2:  #ff3399;
+  --seed-ink:       #ededed;
+  --seed-base:      #050508;
+
+  --color-bg-base:     #050508;
+  --color-bg-surface:  #101015;
+  --color-bg-elevated: #16161c;
+  --color-bg-inset:    #000003;
+  --color-bg-input:    rgba(0, 0, 0, 0.3);
+  --color-bg-hover:    rgba(255, 255, 255, 0.05);
+  --color-glass:       rgba(255, 255, 255, 0.05);
+  --color-overlay:     rgba(0, 0, 0, 0.8);
+
+  --color-border-default: rgba(255, 255, 255, 0.08);
+  --color-border-subtle:  rgba(255, 255, 255, 0.04);
+
+  --color-text-primary:   #ededed;
+  --color-text-secondary: #9ca3af;
+  --color-text-muted:     #6b7280;
+
+  --color-primary:       var(--seed-primary);
+  --color-primary-hover: var(--seed-primary-2);
+  --color-accent:        var(--seed-accent);
+  --color-accent-hover:  var(--seed-accent-2);
+  --color-on-accent:     #0a0a0f;
+  --color-on-warm:       oklch(0.18 0.01 280);
+
+  --foreground-rgb:      237, 237, 237;
+  --background-start-rgb: 5, 5, 8;
+  --background-end-rgb:   5, 5, 8;
+
+  --color-status-pending-fg:     oklch(0.85 0.13 230);
+  --color-status-pending-border: oklch(0.75 0.16 230 / 0.45);
+  --color-status-pending-bg:     oklch(0.75 0.16 230 / 0.10);
+  --color-status-processing-fg:     oklch(0.88 0.16 80);
+  --color-status-processing-border: oklch(0.78 0.18 80 / 0.45);
+  --color-status-processing-bg:     oklch(0.78 0.18 80 / 0.10);
+  --color-status-completed-fg:     oklch(0.88 0.16 155);
+  --color-status-completed-border: oklch(0.78 0.18 155 / 0.45);
+  --color-status-completed-bg:     oklch(0.78 0.18 155 / 0.10);
+  --color-status-failed-fg:     oklch(0.78 0.20 25);
+  --color-status-failed-border: oklch(0.68 0.21 25 / 0.45);
+  --color-status-failed-bg:     oklch(0.68 0.21 25 / 0.10);
+  --color-status-starred-fg:     oklch(0.72 0.21 350);
+  --color-status-starred-border: oklch(0.65 0.22 350 / 0.55);
+  --color-status-starred-bg:     oklch(0.65 0.22 350 / 0.18);
+  --color-status-starred-solid:  oklch(0.65 0.22 350);
+
+  --glow-primary: 0 0 0 1px rgba(100, 108, 255, 0.30), 0 0 24px -6px rgba(100, 108, 255, 0.50);
+  --glow-accent:  0 0 0 1px rgba(255, 0, 128, 0.35), 0 0 26px -6px rgba(255, 0, 128, 0.50);
+  --halation:     inset 0 0 42px -8px rgba(255, 0, 128, 0.28);
+  --bloom:        radial-gradient(60% 50% at 18% 0%, rgba(100, 108, 255, 0.10), transparent 70%),
+                  radial-gradient(55% 45% at 88% 100%, rgba(255, 0, 128, 0.07), transparent 70%);
+  --grain-op: 0.04;
+
+  --font-inter:          'Inter', sans-serif;
+  --font-jetbrains-mono: 'JetBrains Mono', monospace;
+  --font-space-grotesk:  'Space Grotesk', sans-serif;
+  --font-display:        'Space Grotesk', sans-serif;
+
+  --card-bg:      var(--color-bg-surface);
+  --card-border:  var(--color-border-default);
+  --card-radius:  12px;
+  --btn-pri-bg:   var(--color-primary);
+  --btn-pri-fg:   #ffffff;
+  --btn-pri-glow: var(--glow-primary);
+  --input-bg:     var(--color-bg-input);
+  --input-border: var(--color-border-default);
+  --sidebar-bg:   var(--color-bg-inset);
+  --logo-filter:  none;
+}
+
+/* ===== 主题 4 · atelier-light · 暖亮 Atelier ===== */
+html.atelier-light {
+  color-scheme: light;
+
+  --seed-primary:   #1d9c8d;
+  --seed-primary-2: #148376;
+  --seed-accent:    #e8852b;
+  --seed-accent-2:  #cf7320;
+  --seed-ink:       #241f1a;
+  --seed-base:      #f6f1e9;
+
+  --color-bg-base:     #f6f1e9;
+  --color-bg-surface:  #fffdf9;
+  --color-bg-elevated: #ffffff;
+  --color-bg-inset:    #efe8dc;
+  --color-bg-input:    #f1ebe1;
+  --color-bg-hover:    rgba(36, 31, 26, 0.04);
+  --color-glass:       rgba(255, 255, 255, 0.55);
+  --color-overlay:     rgba(36, 31, 26, 0.25);
+
+  --color-border-default: rgba(36, 31, 26, 0.12);
+  --color-border-subtle:  rgba(36, 31, 26, 0.07);
+
+  --color-text-primary:   #241f1a;
+  --color-text-secondary: #5d564d;
+  --color-text-muted:     #8b8377;
+
+  --color-primary:       var(--seed-primary);
+  --color-primary-hover: var(--seed-primary-2);
+  --color-accent:        var(--seed-accent);
+  --color-accent-hover:  var(--seed-accent-2);
+  --color-on-accent:     #fffdf9;
+  --color-on-warm:       oklch(0.99 0 0);
+
+  --foreground-rgb:      36, 31, 26;
+  --background-start-rgb: 246, 241, 233;
+  --background-end-rgb:   246, 241, 233;
+
+  --color-status-pending-fg:     oklch(0.45 0.18 230);
+  --color-status-pending-border: oklch(0.62 0.17 230 / 0.50);
+  --color-status-pending-bg:     oklch(0.85 0.10 230 / 0.40);
+  --color-status-processing-fg:     oklch(0.48 0.18 70);
+  --color-status-processing-border: oklch(0.62 0.18 70 / 0.50);
+  --color-status-processing-bg:     oklch(0.88 0.10 70 / 0.45);
+  --color-status-completed-fg:     oklch(0.45 0.13 175);
+  --color-status-completed-border: oklch(0.58 0.15 175 / 0.50);
+  --color-status-completed-bg:     oklch(0.86 0.09 175 / 0.45);
+  --color-status-failed-fg:     oklch(0.48 0.21 25);
+  --color-status-failed-border: oklch(0.60 0.21 25 / 0.55);
+  --color-status-failed-bg:     oklch(0.88 0.10 25 / 0.40);
+  --color-status-starred-fg:     oklch(0.50 0.15 60);
+  --color-status-starred-border: oklch(0.62 0.16 60 / 0.60);
+  --color-status-starred-bg:     oklch(0.86 0.12 65 / 0.55);
+  --color-status-starred-solid:  oklch(0.62 0.16 60);
+
+  --glow-primary: 0 0 0 1px rgba(29, 156, 141, 0.28), 0 6px 20px -8px rgba(29, 156, 141, 0.35);
+  --glow-accent:  0 0 0 1px rgba(232, 133, 43, 0.30), 0 6px 22px -8px rgba(232, 133, 43, 0.35);
+  --halation:     inset 0 0 36px -10px rgba(232, 133, 43, 0.18);
+  --bloom:        radial-gradient(60% 50% at 18% 0%, rgba(29, 156, 141, 0.06), transparent 70%),
+                  radial-gradient(55% 45% at 88% 100%, rgba(232, 133, 43, 0.05), transparent 70%);
+  --grain-op: 0.025;
+
+  --font-inter:          'Inter', sans-serif;
+  --font-jetbrains-mono: 'JetBrains Mono', monospace;
+  --font-space-grotesk:  'Space Grotesk', sans-serif;
+  --font-display:        'Fraunces', Georgia, serif;
+
+  --card-bg:      var(--color-bg-surface);
+  --card-border:  var(--color-border-default);
+  --card-radius:  14px;
+  --btn-pri-bg:   var(--color-primary);
+  --btn-pri-fg:   #fffdf9;
+  --btn-pri-glow: var(--glow-primary);
+  --input-bg:     var(--color-bg-input);
+  --input-border: var(--color-border-default);
+  --sidebar-bg:   var(--color-bg-inset);
+  --logo-filter:  none;
+}
+
+/* ===== 主题 5 · brand-light · 品牌亮色 ===== */
+html.brand-light {
+  color-scheme: light;
+
+  --seed-primary:   #646cff;
+  --seed-primary-2: #535bf2;
+  --seed-accent:    #ff0080;
+  --seed-accent-2:  #e60073;
+  --seed-ink:       #1a1a1a;
+  --seed-base:      #f8f9fa;
+
+  --color-bg-base:     #f8f9fa;
+  --color-bg-surface:  #ffffff;
+  --color-bg-elevated: #ffffff;
+  --color-bg-inset:    rgba(0, 0, 0, 0.02);
+  --color-bg-input:    #f1f3f5;
+  --color-bg-hover:    rgba(0, 0, 0, 0.04);
+  --color-glass:       rgba(0, 0, 0, 0.03);
+  --color-overlay:     rgba(0, 0, 0, 0.2);
+
+  --color-border-default: rgba(0, 0, 0, 0.1);
+  --color-border-subtle:  rgba(0, 0, 0, 0.06);
+
+  --color-text-primary:   #1a1a1a;
+  --color-text-secondary: #6b7280;
+  --color-text-muted:     #9ca3af;
+
+  --color-primary:       var(--seed-primary);
+  --color-primary-hover: var(--seed-primary-2);
+  --color-accent:        var(--seed-accent);
+  --color-accent-hover:  var(--seed-accent-2);
+  --color-on-accent:     #ffffff;
+  --color-on-warm:       oklch(0.20 0.02 280);
+
+  --foreground-rgb:      26, 26, 26;
+  --background-start-rgb: 248, 249, 250;
+  --background-end-rgb:   248, 249, 250;
+
+  --color-status-pending-fg:     oklch(0.45 0.18 230);
+  --color-status-pending-border: oklch(0.65 0.17 230 / 0.50);
+  --color-status-pending-bg:     oklch(0.85 0.10 230 / 0.40);
+  --color-status-processing-fg:     oklch(0.50 0.18 80);
+  --color-status-processing-border: oklch(0.65 0.18 80 / 0.50);
+  --color-status-processing-bg:     oklch(0.88 0.10 80 / 0.45);
+  --color-status-completed-fg:     oklch(0.45 0.18 155);
+  --color-status-completed-border: oklch(0.62 0.18 155 / 0.50);
+  --color-status-completed-bg:     oklch(0.88 0.10 155 / 0.45);
+  --color-status-failed-fg:     oklch(0.45 0.21 25);
+  --color-status-failed-border: oklch(0.60 0.21 25 / 0.55);
+  --color-status-failed-bg:     oklch(0.88 0.10 25 / 0.40);
+  --color-status-starred-fg:     oklch(0.45 0.16 80);
+  --color-status-starred-border: oklch(0.65 0.17 85 / 0.60);
+  --color-status-starred-bg:     oklch(0.88 0.12 88 / 0.55);
+  --color-status-starred-solid:  oklch(0.75 0.16 88);
+
+  --glow-primary: 0 0 0 1px rgba(100, 108, 255, 0.25), 0 6px 20px -8px rgba(100, 108, 255, 0.30);
+  --glow-accent:  0 0 0 1px rgba(255, 0, 128, 0.28), 0 6px 22px -8px rgba(255, 0, 128, 0.30);
+  --halation:     inset 0 0 36px -10px rgba(255, 0, 128, 0.12);
+  --bloom:        radial-gradient(60% 50% at 18% 0%, rgba(100, 108, 255, 0.05), transparent 70%),
+                  radial-gradient(55% 45% at 88% 100%, rgba(255, 0, 128, 0.04), transparent 70%);
+  --grain-op: 0.02;
+
+  --font-inter:          'Inter', sans-serif;
+  --font-jetbrains-mono: 'JetBrains Mono', monospace;
+  --font-space-grotesk:  'Space Grotesk', sans-serif;
+  --font-display:        'Space Grotesk', sans-serif;
+
+  --card-bg:      var(--color-bg-surface);
+  --card-border:  var(--color-border-default);
+  --card-radius:  12px;
+  --btn-pri-bg:   var(--color-primary);
+  --btn-pri-fg:   #ffffff;
+  --btn-pri-glow: var(--glow-primary);
+  --input-bg:     var(--color-bg-input);
+  --input-border: var(--color-border-default);
+  --sidebar-bg:   var(--color-bg-inset);
+  --logo-filter:  none;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+  overflow: hidden;
+  /* Prevent scrolling on the main body, we want an app-like feel */
+}
+
+/* ─── Atelier scrollbar — thin, graphite, recedes into the dark ───
+   Mirrors the Line B mockup (tokens.css). Falls back to the graphite-700/600
+   hex if the primitive scale isn't defined as a CSS var in this theme. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--p-graphite-700, #292430);
+  border-radius: 8px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--p-graphite-600, #38323f);
+  background-clip: padding-box; /* shorthand above resets clip → re-assert inset */
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+/* Firefox — both properties inherit, so html cascades to every scroll region */
+html {
+  /* T11 global type-scale knob — responsive scaling.
+     Desktop app windows (≤1440px) get a tighter scale (87.5% = 14px) to
+     maximise usable area; full browser viewports keep 100% (16px).
+     Single source of truth for app-wide font scaling — every rem-based
+     token scales off this. */
+  font-size: 87.5%;
+  scrollbar-width: thin;
+  scrollbar-color: var(--p-graphite-700, #292430) transparent;
+}
+@media (min-width: 1440px) {
+  html {
+    font-size: 100%;
+  }
+}
+@media (min-width: 1920px) {
+  html {
+    font-size: 112.5%;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .glass-panel {
+    @apply bg-glass backdrop-blur-md border border-glass-border;
+  }
+
+  .glass-input {
+    @apply bg-input-bg backdrop-blur-sm border border-glass-border rounded-md px-3 py-2 focus:outline-none transition-colors;
+  }
+  /* primary/50 alpha can't be resolved inside @apply for a var() color
+     (Tailwind 3.4 limitation); express the focus border directly. */
+  .glass-input:focus {
+    border-color: color-mix(in srgb, var(--color-primary) 50%, transparent);
+  }
+
+  .glass-button {
+    @apply bg-hover-bg hover:bg-glass backdrop-blur-sm border border-glass-border rounded-md px-4 py-2 transition-all active:scale-95;
+  }
+}
+
+/* Fast tooltip via data-tip attribute — zero extra DOM, ~200ms delay */
+.btn-tip {
+  position: relative;
+}
+.btn-tip::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-default);
+  color: var(--color-text-secondary);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  transition-delay: 0s;
+  z-index: 50;
+}
+.btn-tip:hover::after {
+  opacity: 1;
+  transition-delay: 0.25s;
+}
+
+/* ─── Storyboard R2V workbench keyframes ─── */
+/* Subtle warm pulse for the in-flight count badge in TaskQueueButton.
+   Goal: signal "something's happening over there" without dragging
+   attention away from the user's current shot. */
+@keyframes badgePulse {
+  0%   { box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 0  8px -2px var(--color-status-starred-bg); }
+  50%  { box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 0 14px  0   var(--color-status-starred-border); }
+  100% { box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 0  8px -2px var(--color-status-starred-bg); }
+}
+
+/* CompareModal entry — fade + tiny scale-up. ease-out-quart curve
+   inlined here (Tailwind class would also work but the keyframe
+   keeps everything in one place). */
+@keyframes compareModalIn {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.96); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* TaskQueuePanel slide-in from the right edge when the user opens
+   the queue. Pushes layout (not overlay) so the main column reflows
+   alongside; the keyframe just animates the panel's own entry. */
+@keyframes queuePanelIn {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ShotPanel mount — workbench panels under each shot fade + drop
+   into place when added so users can track the spatial change. */
+@keyframes shotPanelIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* TaskQueuePanel backdrop fade — only renders below xl when the panel
+   becomes an overlay. The backdrop dimming gives the panel its modal
+   register without needing a portal. */
+@keyframes fadeInBackdrop {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* LightboxProvider entrance — backdrop fade + media scale-in.
+   Matches CompareModal's spring feel without the spring physics. */
+@keyframes lightboxFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes lightboxScaleIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Respect reduced-motion preference: kill all custom animations.
+   The above transitions still apply (CSS transitions on hover etc
+   are kept), but the orchestrated entrance keyframes go away for
+   users who asked for no motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* In-app reduce-motion toggle (Settings → 通用 → 动效). Mounted by
+   Providers as html.no-motion. Mirrors the prefers-reduced-motion
+   behavior so users can opt out regardless of OS preference. */
+html.no-motion *,
+html.no-motion *::before,
+html.no-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   Atelier signature utilities — Tasty Sam / Line B
+   ────────────────────────────────────────────────────────────────────
+   Opt-in classes that components apply alongside their existing
+   glass-panel / container styles. They are INERT by default; only
+   `html.atelier-dark` and `html.atelier-light` activate the visual
+   signature (frameless float, halation, film grain, bloom, serif).
+   bridge-dark / brand-dark / brand-light see ZERO change.
+   Variables used (--halation, --bloom, --grain-op, --color-border-*,
+   --card-radius, --font-display) are already defined per-theme above.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* .atelier-card — opt-in "frameless float" override.
+   Pair with existing glass-panel: <div class="glass-panel atelier-card">.
+   On non-atelier themes this rule is a no-op. On atelier themes the
+   card softens its border and gains halation + a soft drop-shadow,
+   so the chrome recedes and content reads as floating. */
+html.atelier-dark .atelier-card,
+html.atelier-light .atelier-card {
+  /* Line B glass panel — translucent warm-graphite surface + blur so the
+     page teal/amber bloom reads through as atmosphere. ~82% opacity + blur
+     keeps text crisp and prevents the green-murk bleed-through. */
+  background: color-mix(in oklab, var(--color-bg-surface) 82%, transparent);
+  backdrop-filter: blur(20px) saturate(1.15);
+  -webkit-backdrop-filter: blur(20px) saturate(1.15);
+  border-color: var(--color-border-subtle);
+  /* Clean ambient elevation (mockup --shadow-rest) — light, not a box. */
+  box-shadow:
+    0 4px 24px -6px rgba(0, 0, 0, 0.45),
+    0 1px 0 0 rgba(255, 255, 255, 0.05) inset;
+  border-radius: 20px;
+}
+html.atelier-light .atelier-card {
+  background: color-mix(in oklab, var(--color-bg-surface) 80%, transparent);
+  box-shadow:
+    0 4px 22px -6px rgba(60, 40, 20, 0.16),
+    0 1px 0 0 rgba(255, 255, 255, 0.8) inset;
+}
+
+/* .atelier-page-bloom — fixed double-corner bloom layer. Render once
+   near the top of a page (a sibling div with this class). Pointer-events
+   none so it never intercepts clicks. Inert outside atelier themes. */
+.atelier-page-bloom { display: none; }
+html.atelier-dark .atelier-page-bloom,
+html.atelier-light .atelier-page-bloom {
+  display: block;
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: var(--bloom);
+}
+
+/* .atelier-page-grain — fixed film-grain overlay. Inline SVG so no
+   extra binary asset. Opacity tracks --grain-op per theme. */
+.atelier-page-grain { display: none; }
+html.atelier-dark .atelier-page-grain,
+html.atelier-light .atelier-page-grain {
+  display: block;
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: var(--grain-op, 0.04);
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size: 180px 180px;
+}
+html.atelier-light .atelier-page-grain {
+  mix-blend-mode: multiply;
+}
+
+/* .atelier-display — opt-in serif accent for "author voice" moments
+   (empty-state titles, hero subtitles, signature copy). var(--font-display)
+   resolves to Fraunces on atelier and Space Grotesk on others, so this
+   class is the explicit knob to mark a moment as editorial. The extra
+   tracking + ss features only apply on atelier so non-atelier renders
+   stay identical to current Space Grotesk styling. */
+html.atelier-dark .atelier-display,
+html.atelier-light .atelier-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.015em;
+  font-feature-settings: "ss01", "ss02";
+  text-transform: none;
+}
+
+/* Slogan-style overlay: when font-mono + atelier-display sit together
+   (LumenXBranding's "Render Noise into Narrative"), bump the size and
+   slightly relax tracking so Fraunces stays legible at small mass.
+   This rule is doubly-scoped (both class names + atelier theme) so it
+   only fires on the brand slogan and only on atelier. */
+html.atelier-dark .font-mono.atelier-display,
+html.atelier-light .font-mono.atelier-display {
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  font-style: italic;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   Atelier signature — settings refinement layer (additive, opt-in)
+   ────────────────────────────────────────────────────────────────────
+   Three extra opt-in classes used by the Settings surface to close the
+   gap with the Line B (Luminous Atelier) mockup. All rules are scoped
+   to html.atelier-dark / html.atelier-light, so bridge-dark / brand-dark
+   / brand-light render IDENTICALLY to before (zero leak).
+   ════════════════════════════════════════════════════════════════════ */
+
+/* .atelier-card-head — warm halation wash on a SectionCard header so the
+   card reads as a softly-lit editorial panel rather than a flat chrome bar.
+   Pair with the existing header container. Inert outside atelier themes. */
+html.atelier-dark .atelier-card-head,
+html.atelier-light .atelier-card-head {
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(255, 169, 77, 0.06), transparent 60%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent);
+  border-bottom-color: var(--color-border-subtle);
+}
+html.atelier-light .atelier-card-head {
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(255, 169, 77, 0.10), transparent 60%),
+    linear-gradient(180deg, rgba(60, 40, 20, 0.02), transparent);
+}
+
+/* .atelier-field — wrapper class that gives an inner input/select the
+   mockup's teal focus-ring glow + softened rest border. Applied to the
+   control wrapper; targets the focused descendant input/select. */
+html.atelier-dark .atelier-field input,
+html.atelier-light .atelier-field input,
+html.atelier-dark .atelier-field select,
+html.atelier-light .atelier-field select {
+  border-color: var(--color-border-subtle);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+html.atelier-dark .atelier-field input:focus,
+html.atelier-light .atelier-field input:focus,
+html.atelier-dark .atelier-field select:focus,
+html.atelier-light .atelier-field select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(52, 216, 196, 0.14), var(--halation);
+}
+
+/* .atelier-eyebrow-accent — on atelier themes the section eyebrow number
+   glows in the amber accent (signature halation hue) instead of the cyber
+   primary blue, tying the numbering to the warm Atelier palette. */
+html.atelier-dark .atelier-eyebrow-accent,
+html.atelier-light .atelier-eyebrow-accent {
+  color: var(--color-accent);
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   Atelier signature — workspace & library layer (additive, opt-in)
+   ────────────────────────────────────────────────────────────────────
+   Scoped to atelier themes only; zero-leak to bridge-dark / brand-*.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* .atelier-proj-card — project gallery card with frameless float + reveal. */
+html.atelier-dark .atelier-proj-card,
+html.atelier-light .atelier-proj-card {
+  background: color-mix(in oklab, var(--color-bg-surface) 82%, transparent);
+  backdrop-filter: blur(20px) saturate(1.15);
+  -webkit-backdrop-filter: blur(20px) saturate(1.15);
+  border-color: var(--color-border-subtle);
+  border-radius: 20px;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.40),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.25s ease-out;
+}
+html.atelier-dark .atelier-proj-card:hover,
+html.atelier-light .atelier-proj-card:hover {
+  transform: translateY(-5px);
+  box-shadow:
+    0 12px 36px -8px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+html.atelier-light .atelier-proj-card {
+  background: color-mix(in oklab, var(--color-bg-surface) 80%, transparent);
+  box-shadow:
+    0 2px 8px rgba(60, 40, 20, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+/* .atelier-proj-featured — starred project signature. The cyan "completed"
+   outer ring is gone (T13): featured now == user-starred, expressed as the
+   amber --halation laid over the thumbnail (.atelier-proj-halation) plus a
+   quiet warm border tint here at the card level. One warm highlight per card. */
+html.atelier-dark .atelier-proj-featured,
+html.atelier-light .atelier-proj-featured {
+  border-color: var(--color-status-starred-border);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.40),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* .atelier-proj-halation — amber inset halation painted over a starred
+   project's thumbnail (sits above the cover image, below badge/title). Uses
+   the theme --halation token so it re-tints correctly per theme. */
+.atelier-proj-halation {
+  box-shadow: var(--halation);
+}
+
+/* .atelier-asset-card — library asset tile with squared subtle radius. */
+html.atelier-dark .atelier-asset-card,
+html.atelier-light .atelier-asset-card {
+  background: color-mix(in oklab, var(--color-bg-surface) 82%, transparent);
+  backdrop-filter: blur(16px) saturate(1.1);
+  -webkit-backdrop-filter: blur(16px) saturate(1.1);
+  border-color: var(--color-border-subtle);
+  border-radius: 16px;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.22s ease-out;
+}
+html.atelier-dark .atelier-asset-card:hover,
+html.atelier-light .atelier-asset-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 8px 28px -6px rgba(0, 0, 0, 0.50),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+html.atelier-light .atelier-asset-card {
+  background: color-mix(in oklab, var(--color-bg-surface) 78%, transparent);
+  box-shadow:
+    0 2px 8px rgba(60, 40, 20, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+/* .atelier-pill-tabs — inset pill-tab bar with soft bg. */
+html.atelier-dark .atelier-pill-tabs,
+html.atelier-light .atelier-pill-tabs {
+  background: var(--color-bg-inset);
+  border-radius: 999px;
+  padding: 3px;
+}
+html.atelier-dark .atelier-pill-tab-active,
+html.atelier-light .atelier-pill-tab-active {
+  background: var(--color-bg-surface);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.40),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  border-radius: 999px;
+}
+
+/* .atelier-group-line — the thin rule that trails after a group heading. */
+html.atelier-dark .atelier-group-line,
+html.atelier-light .atelier-group-line {
+  height: 1px;
+  background: var(--color-border-subtle);
+  flex: 1;
+}
+
+/* .atelier-search-input — pill-shaped search with focus teal ring. */
+html.atelier-dark .atelier-search-input,
+html.atelier-light .atelier-search-input {
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 999px;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+html.atelier-dark .atelier-search-input:focus-within,
+html.atelier-light .atelier-search-input:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(52, 216, 196, 0.12);
+}
+
+/* .atelier-badge — status pills from workspace mockup. */
+html.atelier-dark .atelier-badge,
+html.atelier-light .atelier-badge {
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: 999px;
+  font-family: var(--font-jetbrains-mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Reveal stagger animation for grid children (atelier only). */
+@keyframes atelierReveal {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+html.atelier-dark .atelier-reveal,
+html.atelier-light .atelier-reveal {
+  animation: atelierReveal 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+/* .atelier-new-tile — dashed "add project" tile with spring lift + teal hover. */
+html.atelier-dark .atelier-new-tile,
+html.atelier-light .atelier-new-tile {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+              border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+html.atelier-dark .atelier-new-tile:hover,
+html.atelier-light .atelier-new-tile:hover {
+  transform: translateY(-3px);
+  background: rgba(52, 216, 196, 0.04);
+}
+html.atelier-dark .atelier-new-tile:hover > span:first-child,
+html.atelier-light .atelier-new-tile:hover > span:first-child {
+  box-shadow: var(--glow-primary);
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   Script Editor Format Engine — CSS Variable System
+   ────────────────────────────────────────────────────────────────────
+   Two-dimensional system: format × rendering.
+   Container: .script-editor[data-format][data-rendering]
+   ════════════════════════════════════════════════════════════════════ */
+
+.script-editor {
+  --script-font-family: 'Courier Prime', 'Courier New', monospace;
+  --script-font-size: 12pt;
+  --script-line-height: 1.0;
+  --script-page-width: 8.5in;
+  --script-margin-left: 1.5in;
+  --script-margin-right: 1in;
+}
+
+/* Latin/Hollywood rendering */
+.script-editor[data-rendering="latin"] {
+  --script-font-family: 'Courier Prime', 'Courier New', monospace;
+  --script-font-size: 12pt;
+  --script-line-height: 1.0;
+}
+
+/* CJK Chinese rendering */
+.script-editor[data-rendering="cjk_zh"] {
+  --script-font-family: 'Noto Serif SC', 'SimSun', 'STSong', serif;
+  --script-font-size: 12pt;
+  --script-line-height: 1.6;
+}
+
+/* CJK Japanese rendering */
+.script-editor[data-rendering="cjk_ja"] {
+  --script-font-family: 'Noto Serif JP', 'Yu Mincho', serif;
+  --script-font-size: 10.5pt;
+  --script-line-height: 1.7;
+}
+
+/* Apply variables to ProseMirror content */
+.script-editor .ProseMirror {
+  font-family: var(--script-font-family);
+  font-size: var(--script-font-size);
+  line-height: var(--script-line-height);
+}
+
+/* === Format-specific indentation === */
+
+/* Hollywood format */
+.script-editor[data-format="hollywood"] .ProseMirror .scene-heading {
+  text-transform: uppercase;
+  font-weight: bold;
+}
+.script-editor[data-format="hollywood"] .ProseMirror .character-cue {
+  margin-left: 3.7in;
+  text-transform: uppercase;
+}
+.script-editor[data-format="hollywood"] .ProseMirror .dialogue {
+  margin-left: 2.5in;
+  margin-right: 2.5in;
+}
+.script-editor[data-format="hollywood"] .ProseMirror .parenthetical {
+  margin-left: 3.1in;
+  margin-right: 2.9in;
+}
+.script-editor[data-format="hollywood"] .ProseMirror .transition {
+  text-align: right;
+}
+
+/* Chinese Film format */
+.script-editor[data-format="chinese_film"] .ProseMirror .scene-heading {
+  font-weight: bold;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.25rem;
+}
+.script-editor[data-format="chinese_film"] .ProseMirror .character-cue {
+  text-align: center;
+}
+.script-editor[data-format="chinese_film"] .ProseMirror .dialogue {
+  margin-left: 2rem;
+  margin-right: 2rem;
+}
+
+/* Chinese Short-form format */
+.script-editor[data-format="chinese_short"] .ProseMirror .character-cue {
+  font-weight: bold;
+}
+.script-editor[data-format="chinese_short"] .ProseMirror .dialogue {
+  margin-left: 1rem;
+}
+
+/* Japanese Anime format */
+.script-editor[data-format="japanese_anime"] .ProseMirror .scene-heading {
+  border-left: 3px solid #666;
+  padding-left: 0.5rem;
+}
+.script-editor[data-format="japanese_anime"] .ProseMirror .character-cue {
+  font-weight: bold;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   Scene Folding — CSS-only collapse for large documents (≥30 scenes)
+   ────────────────────────────────────────────────────────────────
+   DOM is fully preserved (no node deletion); only visual hiding.
+   Does NOT break ProseMirror position mapping, Cmd+F, or cursor nav.
+   Controlled by useSceneFolding hook via data attributes.
+   ════════════════════════════════════════════════════════════════ */
+
+/* Collapsed scene heading: dimmed, clickable, with "expand" hint */
+.script-editor .ProseMirror h3[data-type="scene-heading"][data-scene-collapsed="true"] {
+  opacity: 0.6;
+  cursor: pointer;
+  position: relative;
+  padding-right: 120px;
+  border-left: 2px solid rgba(100, 100, 100, 0.3);
+  padding-left: 8px;
+  margin: 4px 0;
+}
+
+.script-editor .ProseMirror h3[data-type="scene-heading"][data-scene-collapsed="true"]::after {
+  content: "点击展开";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: #666;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.script-editor .ProseMirror h3[data-type="scene-heading"][data-scene-collapsed="true"]:hover {
+  opacity: 0.85;
+}
+
+.script-editor .ProseMirror h3[data-type="scene-heading"][data-scene-collapsed="true"]:hover::after {
+  color: var(--color-primary, #34d8c4);
+  background: rgba(52, 216, 196, 0.08);
+}
+
+/* Hide content blocks belonging to a collapsed scene */
+.script-editor .ProseMirror [data-scene-content-collapsed="true"] {
+  display: none;
+}
+
+/* ===== Tauri Desktop: Window Drag Region ===== */
+[data-tauri-drag-region] {
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+
+[data-tauri-drag-region] button,
+[data-tauri-drag-region] a,
+[data-tauri-drag-region] input,
+[data-tauri-drag-region] [role="button"] {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
+/* Tauri desktop: Traffic Light avoidance padding */
+.tauri-titlebar-inset {
+  padding-top: 38px;
+}
+
+/* Tauri desktop: Top drag bar for window movement (drag via JS API) */
+.tauri-drag-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 38px;
+  z-index: 9999;
+  pointer-events: auto;
+  cursor: default;
+}
+
+.tauri-drag-bar button,
+.tauri-drag-bar a,
+.tauri-drag-bar input {
+  pointer-events: auto;
+}

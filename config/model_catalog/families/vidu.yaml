@@ -1,0 +1,196 @@
+family: vidu
+display_name: Vidu
+provider: vidu
+routing_prefixes:
+  - vidu/vidu
+  - vidu
+supported_backends:
+  - dashscope
+  - vendor
+default_backend: dashscope
+backend_env_key: VIDU_PROVIDER_MODE
+credential_sources:
+  dashscope:
+    - DASHSCOPE_API_KEY
+  vendor:
+    - VIDU_API_KEY
+supported_modalities:
+  - t2v
+  - i2v
+  - r2v
+transport:
+  image_input_mode:
+    dashscope: dashscope_image_to_video
+    vendor: vidu_vendor_image_url
+  audio_input_mode:
+    dashscope: dashscope_temp_file_url
+    vendor: vidu_vendor_audio_url
+  reference_video_input_mode:
+    dashscope: dashscope_temp_file_url
+    vendor: vidu_vendor_video_url
+docs:
+  official_snapshot_ids:
+    - vidu/2026-04-25
+models:
+  - id: vidu/viduq3-pro-video
+    display_name: Vidu Q3 Pro Video
+    description: Vidu Q3 Pro with I2V and R2V modes
+    status: active
+    release_stage: stable
+    runtime:
+      dashscope:
+        gateway: dashscope
+      vendor:
+        gateway: vidu
+    docs:
+      context_hub_doc_ids:
+        - aliyun/bailian-vidu-proxy
+        - vidu/vendor-api
+    modes:
+      i2v:
+        legacy_id: viduq3-pro-i2v
+        display_name: Vidu Q3 Pro I2V
+        description: Vidu latest model for image-to-video
+        capabilities: [i2v]
+        runtime:
+          dashscope:
+            api_model_id: vidu/viduq3-pro_img2video
+        ui:
+          selection_group: i2v
+          visible_in: [project_settings, series_settings, video_sidebar, global_settings]
+          order: 60
+          badges: [proxy-capable]
+        duration:
+          type: slider
+          min: 1
+          max: 16
+          step: 1
+          default: 5
+        params:
+          resolution:
+            options: [540p, 720p, 1080p]
+            default: 720p
+          seed: true
+          negativePrompt: false
+          promptExtend: false
+          watermark: false
+          viduAudio: true
+          movementAmplitude:
+            options: [auto, small, medium, large]
+            default: auto
+          watermark: true
+        inputs:
+          reference_images:
+            max: 1
+            reference_type: image
+      r2v:
+        legacy_id: viduq3-pro-r2v
+        display_name: Vidu Q3 Pro R2V
+        description: Vidu reference-to-video with multi-image support
+        capabilities: [r2v]
+        runtime:
+          dashscope:
+            api_model_id: vidu/viduq3-mix_reference2video
+        ui:
+          selection_group: r2v
+          visible_in: [project_settings, series_settings, video_sidebar, global_settings]
+          order: 75
+        duration:
+          type: slider
+          min: 1
+          max: 16
+          step: 1
+          default: 5
+        params:
+          resolution:
+            options: [540p, 720p, 1080p]
+            default: 720p
+          seed: true
+          negativePrompt: false
+          promptExtend: false
+          watermark: false
+        inputs:
+          reference_images:
+            max: 7
+            reference_type: image
+
+  - id: vidu/viduq3-turbo-video
+    display_name: Vidu Q3 Turbo Video
+    description: Vidu Q3 Turbo fast generation with I2V and R2V modes
+    status: active
+    release_stage: stable
+    runtime:
+      dashscope:
+        gateway: dashscope
+      vendor:
+        gateway: vidu
+    docs:
+      context_hub_doc_ids:
+        - aliyun/bailian-vidu-proxy
+        - vidu/vendor-api
+    modes:
+      i2v:
+        legacy_id: viduq3-turbo-i2v
+        display_name: Vidu Q3 Turbo I2V
+        description: Vidu fast generation
+        capabilities: [i2v]
+        runtime:
+          dashscope:
+            api_model_id: vidu/viduq3-turbo_img2video
+        ui:
+          selection_group: i2v
+          visible_in: [project_settings, series_settings, video_sidebar, global_settings]
+          order: 55
+        duration:
+          type: slider
+          min: 1
+          max: 16
+          step: 1
+          default: 5
+        params:
+          resolution:
+            options: [540p, 720p, 1080p]
+            default: 720p
+          seed: true
+          negativePrompt: false
+          promptExtend: false
+          watermark: false
+          viduAudio: true
+          movementAmplitude:
+            options: [auto, small, medium, large]
+            default: auto
+          watermark: true
+        inputs:
+          reference_images:
+            max: 1
+            reference_type: image
+      r2v:
+        legacy_id: viduq3-turbo-r2v
+        display_name: Vidu Q3 Turbo R2V
+        description: Vidu turbo reference-to-video
+        capabilities: [r2v]
+        runtime:
+          dashscope:
+            api_model_id: vidu/viduq3-turbo_reference2video
+        ui:
+          selection_group: r2v
+          visible_in: [project_settings, series_settings, video_sidebar, global_settings]
+          order: 70
+        duration:
+          type: slider
+          min: 1
+          max: 16
+          step: 1
+          default: 5
+        params:
+          resolution:
+            options: [540p, 720p, 1080p]
+            default: 720p
+          seed: true
+          negativePrompt: false
+          promptExtend: false
+          watermark: false
+        inputs:
+          reference_images:
+            max: 7
+            reference_type: image

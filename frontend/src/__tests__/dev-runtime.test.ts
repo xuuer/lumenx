@@ -1,0 +1,30 @@
+import { describe, expect, it } from 'vitest';
+
+import packageJson from '../../package.json';
+import { buildNextDevEnv } from '../../scripts/run-next-dev.mjs';
+
+describe('frontend dev runtime', () => {
+    it('routes npm run dev through the repo-controlled wrapper script', () => {
+        expect(packageJson.scripts.dev).toBe('node ./scripts/run-next-dev.mjs');
+    });
+
+    it('enables Watchpack polling by default on macOS', () => {
+        const env = buildNextDevEnv({}, 'darwin');
+
+        expect(env.WATCHPACK_POLLING).toBe('true');
+        expect(env.WATCHPACK_POLLING_INTERVAL).toBe('1000');
+    });
+
+    it('respects explicit watcher overrides from the user environment', () => {
+        const env = buildNextDevEnv(
+            {
+                WATCHPACK_POLLING: 'false',
+                WATCHPACK_POLLING_INTERVAL: '250',
+            },
+            'darwin'
+        );
+
+        expect(env.WATCHPACK_POLLING).toBe('false');
+        expect(env.WATCHPACK_POLLING_INTERVAL).toBe('250');
+    });
+});

@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LumenX Studio — Playground Mock (Cinematic Restraint)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══ SEED TOKENS ═══ */
+:root {
+  --seed-bg: #050508;
+  --seed-fg: #ededed;
+  --seed-primary: #646cff;
+  --seed-secondary: #535bf2;
+  --seed-accent: #ff0080;
+  --seed-surface: rgba(255,255,255,0.04);
+  --seed-radius: 8px;
+}
+
+/* ═══ SEMANTIC TOKENS ═══ */
+:root {
+  --color-bg-base: var(--seed-bg);
+  --color-bg-surface: var(--seed-surface);
+  --color-bg-elevated: #141416;
+  --color-bg-inset: rgba(255,255,255,0.02);
+  --color-bg-hover: rgba(255,255,255,0.06);
+  --color-bg-input: rgba(0,0,0,0.3);
+  --color-text-primary: var(--seed-fg);
+  --color-text-secondary: #9ca3af;
+  --color-text-muted: #6b7280;
+  --color-border-default: rgba(255,255,255,0.08);
+  --color-border-subtle: rgba(255,255,255,0.04);
+  --color-primary: var(--seed-primary);
+  --color-primary-hover: var(--seed-secondary);
+  --color-accent: var(--seed-accent);
+  --color-overlay: rgba(0,0,0,0.85);
+  --color-status-pending-fg: oklch(0.85 0.13 230);
+  --color-status-pending-bg: oklch(0.75 0.16 230 / 0.10);
+  --color-status-pending-border: oklch(0.75 0.16 230 / 0.45);
+  --color-status-processing-fg: oklch(0.88 0.16 80);
+  --color-status-processing-bg: oklch(0.78 0.18 80 / 0.10);
+  --color-status-processing-border: oklch(0.78 0.18 80 / 0.45);
+  --color-status-completed-fg: oklch(0.88 0.16 155);
+  --color-status-completed-bg: oklch(0.78 0.18 155 / 0.10);
+  --color-status-completed-border: oklch(0.78 0.18 155 / 0.45);
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --shadow-subtle: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-elevated: 0 8px 32px rgba(0,0,0,0.6);
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--color-bg-base);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.5;
+  overflow: hidden;
+  height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══ LAYOUT ═══ */
+.app-shell { display: flex; height: 100vh; width: 100vw; }
+
+/* ─── Global Sidebar ─── */
+.global-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  height: 100%;
+  border-right: 1px solid var(--color-border-default);
+  background: var(--color-bg-surface);
+  display: flex;
+  flex-direction: column;
+  backdrop-filter: blur(2px);
+}
+.sidebar-brand {
+  padding: 20px 16px 18px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.brand-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  background: linear-gradient(135deg, #7c3aed, #4f46e5, #ec4899);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  color: #fff;
+}
+.brand-text {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+.sidebar-nav {
+  flex: 1;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease);
+  position: relative;
+  border: 1px solid transparent;
+}
+.nav-item svg {
+  width: 18px;
+  height: 18px;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+.nav-item:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-hover);
+}
+.nav-item.active {
+  color: var(--color-text-primary);
+  background: rgba(100,108,255,0.08);
+  border-color: rgba(100,108,255,0.15);
+}
+.nav-item.active svg {
+  opacity: 1;
+  color: var(--color-primary);
+}
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 25%;
+  height: 50%;
+  width: 2px;
+  background: var(--color-primary);
+  border-radius: 0 2px 2px 0;
+}
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid var(--color-border-subtle);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-muted);
+  padding-left: 26px;
+}
+
+/* ─── Main Content ─── */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* Page Header (aligned with mock-01/04/05 style) */
+.page-header {
+  padding: 20px 28px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.page-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+.page-count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-muted);
+  margin-left: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.page-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.page-mode-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  padding: 4px 8px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+}
+
+/* ─── Playground Split Layout ─── */
+.playground-layout {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ═══ LEFT: INPUT PANEL ═══ */
+.input-panel {
+  width: 420px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--color-border-default);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background: var(--color-bg-inset);
+}
+.input-panel::-webkit-scrollbar { width: 4px; }
+.input-panel::-webkit-scrollbar-track { background: transparent; }
+.input-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+.input-section {
+  padding: 20px 24px;
+}
+.input-section + .input-section {
+  border-top: 1px solid var(--color-border-subtle);
+}
+.input-section-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-text-muted);
+  margin-bottom: 12px;
+}
+
+/* Mode Tabs */
+.mode-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  background: rgba(255,255,255,0.03);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-subtle);
+}
+.mode-tab {
+  flex: 1;
+  padding: 8px 6px;
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease);
+  white-space: nowrap;
+}
+.mode-tab:hover {
+  color: var(--color-text-secondary);
+  background: rgba(255,255,255,0.04);
+}
+.mode-tab.active {
+  color: var(--color-text-primary);
+  background: var(--color-primary);
+  box-shadow: 0 2px 8px rgba(100,108,255,0.3);
+}
+
+/* Model Selector */
+.model-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-input);
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease);
+}
+.model-selector:hover {
+  border-color: rgba(255,255,255,0.15);
+}
+.model-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-status-completed-fg);
+  flex-shrink: 0;
+}
+.model-name {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+.model-provider {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.model-chevron {
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+/* Media Input Zone */
+.media-input-zone {
+  border: 1px dashed var(--color-border-default);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  transition: border-color var(--duration-fast) var(--ease), background var(--duration-fast) var(--ease);
+  cursor: pointer;
+}
+.media-input-zone:hover {
+  border-color: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.02);
+}
+.media-input-zone.has-media {
+  border-style: solid;
+  padding: 12px;
+  align-items: stretch;
+}
+.media-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--color-text-muted);
+}
+.media-input-text {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+.media-input-hint {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+.media-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.media-action-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease);
+}
+.media-action-btn:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+.media-action-btn.from-library {
+  border-color: rgba(100,108,255,0.3);
+  color: var(--color-primary);
+}
+.media-action-btn.from-library:hover {
+  background: rgba(100,108,255,0.08);
+}
+
+/* Media Preview (when image is loaded) */
+.media-preview-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.media-thumb {
+  width: 80px;
+  height: 60px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-elevated);
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+.media-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.media-thumb-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--duration-fast);
+}
+.media-thumb:hover .media-thumb-remove { opacity: 1; }
+.media-thumb-info {
+  flex: 1;
+  min-width: 0;
+}
+.media-thumb-name {
+  font-size: 12px;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.media-thumb-meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+/* Prompt Input */
+.prompt-wrapper {
+  position: relative;
+}
+.prompt-textarea {
+  width: 100%;
+  min-height: 120px;
+  max-height: 200px;
+  resize: vertical;
+  padding: 14px 14px 40px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-input);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.6;
+  transition: border-color var(--duration-fast) var(--ease), box-shadow var(--duration-fast) var(--ease);
+}
+.prompt-textarea::placeholder {
+  color: var(--color-text-muted);
+}
+.prompt-textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(100,108,255,0.12);
+}
+.prompt-toolbar {
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.prompt-tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease);
+  border: none;
+  background: transparent;
+}
+.prompt-tool-btn:hover {
+  color: var(--color-text-secondary);
+  background: rgba(255,255,255,0.06);
+}
+.prompt-tool-btn svg { width: 14px; height: 14px; }
+.prompt-char-count {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-muted);
+}
+
+/* Negative Prompt (collapsible) */
+.neg-prompt-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color var(--duration-fast);
+}
+.neg-prompt-toggle:hover { color: var(--color-text-secondary); }
+.neg-prompt-toggle .chevron {
+  font-size: 10px;
+  transition: transform var(--duration-fast);
+}
+.neg-prompt-toggle.open .chevron { transform: rotate(90deg); }
+.neg-prompt-area {
+  margin-top: 8px;
+}
+.neg-prompt-input {
+  width: 100%;
+  min-height: 60px;
+  resize: vertical;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-input);
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.neg-prompt-input::placeholder { color: var(--color-text-muted); }
+.neg-prompt-input:focus {
+  outline: none;
+  border-color: rgba(255,255,255,0.12);
+}
+
+/* Parameter Bar */
+.param-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.param-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.param-item.full-width { grid-column: 1 / -1; }
+.param-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+.param-select {
+  padding: 8px 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-input);
+  color: var(--color-text-primary);
+  font-size: 12px;
+  appearance: none;
+  cursor: pointer;
+}
+.param-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+/* Batch Count Selector */
+.batch-selector {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  background: rgba(255,255,255,0.03);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-subtle);
+}
+.batch-pill {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease);
+}
+.batch-pill:hover {
+  color: var(--color-text-secondary);
+  background: rgba(255,255,255,0.04);
+}
+.batch-pill.active {
+  color: var(--color-text-primary);
+  background: var(--color-primary);
+  box-shadow: 0 1px 4px rgba(100,108,255,0.3);
+}
+
+/* Advanced Params (collapsible) */
+.advanced-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color var(--duration-fast);
+}
+.advanced-toggle:hover { color: var(--color-text-secondary); }
+.advanced-toggle .arrow {
+  font-size: 10px;
+  transition: transform var(--duration-fast);
+}
+
+/* Generate CTA */
+.generate-section {
+  padding: 20px 24px;
+  border-top: 1px solid var(--color-border-default);
+  margin-top: auto;
+  position: sticky;
+  bottom: 0;
+  background: var(--color-bg-base);
+}
+.generate-btn {
+  width: 100%;
+  padding: 14px 24px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease);
+  position: relative;
+  overflow: hidden;
+}
+.generate-btn:hover {
+  background: var(--color-primary-hover);
+  box-shadow: 0 4px 20px rgba(100,108,255,0.35);
+}
+.generate-btn:active {
+  transform: scale(0.98);
+}
+.generate-btn .btn-glow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(100,108,255,0.1), rgba(236,72,153,0.15));
+  opacity: 0;
+  transition: opacity var(--duration-base);
+}
+.generate-btn:hover .btn-glow { opacity: 1; }
+
+/* ═══ RIGHT: RESULT GALLERY ═══ */
+.result-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+.result-header {
+  padding: 16px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-border-subtle);
+  flex-shrink: 0;
+}
+.result-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-text-muted);
+}
+.result-count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-muted);
+  padding: 3px 8px;
+  background: rgba(255,255,255,0.04);
+  border-radius: var(--radius-sm);
+}
+.result-filter-row {
+  display: flex;
+  gap: 6px;
+}
+.result-filter-btn {
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: transparent;
+  transition: all var(--duration-fast);
+}
+.result-filter-btn:hover { color: var(--color-text-secondary); background: var(--color-bg-hover); }
+.result-filter-btn.active { color: var(--color-text-primary); border-color: var(--color-border-default); background: var(--color-bg-hover); }
+
+.result-gallery {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 28px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  align-content: start;
+}
+.result-gallery::-webkit-scrollbar { width: 4px; }
+.result-gallery::-webkit-scrollbar-track { background: transparent; }
+.result-gallery::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+/* Result Card */
+.result-card {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-surface);
+  overflow: hidden;
+  transition: border-color var(--duration-fast) var(--ease), transform var(--duration-fast) var(--ease);
+  cursor: pointer;
+}
+.result-card:hover {
+  border-color: rgba(255,255,255,0.15);
+  transform: translateY(-2px);
+}
+.result-card-media {
+  aspect-ratio: 16/9;
+  background: var(--color-bg-elevated);
+  position: relative;
+  overflow: hidden;
+}
+.result-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.result-card-media .video-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 3px 7px;
+  border-radius: var(--radius-sm);
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.result-card-media .video-badge .play-icon {
+  width: 8px;
+  height: 8px;
+}
+.result-card-media .duration-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(0,0,0,0.7);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: rgba(255,255,255,0.8);
+}
+/* Hover overlay */
+.result-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity var(--duration-fast);
+}
+.result-card:hover .result-card-overlay { opacity: 1; }
+.result-card-action {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+.result-card-action:hover {
+  background: rgba(255,255,255,0.25);
+  transform: scale(1.1);
+}
+.result-card-action svg { width: 14px; height: 14px; color: #fff; }
+
+.result-card-info {
+  padding: 10px 12px;
+}
+.result-card-prompt {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+}
+.result-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+.result-card-model {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 2px 6px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 3px;
+}
+.result-card-time {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--color-text-muted);
+}
+.result-card-saved {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  color: var(--color-status-completed-fg);
+}
+
+/* Processing/Skeleton Card */
+.result-card.processing .result-card-media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+}
+.skeleton-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,0.04) 37%, transparent 63%);
+  animation: shimmer 2s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.processing-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 1;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.processing-text {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  z-index: 1;
+}
+.processing-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: var(--color-primary);
+  border-radius: 0 2px 0 0;
+  transition: width 0.3s linear;
+}
+
+/* Gallery empty state */
+.gallery-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 40px;
+  text-align: center;
+}
+.gallery-empty-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--color-text-muted);
+  opacity: 0.4;
+  margin-bottom: 16px;
+}
+.gallery-empty-text {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+}
+.gallery-empty-hint {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+/* Session divider */
+.session-divider {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+.session-divider::before,
+.session-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border-subtle);
+}
+.session-divider-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  white-space: nowrap;
+}
+
+/* ═══ UTILITY ═══ */
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <!-- ═══ GLOBAL SIDEBAR ═══ -->
+  <aside class="global-sidebar" data-component="GlobalSidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">X</div>
+      <span class="brand-text">LumenX Studio</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+        <span>工作区</span>
+      </div>
+      <div class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+        <span>试验台</span>
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+        <span>资产库</span>
+      </div>
+      <div class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.68 1.65 1.65 0 0010 3.17V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        <span>设置</span>
+      </div>
+    </nav>
+    <div class="sidebar-footer">v0.2.0</div>
+  </aside>
+
+  <!-- ═══ MAIN CONTENT ═══ -->
+  <div class="main-content" data-component="PlaygroundPage">
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <span class="page-title">试验台</span>
+        <span class="page-count">12 RESULTS</span>
+      </div>
+      <div class="page-header-meta">
+        <span class="page-mode-tag">图生视频</span>
+      </div>
+    </div>
+
+    <!-- Split Layout -->
+    <div class="playground-layout">
+      <!-- ═══ LEFT: INPUT PANEL ═══ -->
+      <div class="input-panel" data-component="InputPanel">
+
+        <!-- Section: Mode Selector -->
+        <div class="input-section">
+          <div class="input-section-label">生成模式</div>
+          <div class="mode-tabs" data-component="ModeSelector">
+            <div class="mode-tab">文生图</div>
+            <div class="mode-tab">图生图</div>
+            <div class="mode-tab">文生视频</div>
+            <div class="mode-tab active">图生视频</div>
+            <div class="mode-tab">参考视频</div>
+            <div class="mode-tab">视频编辑</div>
+          </div>
+        </div>
+
+        <!-- Section: Model Selector -->
+        <div class="input-section">
+          <div class="input-section-label">模型</div>
+          <div class="model-selector" data-component="ModelSelector">
+            <span class="model-dot"></span>
+            <span class="model-name">Seedance 2.0</span>
+            <span class="model-provider">ByteDance</span>
+            <span class="model-chevron">▾</span>
+          </div>
+        </div>
+
+        <!-- Section: Media Input (i2v mode shows reference image) -->
+        <div class="input-section">
+          <div class="input-section-label">首帧图片</div>
+          <div class="media-input-zone has-media" data-component="MediaInput">
+            <div class="media-preview-row">
+              <div class="media-thumb">
+                <!-- Simulated uploaded image (gradient placeholder) -->
+                <div style="width:100%;height:100%;background:linear-gradient(135deg,#1a1a3e 0%,#2d1b4e 50%,#1b2838 100%)"></div>
+                <span class="media-thumb-remove">×</span>
+              </div>
+              <div class="media-thumb-info">
+                <div class="media-thumb-name">cyberpunk_girl_ref.png</div>
+                <div class="media-thumb-meta">1024 × 576 · PNG · 2.1 MB</div>
+              </div>
+            </div>
+            <div class="media-actions" style="margin-top:10px">
+              <button class="media-action-btn">替换文件</button>
+              <button class="media-action-btn from-library">从资产库选取</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Prompt Input -->
+        <div class="input-section">
+          <div class="input-section-label">Prompt</div>
+          <div class="prompt-wrapper" data-component="PromptInput">
+            <textarea class="prompt-textarea" placeholder="描述你想生成的内容...">A cyberpunk girl walking through neon-lit rain streets, camera slowly dollying forward, volumetric fog, cinematic lighting, shallow depth of field, 24fps film grain</textarea>
+            <div class="prompt-toolbar">
+              <button class="prompt-tool-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                模板
+              </button>
+              <button class="prompt-tool-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+                历史
+              </button>
+              <span class="prompt-char-count">156 / 2000</span>
+            </div>
+          </div>
+          <!-- Negative Prompt -->
+          <div class="neg-prompt-toggle open" style="margin-top:10px">
+            <span class="chevron">▸</span>
+            <span>负面提示词</span>
+          </div>
+          <div class="neg-prompt-area">
+            <textarea class="neg-prompt-input" placeholder="不希望出现的内容...">blurry, low quality, deformed hands, watermark, text overlay</textarea>
+          </div>
+        </div>
+
+        <!-- Section: Parameters -->
+        <div class="input-section" data-component="ParameterBar">
+          <div class="input-section-label">参数</div>
+          <div class="param-grid">
+            <div class="param-item">
+              <span class="param-label">宽高比</span>
+              <select class="param-select">
+                <option selected>16:9</option>
+                <option>9:16</option>
+                <option>1:1</option>
+                <option>4:3</option>
+              </select>
+            </div>
+            <div class="param-item">
+              <span class="param-label">分辨率</span>
+              <select class="param-select">
+                <option>480P</option>
+                <option selected>720P</option>
+                <option>1080P</option>
+              </select>
+            </div>
+            <div class="param-item">
+              <span class="param-label">时长</span>
+              <select class="param-select">
+                <option>3s</option>
+                <option selected>5s</option>
+                <option>10s</option>
+              </select>
+            </div>
+            <div class="param-item">
+              <span class="param-label">生成数量</span>
+              <div class="batch-selector">
+                <span class="batch-pill">×1</span>
+                <span class="batch-pill active">×2</span>
+                <span class="batch-pill">×4</span>
+              </div>
+            </div>
+          </div>
+          <!-- Advanced toggle -->
+          <div class="advanced-toggle" style="margin-top:12px">
+            <span class="arrow">▸</span>
+            <span>高级参数</span>
+          </div>
+        </div>
+
+        <!-- Generate CTA -->
+        <div class="generate-section">
+          <button class="generate-btn">
+            <span class="btn-glow"></span>
+            生成 ×2
+          </button>
+        </div>
+      </div>
+
+      <!-- ═══ RIGHT: RESULT GALLERY ═══ -->
+      <div class="result-panel" data-component="ResultGallery">
+        <div class="result-header">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="result-title">生成结果</span>
+            <span class="result-count">12</span>
+          </div>
+          <div class="result-filter-row">
+            <button class="result-filter-btn active">全部</button>
+            <button class="result-filter-btn">图片</button>
+            <button class="result-filter-btn">视频</button>
+          </div>
+        </div>
+        <div class="result-gallery">
+          <!-- Card 1: Processing (current batch) -->
+          <div class="result-card processing" data-component="ResultCard">
+            <div class="result-card-media">
+              <div class="skeleton-shimmer"></div>
+              <div class="processing-spinner"></div>
+              <div class="processing-text">生成中…</div>
+              <div class="processing-progress" style="width:45%"></div>
+            </div>
+            <div class="result-card-info">
+              <div class="result-card-prompt">A cyberpunk girl walking through neon-lit rain streets…</div>
+              <div class="result-card-meta">
+                <span class="result-card-model">seedance 2.0</span>
+                <span class="result-card-time">刚刚</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Processing (current batch, second) -->
+          <div class="result-card processing">
+            <div class="result-card-media">
+              <div class="skeleton-shimmer"></div>
+              <div class="processing-spinner"></div>
+              <div class="processing-text">排队中…</div>
+              <div class="processing-progress" style="width:10%"></div>
+            </div>
+            <div class="result-card-info">
+              <div class="result-card-prompt">A cyberpunk girl walking through neon-lit rain streets…</div>
+              <div class="result-card-meta">
+                <span class="result-card-model">seedance 2.0</span>
+                <span class="result-card-time">刚刚</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Completed video -->
+          <div class="result-card">
+            <div class="result-card-media">
+              <div style="width:100%;height:100%;background:linear-gradient(160deg,#0d1117 0%,#1a0a2e 40%,#16213e 70%,#0d1117 100%)"></div>
+              <span class="video-badge">
+                <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+                I2V
+              </span>
+              <span class="duration-badge">5.0s</span>
+              <div class="result-card-overlay">
+                <div class="result-card-action" title="预览">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </div>
+                <div class="result-card-action" title="下载">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </div>
+                <div class="result-card-action" title="收藏到资产库">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="result-card-info">
+              <div class="result-card-prompt">Futuristic cityscape at sunset, flying vehicles…</div>
+              <div class="result-card-meta">
+                <span class="result-card-model">seedance 2.0</span>
+                <span class="result-card-time">3 分钟前</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Completed video (saved) -->
+          <div class="result-card">
+            <div class="result-card-media">
+              <div style="width:100%;height:100%;background:linear-gradient(145deg,#1a0a2e 0%,#2d1b69 30%,#0d1b2a 70%,#162447 100%)"></div>
+              <span class="video-badge">
+                <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+                I2V
+              </span>
+              <span class="duration-badge">5.0s</span>
+              <div class="result-card-overlay">
+                <div class="result-card-action" title="预览">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </div>
+                <div class="result-card-action" title="下载">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </div>
+                <div class="result-card-action" title="已收藏">
+                  <svg viewBox="0 0 24 24" fill="var(--color-status-starred-fg)" stroke="var(--color-status-starred-fg)" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="result-card-info">
+              <div class="result-card-prompt">Ethereal dance sequence, slow motion silk fabric…</div>
+              <div class="result-card-meta">
+                <span class="result-card-model">kling v3</span>
+                <span class="result-card-saved">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+                  已收藏
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 5: Completed image -->
+          <div class="result-card">
+            <div class="result-card-media">
+              <div style="width:100%;height:100%;background:linear-gradient(135deg,#1b2838 0%,#2a1a3e 35%,#0f172a 60%,#1e1b4b 100%)"></div>
+              <div class="result-card-overlay">
+                <div class="result-card-action" title="预览">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </div>
+                <div class="result-card-action" title="下载">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </div>
+                <div class="result-card-action" title="生成视频">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23,7 16,12 23,17"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                </div>
+                <div class="result-card-action" title="收藏">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="result-card-info">
+              <div class="result-card-prompt">Character design: female samurai in neo-Tokyo armor…</div>
+              <div class="result-card-meta">
+                <span class="result-card-model">wan 2.7 pro</span>
+                <span class="result-card-time">15 分钟前</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 6: Completed image -->
+          <div class="result-card">
+            <div class="result-card-media">
+              <div style="width:100%;height:100%;background:linear-gradient(180deg,#0f0c29 0%,#302b63 50%,#24243e 100%)"></div>
+              <div class="result-card-overlay">
+                <div class="result-card-action" title="预览">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </div>
+                <div class="result-card-action" title="下载">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </div>
+                <div class="result-card-action" title="生成视频">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23,7 16,12 23,17"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                </div>
+                <div class="result-card-action" title="收藏">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="result-card-info">
+              <div class="result-card-prompt">Mystical forest with bioluminescent flora, ancient stone…</div>
+              <div class="result-card-meta">
+                <span class="result-card-model">gpt-image-2</span>
+                <span class="result-card-time">15 分钟前</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Session divider: earlier session -->
+          <div class="session-divider">
+            <span class="session-divider-label">今天 · 14:20</span>
+          </div>
+
+          <!-- Card 7: Earlier result (video) -->
+          <div class="result-card">
+            <div class="result-card-media">
+              <div style="width:100%;height:100%;background:linear-gradient(135deg,#0c0c1d 0%,#1a0a2e 40%,#0d1117 100%)"></div>
+              <span class="video-badge">
+                <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+                T2V
+              </span>
+              <span class="duration-badge">3.0s</span>
+              <div class="result-card-overlay">
+                <div class="result-card-action" title="预览">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </div>
+                <div class="result-card-action" title="下载">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </div>
+                <div class="result-card-action" title="收藏">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="result-card-info">
+              <div class="result-card-prompt">Ocean waves crashing against cliff at golden hour…</div>
+              <div class="result-card-meta">
+                <span class="result-card-model">seedance 2.0</span>
+                <span class="result-card-time">14:22</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 8: Earlier result (image) -->
+          <div class="result-card">
+            <div class="result-card-media">
+              <div style="width:100%;height:100%;background:linear-gradient(135deg,#0f2027 0%,#203a43 50%,#2c5364 100%)"></div>
+              <div class="result-card-overlay">
+                <div class="result-card-action" title="预览">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </div>
+                <div class="result-card-action" title="下载">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </div>
+                <div class="result-card-action" title="生成视频">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23,7 16,12 23,17"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                </div>
+                <div class="result-card-action" title="收藏">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="result-card-info">
+              <div class="result-card-prompt">Concept art: abandoned space station corridor…</div>
+              <div class="result-card-meta">
+                <span class="result-card-model">qwen 2.0 pro</span>
+                <span class="result-card-time">14:20</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 9: Earlier result (image, saved) -->
+          <div class="result-card">
+            <div class="result-card-media">
+              <div style="width:100%;height:100%;background:linear-gradient(160deg,#1a1a2e 0%,#16213e 40%,#0f3460 100%)"></div>
+              <div class="result-card-overlay">
+                <div class="result-card-action" title="预览">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </div>
+                <div class="result-card-action" title="下载">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </div>
+                <div class="result-card-action" title="已收藏">
+                  <svg viewBox="0 0 24 24" fill="var(--color-status-starred-fg)" stroke="var(--color-status-starred-fg)" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="result-card-info">
+              <div class="result-card-prompt">Mech pilot portrait, helmet visor reflection…</div>
+              <div class="result-card-meta">
+                <span class="result-card-model">wan 2.5</span>
+                <span class="result-card-saved">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+                  已收藏
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 10: Earliest result -->
+          <div class="result-card">
+            <div class="result-card-media">
+              <div style="width:100%;height:100%;background:linear-gradient(135deg,#1f1c2c 0%,#928dab 100%);opacity:0.7"></div>
+              <div class="result-card-overlay">
+                <div class="result-card-action" title="预览">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </div>
+                <div class="result-card-action" title="下载">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </div>
+                <div class="result-card-action" title="生成视频">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23,7 16,12 23,17"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                </div>
+                <div class="result-card-action" title="收藏">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="result-card-info">
+              <div class="result-card-prompt">Abstract particle flow, blue to purple gradient…</div>
+              <div class="result-card-meta">
+                <span class="result-card-model">wan 2.7 pro</span>
+                <span class="result-card-time">14:18</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LumenX Studio · Line A (Cyber Refined) — 浮层组件画廊</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--color-bg-base);color:var(--color-text-primary);font-family:var(--font-body);font-size:var(--text-body);line-height:var(--leading-body);-webkit-font-smoothing:antialiased;min-height:100vh}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--p-gray-700);border-radius:6px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:var(--p-gray-500)}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px;border-radius:4px}
+
+/* dimmed page backdrop (simulates overlay scrim) */
+.page{min-height:100vh;background:
+  linear-gradient(rgba(0,0,0,0.55),rgba(0,0,0,0.55)),
+  repeating-linear-gradient(0deg,transparent,transparent 31px,var(--grid-color) 31px,var(--grid-color) 32px),
+  repeating-linear-gradient(90deg,transparent,transparent 31px,var(--grid-color) 31px,var(--grid-color) 32px),
+  var(--color-bg-base);
+  padding:40px 32px 80px}
+.page-head{max-width:1200px;margin:0 auto 32px;text-align:center}
+.ph-eyebrow{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.22em;color:var(--color-text-muted)}
+.ph-eyebrow .n{color:var(--color-primary);font-weight:700}
+.ph-title{font-family:var(--font-display);font-size:var(--text-hero);font-weight:700;letter-spacing:-0.02em;margin-top:8px}
+.ph-sub{font-size:13px;color:var(--color-text-secondary);margin-top:8px}
+
+.gallery{max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:34px}
+.block-label{font-family:var(--font-mono);font-size:9.5px;text-transform:uppercase;letter-spacing:0.18em;color:var(--color-text-muted);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.block-label::before{content:'';width:18px;height:1px;background:var(--color-border-strong)}
+.block-label .n{color:var(--color-primary);font-weight:700}
+.row{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;border-radius:var(--btn-radius);font-size:var(--text-body);font-weight:600;cursor:pointer;transition:all var(--dur-fast) var(--ease-out);border:1px solid transparent;padding:8px 15px}
+.btn svg{width:14px;height:14px}
+.btn-primary{background:var(--color-primary);border-color:var(--p-blue-dim);color:var(--color-on-primary);box-shadow:var(--glow-primary)}
+.btn-primary:hover{background:var(--color-primary-hover);box-shadow:0 0 24px -4px rgba(100,108,255,0.7)}
+.btn-glass{background:var(--color-bg-elevated);border-color:var(--color-border-default);color:var(--color-text-primary)}
+.btn-glass:hover{background:var(--p-gray-800);border-color:var(--color-border-strong)}
+.btn-ghost{background:transparent;color:var(--color-text-secondary)}
+.btn-ghost:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.btn-danger{background:var(--color-destructive);border-color:var(--color-destructive);color:#fff}
+.btn-danger:hover{filter:brightness(1.1)}
+.btn-sm{padding:6px 11px;font-size:var(--text-body-sm)}
+
+/* generic modal shell — elevated, reserved glass on chrome */
+.modal{background:var(--color-bg-elevated);border:1px solid var(--color-border-strong);border-radius:var(--radius-xl);box-shadow:var(--shadow-float);overflow:hidden}
+.modal-head{display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--color-border-subtle)}
+.modal-head .mh-icon{width:34px;height:34px;border-radius:9px;background:rgba(100,108,255,0.08);border:1px solid rgba(100,108,255,0.3);display:grid;place-items:center;color:#b9bdff;flex-shrink:0}
+.modal-head .mh-icon svg{width:16px;height:16px}
+.modal-head .mh-titles{flex:1;min-width:0}
+.modal-head .mh-eyebrow{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.18em;color:var(--color-text-muted)}
+.modal-head .mh-title{font-family:var(--font-display);font-size:var(--text-display);font-weight:600;margin-top:2px}
+.modal-close{width:30px;height:30px;border-radius:7px;display:grid;place-items:center;border:none;background:transparent;color:var(--color-text-muted);cursor:pointer;transition:all var(--dur-fast) var(--ease-out)}
+.modal-close:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.modal-close svg{width:16px;height:16px}
+.modal-body{padding:18px}
+.modal-foot{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:14px 18px;border-top:1px solid var(--color-border-subtle);background:var(--color-bg-inset)}
+
+/* form fields inside modal */
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;background:var(--color-bg-input);border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:9px 11px;color:var(--color-text-primary);font-family:var(--font-body);font-size:12.5px;outline:none;transition:border-color var(--dur-fast) var(--ease-out)}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:rgba(100,108,255,0.5);box-shadow:0 0 0 3px rgba(100,108,255,0.12)}
+.field textarea{resize:vertical;min-height:80px;line-height:1.6}
+.field-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* new project modal sizing */
+.modal.new-proj{width:480px;max-width:100%}
+
+/* ── Lightbox ── */
+.modal.lightbox{width:720px;max-width:100%}
+.lightbox .lb-stage{position:relative;background:var(--color-bg-inset);aspect-ratio:16/10;display:grid;place-items:center;overflow:hidden}
+.lightbox .lb-stage img{width:100%;height:100%;object-fit:contain}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;background:rgba(5,5,8,0.6);border:1px solid var(--color-border-strong);display:grid;place-items:center;color:#fff;cursor:pointer;backdrop-filter:blur(4px);transition:all var(--dur-fast) var(--ease-out)}
+.lb-nav:hover{background:rgba(5,5,8,0.85)}
+.lb-nav.prev{left:14px}.lb-nav.next{right:14px}
+.lb-nav svg{width:18px;height:18px}
+.lb-meta{position:absolute;bottom:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:linear-gradient(transparent,rgba(5,5,8,0.85))}
+.lb-meta .lm-l{font-family:var(--font-mono);font-size:10px;color:var(--color-text-secondary);letter-spacing:0.06em}
+.lb-meta .lm-l b{color:#fff;font-weight:600}
+.lb-thumbs{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--color-border-subtle);overflow-x:auto}
+.lb-thumb{width:72px;aspect-ratio:16/9;border-radius:6px;overflow:hidden;border:1px solid var(--color-border-default);cursor:pointer;flex-shrink:0;transition:all var(--dur-fast) var(--ease-out)}
+.lb-thumb.on{border-color:rgba(100,108,255,0.6);box-shadow:0 0 0 1px rgba(100,108,255,0.4)}
+.lb-thumb img{width:100%;height:100%;object-fit:cover}
+
+/* ── Compare modal ── */
+.modal.compare{width:680px;max-width:100%}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.compare-col{display:flex;flex-direction:column;gap:8px}
+.compare-col .cc-media{position:relative;aspect-ratio:16/9;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--color-border-default);background:var(--color-bg-inset)}
+.compare-col.win .cc-media{border-color:var(--status-starred-border);box-shadow:0 0 0 1px var(--status-starred-border),0 0 16px -4px var(--status-starred-solid)}
+.compare-col .cc-media img{width:100%;height:100%;object-fit:cover}
+.cc-tag{position:absolute;top:8px;left:8px;font-family:var(--font-mono);font-size:9px;font-weight:700;padding:3px 8px;border-radius:5px;background:rgba(5,5,8,0.7);color:#fff;backdrop-filter:blur(2px)}
+.cc-meta{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:9.5px;color:var(--color-text-muted);letter-spacing:0.04em}
+.cc-meta b{color:var(--color-text-secondary)}
+.cc-pick{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;border-radius:var(--radius-md);border:1px solid var(--color-border-default);background:var(--color-bg-inset);color:var(--color-text-secondary);font-size:12px;font-weight:600;cursor:pointer;transition:all var(--dur-fast) var(--ease-out)}
+.cc-pick:hover{border-color:var(--color-border-strong);color:var(--color-text-primary)}
+.compare-col.win .cc-pick{background:var(--status-starred-bg);border-color:var(--status-starred-border);color:var(--status-starred-fg)}
+.cc-pick svg{width:13px;height:13px}
+
+/* ── Task Queue panel ── */
+.modal.task-queue{width:420px;max-width:100%}
+.tq-list{display:flex;flex-direction:column;max-height:380px;overflow-y:auto}
+.tq-item{display:flex;gap:12px;padding:13px 16px;border-bottom:1px solid var(--color-border-subtle)}
+.tq-item:last-child{border-bottom:none}
+.tq-thumb{width:56px;height:36px;border-radius:6px;overflow:hidden;flex-shrink:0;border:1px solid var(--color-border-default);background:var(--color-bg-inset)}
+.tq-thumb img{width:100%;height:100%;object-fit:cover}
+.tq-body{flex:1;min-width:0}
+.tq-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tq-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tq-sub{font-family:var(--font-mono);font-size:9px;color:var(--color-text-muted);margin-top:2px;letter-spacing:0.04em}
+.tq-track{height:4px;border-radius:99px;background:var(--color-bg-inset);overflow:hidden;margin-top:7px;border:1px solid var(--color-border-subtle)}
+.tq-fill{height:100%;border-radius:99px}
+.tq-fill.proc{background:linear-gradient(90deg,var(--status-processing-fg),oklch(0.88 0.16 80));box-shadow:0 0 6px -1px var(--status-processing-fg)}
+.tq-fill.done{background:var(--status-completed-fg)}
+.tq-fill.pend{background:var(--p-gray-700)}
+.tq-fill.fail{background:var(--status-failed-fg)}
+.tq-cancel{width:24px;height:24px;border-radius:5px;display:grid;place-items:center;border:none;background:transparent;color:var(--color-text-muted);cursor:pointer;flex-shrink:0;transition:all var(--dur-fast) var(--ease-out)}
+.tq-cancel:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.tq-cancel svg{width:13px;height:13px}
+
+/* badge */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em}
+.badge .led{width:5px;height:5px;border-radius:50%}
+.badge.pending{color:var(--status-pending-fg);background:var(--status-pending-bg);border:1px solid var(--status-pending-border)}.badge.pending .led{background:var(--status-pending-fg)}
+.badge.processing{color:var(--status-processing-fg);background:var(--status-processing-bg);border:1px solid var(--status-processing-border)}.badge.processing .led{background:var(--status-processing-fg);animation:pulse 1.2s infinite}
+.badge.completed{color:var(--status-completed-fg);background:var(--status-completed-bg);border:1px solid var(--status-completed-border)}.badge.completed .led{background:var(--status-completed-fg)}
+.badge.failed{color:var(--status-failed-fg);background:var(--status-failed-bg);border:1px solid var(--status-failed-border)}.badge.failed .led{background:var(--status-failed-fg)}
+.badge.starred{color:var(--status-starred-fg);background:var(--status-starred-bg);border:1px solid var(--status-starred-border)}.badge.starred .led{background:var(--status-starred-solid)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* ── Toasts ── */
+.toast-stack{display:flex;flex-direction:column;gap:12px;width:340px}
+.toast{display:flex;gap:11px;padding:13px 14px;border-radius:var(--radius-lg);background:var(--color-bg-elevated);border:1px solid var(--color-border-strong);box-shadow:var(--shadow-float);align-items:flex-start}
+.toast .t-ico{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;flex-shrink:0}
+.toast .t-ico svg{width:15px;height:15px}
+.toast .t-body{flex:1;min-width:0}
+.toast .t-t{font-size:12.5px;font-weight:600}
+.toast .t-s{font-size:11px;color:var(--color-text-secondary);margin-top:2px;line-height:1.4}
+.toast .t-x{width:22px;height:22px;border-radius:5px;display:grid;place-items:center;border:none;background:transparent;color:var(--color-text-muted);cursor:pointer;flex-shrink:0}
+.toast .t-x:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.toast .t-x svg{width:13px;height:13px}
+.toast.success{border-left:3px solid var(--status-completed-fg)}.toast.success .t-ico{background:var(--status-completed-bg);color:var(--status-completed-fg)}
+.toast.error{border-left:3px solid var(--status-failed-fg)}.toast.error .t-ico{background:var(--status-failed-bg);color:var(--status-failed-fg)}
+.toast.info{border-left:3px solid var(--status-pending-fg)}.toast.info .t-ico{background:var(--status-pending-bg);color:var(--status-pending-fg)}
+.toast.warning{border-left:3px solid var(--status-processing-fg)}.toast.warning .t-ico{background:var(--status-processing-bg);color:var(--status-processing-fg)}
+
+/* ── Offline banner ── */
+.offline-banner{display:flex;align-items:center;gap:12px;padding:12px 18px;border-radius:var(--radius-lg);background:var(--status-processing-bg);border:1px solid var(--status-processing-border);width:100%;max-width:640px}
+.offline-banner svg{width:18px;height:18px;color:var(--status-processing-fg);flex-shrink:0}
+.offline-banner .ob-body{flex:1}
+.offline-banner .ob-t{font-size:12.5px;font-weight:600}
+.offline-banner .ob-s{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+
+/* helper text */
+.helper{font-size:11px;color:var(--color-text-muted);margin-top:6px;line-height:1.5}
+.style-mini{display:flex;gap:6px;flex-wrap:wrap}
+.style-mini .sm{padding:5px 11px;border-radius:99px;font-size:11px;font-weight:500;border:1px solid var(--color-border-default);background:var(--color-bg-inset);color:var(--color-text-secondary);cursor:pointer}
+.style-mini .sm.on{border-color:rgba(100,108,255,0.55);background:rgba(100,108,255,0.12);color:var(--color-primary)}
+
+@media (prefers-reduced-motion: reduce){*{animation-duration:0.001ms!important;transition-duration:0.001ms!important}}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="page-head">
+    <div class="ph-eyebrow">COMPONENT GALLERY · <span class="n">浮层组件画廊</span></div>
+    <h1 class="ph-title">Modals &amp; Overlays</h1>
+    <p class="ph-sub">所有浮层组件在暗化页面上同屏静态呈现 · Line A · Cyber Refined</p>
+  </header>
+
+  <div class="gallery">
+
+    <!-- 01 — New Project modal -->
+    <section aria-label="新建项目弹窗">
+      <div class="block-label"><span class="n">01</span> 新建项目 · NEW PROJECT MODAL</div>
+      <div class="row">
+        <div class="modal new-proj" role="dialog" aria-modal="true" aria-labelledby="np-title">
+          <div class="modal-head">
+            <div class="mh-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+            <div class="mh-titles">
+              <div class="mh-eyebrow">CREATE PROJECT</div>
+              <div class="mh-title" id="np-title">新建项目</div>
+            </div>
+            <button class="modal-close" aria-label="关闭"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+          </div>
+          <div class="modal-body">
+            <div class="field">
+              <label>项目名称</label>
+              <input type="text" value="雨夜街头" aria-label="项目名称">
+            </div>
+            <div class="field-2">
+              <div class="field"><label>所属系列</label><select aria-label="所属系列"><option selected>霓虹追凶</option><option>暗巷档案</option><option>+ 新建系列</option></select></div>
+              <div class="field"><label>分辨率</label><select aria-label="分辨率"><option>1080P</option><option selected>720P</option></select></div>
+            </div>
+            <div class="field">
+              <label>剧本文本</label>
+              <textarea aria-label="剧本文本">【场景一 · 雨夜街头 — 外景 / 夜】
+雨水砸在霓虹招牌上，陈侦探立于街口，风衣领口竖起…</textarea>
+              <p class="helper">粘贴剧本后，AI 将自动拆解场景、角色与分镜。支持 3000 字以内。</p>
+            </div>
+            <div class="field">
+              <label>初始风格</label>
+              <div class="style-mini">
+                <span class="sm on">霓虹黑色电影</span>
+                <span class="sm">赛博朋克</span>
+                <span class="sm">写实电影感</span>
+              </div>
+            </div>
+          </div>
+          <div class="modal-foot">
+            <button class="btn btn-ghost">取消</button>
+            <button class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9V3z"/></svg>创建并解析</button>
+          </div>
+        </div>
+
+        <!-- Offline banner alongside -->
+        <div style="display:flex;flex-direction:column;gap:16px;flex:1;min-width:300px">
+          <div class="block-label" style="margin-bottom:0"><span class="n">06</span> 离线横幅 · OFFLINE BANNER</div>
+          <div class="offline-banner" role="status">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l22 22"/><path d="M16.7 11.1a6 6 0 0 0-8-1M5 12.5a10 10 0 0 1 3-2M8.5 16.1a4 4 0 0 1 5 0"/><path d="M12 20h.01"/></svg>
+            <div class="ob-body">
+              <div class="ob-t">已断开云端连接</div>
+              <div class="ob-s">生成与导出任务将排队，网络恢复后自动继续。已缓存内容可正常浏览。</div>
+            </div>
+            <button class="btn btn-glass btn-sm">重试</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 — Lightbox -->
+    <section aria-label="灯箱大图">
+      <div class="block-label"><span class="n">02</span> 灯箱 · LIGHTBOX</div>
+      <div class="modal lightbox" role="dialog" aria-modal="true" aria-label="图片灯箱">
+        <div class="lb-stage">
+          <img src="../assets/shot-01.png" alt="灯箱大图：雨夜霓虹街头侦探特写">
+          <button class="lb-nav prev" aria-label="上一张"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg></button>
+          <button class="lb-nav next" aria-label="下一张"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+          <div class="lb-meta">
+            <span class="lm-l"><b>SHOT 01</b> · 侦探特写 · WAN-R2V · 1280×720</span>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-glass btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>精选</button>
+              <button class="btn btn-glass btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>下载</button>
+            </div>
+          </div>
+        </div>
+        <div class="lb-thumbs">
+          <div class="lb-thumb on"><img src="../assets/shot-01.png" alt="缩略图 1"></div>
+          <div class="lb-thumb"><img src="../assets/shot-02.png" alt="缩略图 2"></div>
+          <div class="lb-thumb"><img src="../assets/shot-03.png" alt="缩略图 3"></div>
+          <div class="lb-thumb"><img src="../assets/shot-05.png" alt="缩略图 4"></div>
+          <div class="lb-thumb"><img src="../assets/scene-skyline.png" alt="缩略图 5"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 — Compare modal -->
+    <section aria-label="对比弹窗">
+      <div class="block-label"><span class="n">03</span> 对比 · COMPARE TAKES</div>
+      <div class="modal compare" role="dialog" aria-modal="true" aria-labelledby="cmp-title">
+        <div class="modal-head">
+          <div class="mh-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="7" height="16" rx="1"/><rect x="14" y="4" width="7" height="16" rx="1"/></svg></div>
+          <div class="mh-titles">
+            <div class="mh-eyebrow">COMPARE · SHOT 01</div>
+            <div class="mh-title" id="cmp-title">候选对比</div>
+          </div>
+          <button class="modal-close" aria-label="关闭"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+        </div>
+        <div class="modal-body">
+          <div class="compare-grid">
+            <div class="compare-col win">
+              <div class="cc-media">
+                <img src="../assets/shot-01.png" alt="候选 A：侦探特写 WAN">
+                <span class="cc-tag">TAKE A</span>
+              </div>
+              <div class="cc-meta"><span>WAN-R2V · <b>0:04</b></span><span>SEED <b>182733</b></span></div>
+              <button class="cc-pick"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>已选为最终</button>
+            </div>
+            <div class="compare-col">
+              <div class="cc-media">
+                <img src="../assets/shot-03.png" alt="候选 B：侦探特写 Kling">
+                <span class="cc-tag">TAKE B</span>
+              </div>
+              <div class="cc-meta"><span>KLING · <b>0:05</b></span><span>SEED <b>904512</b></span></div>
+              <button class="cc-pick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>选为最终</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn btn-ghost">关闭</button>
+          <button class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>应用选择</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 — Task Queue panel -->
+    <section aria-label="任务队列面板">
+      <div class="block-label"><span class="n">04</span> 任务队列 · TASK QUEUE</div>
+      <div class="modal task-queue" role="dialog" aria-modal="false" aria-labelledby="tq-title">
+        <div class="modal-head">
+          <div class="mh-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></div>
+          <div class="mh-titles">
+            <div class="mh-eyebrow">QUEUE · 4 TASKS</div>
+            <div class="mh-title" id="tq-title">任务队列</div>
+          </div>
+          <button class="modal-close" aria-label="关闭"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+        </div>
+        <div class="tq-list">
+          <!-- processing -->
+          <div class="tq-item">
+            <div class="tq-thumb"><img src="../assets/shot-02.png" alt="任务缩略图 SHOT 02"></div>
+            <div class="tq-body">
+              <div class="tq-top"><span class="tq-name">SHOT 02 · 后巷追踪</span><span class="badge processing"><span class="led"></span>62%</span></div>
+              <div class="tq-sub">WAN-R2V · 5s · 横移跟随</div>
+              <div class="tq-track"><div class="tq-fill proc" style="width:62%"></div></div>
+            </div>
+            <button class="tq-cancel" aria-label="取消任务"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+          </div>
+          <!-- pending -->
+          <div class="tq-item">
+            <div class="tq-thumb"><img src="../assets/shot-03.png" alt="任务缩略图 SHOT 03"></div>
+            <div class="tq-body">
+              <div class="tq-top"><span class="tq-name">SHOT 03 · 全景建立</span><span class="badge pending"><span class="led"></span>排队</span></div>
+              <div class="tq-sub">WAN-R2V · 4s · 固定机位</div>
+              <div class="tq-track"><div class="tq-fill pend" style="width:0%"></div></div>
+            </div>
+            <button class="tq-cancel" aria-label="取消任务"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+          </div>
+          <!-- completed -->
+          <div class="tq-item">
+            <div class="tq-thumb"><img src="../assets/shot-01.png" alt="任务缩略图 SHOT 01"></div>
+            <div class="tq-body">
+              <div class="tq-top"><span class="tq-name">SHOT 01 · 侦探特写</span><span class="badge completed"><span class="led"></span>完成</span></div>
+              <div class="tq-sub">WAN-R2V · 4s · 0:18 用时</div>
+              <div class="tq-track"><div class="tq-fill done" style="width:100%"></div></div>
+            </div>
+            <button class="tq-cancel" aria-label="查看结果"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+          </div>
+          <!-- failed -->
+          <div class="tq-item">
+            <div class="tq-thumb"><img src="../assets/shot-05.png" alt="任务缩略图 SHOT 04" style="opacity:0.5"></div>
+            <div class="tq-body">
+              <div class="tq-top"><span class="tq-name">SHOT 04 · 证件特写</span><span class="badge failed"><span class="led"></span>失败</span></div>
+              <div class="tq-sub">内容安全拦截 · 可重试</div>
+              <div class="tq-track"><div class="tq-fill fail" style="width:100%"></div></div>
+            </div>
+            <button class="tq-cancel" aria-label="重试任务"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn btn-ghost btn-sm">清除已完成</button>
+          <button class="btn btn-glass btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>全部取消</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 — Toasts -->
+    <section aria-label="提示消息">
+      <div class="block-label"><span class="n">05</span> 提示消息 · TOASTS</div>
+      <div class="row">
+        <div class="toast-stack">
+          <div class="toast success" role="status">
+            <div class="t-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div class="t-body"><div class="t-t">已保存到资产库</div><div class="t-s">「霓虹街口」已加入场景库，可在分镜步骤复用。</div></div>
+            <button class="t-x" aria-label="关闭提示"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+          </div>
+          <div class="toast error" role="alert">
+            <div class="t-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></div>
+            <div class="t-body"><div class="t-t">生成失败</div><div class="t-s">SHOT 04 触发内容安全拦截，请调整提示词后重试。</div></div>
+            <button class="t-x" aria-label="关闭提示"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+          </div>
+        </div>
+        <div class="toast-stack">
+          <div class="toast info" role="status">
+            <div class="t-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+            <div class="t-body"><div class="t-t">渲染已加入队列</div><div class="t-s">2 个分镜正在排队，预计 1 分 20 秒完成。</div></div>
+            <button class="t-x" aria-label="关闭提示"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+          </div>
+          <div class="toast warning" role="alert">
+            <div class="t-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+            <div class="t-body"><div class="t-t">Kling 配额不足</div><div class="t-s">剩余配额 12%，请前往设置充值以避免任务中断。</div></div>
+            <button class="t-x" aria-label="关闭提示"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+</body>
+</html>

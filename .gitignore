@@ -1,0 +1,140 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+/lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec
+
+# PyArmor
+obfuscated/
+.pyarmor/
+dist_*/
+
+# Environment
+.env
+.env.local
+.venv
+venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Project specific
+*.log
+*.db
+*.sqlite3
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build outputs
+dist_mac/
+dist_windows/
+*.app
+*.exe
+*.dmg
+*.pkg
+
+# OS
+Thumbs.db
+
+# Node.js
+node_modules/
+package-lock.json
+
+# Frontend (Next.js)
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env.local
+frontend/.vercel
+
+# Logs
+*.log
+logs/
+.lumen-x/
+
+# Secrets (extra safety)
+*secret*
+*credential*
+*.pem
+*.key
+!*.pub.key
+
+# Project outputs
+static/output/
+output
+output/
+static/
+
+# Internal development tools (not for public repo)
+.agent/
+.claude/
+!.claude/
+.claude/*
+!.claude/commands/
+.claude/commands/*
+!.claude/commands/*.md
+.codex/
+!.codex/
+.codex/*
+!.codex/workflows/
+.codex/workflows/*
+!.codex/workflows/*.md
+.superset/
+GITHUB_RELEASE_CHECKLIST.md
+CLAUDE.md
+AGENTS.md
+!AGENTS.md
+demand/
+
+# Local docs scratchpads
+docs/api-reference/
+docs/plans/
+!docs/api-reference/
+docs/api-reference/*
+!docs/api-reference/*.md
+!docs/plans/
+docs/plans/*
+!docs/plans/*.md
+
+# Build/packaging configs (keep templates only)
+*.spec
+!build.spec.template
+
+.omx/
+.gstack/
+docs/agents/
+frontend/docs/
+
+# Tauri
+src-tauri/target/
+src-tauri/binaries/*.app
+src-tauri/gen/

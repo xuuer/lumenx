@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LumenX Studio · Line B (Luminous Atelier) — 工作区</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--color-bg-base);color:var(--color-text-primary);font-family:var(--font-body);font-size:var(--text-body);line-height:var(--leading-body);-webkit-font-smoothing:antialiased;height:100vh;overflow:hidden;position:relative}
+body::before{content:'';position:fixed;inset:0;background:var(--bloom-teal),var(--bloom-amber);pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1;opacity:var(--grain-opacity);background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");mix-blend-mode:overlay}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--p-graphite-700);border-radius:8px;border:3px solid transparent;background-clip:padding-box}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px;border-radius:8px}
+
+.shell{display:flex;height:100vh;position:relative;z-index:2}
+
+/* Global rail */
+.global-rail{width:60px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:8px}
+.brand-mark{width:34px;height:34px;border-radius:11px;background:linear-gradient(140deg,var(--p-teal),var(--p-teal-deep));display:grid;place-items:center;font-family:var(--font-display);font-weight:700;color:var(--color-on-accent);font-size:18px;margin-bottom:14px;box-shadow:var(--glow-teal)}
+.rail-ico{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:var(--color-text-muted);cursor:pointer;transition:all var(--dur-fast) var(--ease-out)}
+.rail-ico:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.rail-ico.active{color:var(--color-primary);background:rgba(52,216,196,0.08)}
+.rail-ico svg{width:19px;height:19px}
+.rail-spacer{flex:1}
+
+/* Library-style sidebar for workspace: Series navigator */
+.side{width:var(--sidebar-w);flex-shrink:0;display:flex;flex-direction:column;padding:6px 14px 14px}
+.side-head{padding:14px 8px 16px}
+.side-crumb{font-family:var(--font-mono);font-size:10px;color:var(--color-text-muted);letter-spacing:0.08em}
+.side-title{font-family:var(--font-display);font-size:var(--text-display);font-weight:600;margin-top:8px;letter-spacing:-0.02em;line-height:1.1}
+.side-meta{font-family:var(--font-mono);font-size:9.5px;color:var(--color-text-muted);margin-top:6px;letter-spacing:0.06em}
+.side-sec{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.16em;color:var(--color-text-muted);padding:14px 10px 8px}
+.side-nav{display:flex;flex-direction:column;gap:3px}
+.side-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:var(--radius-md);cursor:pointer;transition:all var(--dur-base) var(--ease-out);color:var(--color-text-secondary);font-size:var(--text-body)}
+.side-item:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.side-item.active{background:var(--color-bg-surface);box-shadow:var(--shadow-rest);color:var(--color-text-primary);font-weight:600}
+.side-item svg{width:16px;height:16px;color:var(--color-text-muted)}
+.side-item.active svg{color:var(--color-primary)}
+.side-item .ct{margin-left:auto;font-family:var(--font-mono);font-size:9.5px;color:var(--color-text-muted)}
+.side-foot{margin-top:auto;padding-top:14px}
+
+/* Main */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;padding-right:6px;overflow:hidden}
+.main-head{padding:22px 28px 14px;display:flex;align-items:flex-end;gap:18px}
+.head-titles{flex:1;min-width:0}
+.eyebrow{font-family:var(--font-mono);font-size:9.5px;text-transform:uppercase;letter-spacing:0.22em;color:var(--color-text-muted)}
+.eyebrow .n{color:var(--color-primary);font-weight:600}
+.page-title{font-family:var(--font-display);font-size:var(--text-display-lg);font-weight:600;letter-spacing:-0.02em;margin-top:4px}
+.head-actions{display:flex;align-items:center;gap:10px}
+
+.btn{display:inline-flex;align-items:center;gap:7px;border-radius:var(--btn-radius);font-size:var(--text-body);font-weight:600;cursor:pointer;transition:all var(--dur-base) var(--ease-out);border:1px solid transparent;padding:9px 18px}
+.btn svg{width:14px;height:14px}
+.btn-primary{background:var(--color-primary);color:var(--color-on-accent);box-shadow:var(--glow-teal)}
+.btn-primary:hover{background:var(--color-primary-hover);transform:translateY(-1px);box-shadow:0 0 32px -4px rgba(52,216,196,0.6)}
+.btn-soft{background:var(--color-bg-surface);color:var(--color-text-primary);box-shadow:var(--shadow-rest)}
+.btn-soft:hover{background:var(--color-bg-elevated);transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--color-text-secondary)}
+.btn-ghost:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.btn-sm{padding:7px 14px;font-size:var(--text-body-sm)}
+
+/* search + filter row */
+.toolbar{padding:4px 28px 8px;display:flex;align-items:center;gap:12px}
+.search{flex:1;max-width:340px;position:relative}
+.search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--color-text-muted)}
+.search input{width:100%;background:var(--input-bg);border:1px solid var(--color-border-subtle);border-radius:var(--radius-pill);padding:9px 14px 9px 36px;color:var(--color-text-primary);font-family:var(--font-body);font-size:var(--text-body);outline:none;transition:border-color var(--dur-base) var(--ease-out)}
+.search input:focus{border-color:var(--color-primary)}
+.search input::placeholder{color:var(--color-text-muted)}
+.pill-tabs{display:inline-flex;padding:3px;background:var(--color-bg-inset);border-radius:var(--radius-pill);margin-left:auto}
+.pill-tab{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:var(--radius-pill);font-size:11px;font-weight:600;color:var(--color-text-muted);cursor:pointer;border:none;background:transparent;transition:all var(--dur-base) var(--ease-out)}
+.pill-tab.active{background:var(--color-bg-surface);color:var(--color-text-primary);box-shadow:var(--shadow-rest)}
+
+.scroll{flex:1;overflow-y:auto;padding:10px 28px 36px}
+
+.group-h{display:flex;align-items:baseline;gap:12px;margin:18px 2px 16px}
+.group-h .gt{font-family:var(--font-display);font-size:var(--text-display);font-weight:600;letter-spacing:-0.02em}
+.group-h .gc{font-family:var(--font-mono);font-size:10px;color:var(--color-text-muted);letter-spacing:0.08em}
+.group-h .gl{flex:1;height:1px;background:var(--color-border-subtle)}
+
+/* Project gallery grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:var(--space-lg)}
+.proj{background:var(--card-bg);border-radius:var(--card-radius);box-shadow:var(--shadow-rest);overflow:hidden;cursor:pointer;border:1px solid var(--color-border-subtle);transition:transform var(--dur-base) var(--ease-spring),box-shadow var(--dur-base) var(--ease-out);animation:reveal var(--dur-slow) var(--ease-spring) backwards}
+.proj:nth-child(1){animation-delay:0ms}.proj:nth-child(2){animation-delay:60ms}.proj:nth-child(3){animation-delay:120ms}.proj:nth-child(4){animation-delay:180ms}
+.proj:hover{transform:translateY(-5px);box-shadow:var(--shadow-float)}
+@keyframes reveal{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.proj-thumb{aspect-ratio:16/10;position:relative;overflow:hidden;background:var(--color-bg-inset)}
+.proj-thumb img{width:100%;height:100%;object-fit:cover;transition:transform var(--dur-slow) var(--ease-out)}
+.proj:hover .proj-thumb img{transform:scale(1.04)}
+.proj-thumb::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(8,7,10,0.55));pointer-events:none}
+.proj.feat .proj-thumb::before{content:'';position:absolute;inset:0;z-index:1;border-radius:0;box-shadow:inset 0 0 50px -10px rgba(255,169,77,0.30);pointer-events:none}
+.thumb-top{position:absolute;top:12px;left:12px;right:12px;display:flex;align-items:center;justify-content:space-between;z-index:2}
+.thumb-foot{position:absolute;bottom:12px;left:14px;z-index:2}
+.thumb-foot .pt{font-family:var(--font-display);font-size:22px;font-weight:600;letter-spacing:-0.02em;line-height:1.05;text-shadow:0 2px 12px rgba(0,0,0,0.6)}
+.thumb-foot .ps{font-family:var(--font-mono);font-size:9px;color:rgba(242,237,228,0.75);letter-spacing:0.08em;margin-top:3px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:var(--radius-pill);font-family:var(--font-mono);font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;backdrop-filter:blur(6px)}
+.badge .led{width:5px;height:5px;border-radius:50%}
+.badge.pending{color:var(--status-pending-fg);background:var(--status-pending-bg);border:1px solid var(--status-pending-border)}.badge.pending .led{background:var(--status-pending-fg)}
+.badge.processing{color:var(--status-processing-fg);background:var(--status-processing-bg);border:1px solid var(--status-processing-border)}.badge.processing .led{background:var(--status-processing-fg);animation:pulse 1.2s infinite}
+.badge.completed{color:var(--status-completed-fg);background:var(--status-completed-bg);border:1px solid var(--status-completed-border)}.badge.completed .led{background:var(--status-completed-fg)}
+.badge.starred{color:var(--status-starred-fg);background:var(--status-starred-bg);border:1px solid var(--status-starred-border);box-shadow:var(--glow-amber)}.badge.starred .led{background:var(--status-starred-solid)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.thumb-play{position:absolute;inset:0;display:grid;place-items:center;opacity:0;transition:opacity var(--dur-base) var(--ease-out);z-index:2}
+.proj:hover .thumb-play{opacity:1}
+.thumb-play .pb{width:48px;height:48px;border-radius:50%;background:rgba(242,237,228,0.92);display:grid;place-items:center}
+.thumb-play .pb svg{width:18px;height:18px;color:var(--color-on-accent);margin-left:2px}
+.proj-meta{padding:14px 16px 16px;display:flex;align-items:center;justify-content:space-between}
+.proj-meta .mleft{display:flex;flex-direction:column;gap:5px;min-width:0}
+.proj-meta .crumb{font-family:var(--font-mono);font-size:9px;color:var(--color-text-muted);letter-spacing:0.08em;text-transform:uppercase}
+.proj-meta .stats{display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:10px;color:var(--color-text-secondary)}
+.proj-meta .stats span{display:inline-flex;align-items:center;gap:4px}
+.proj-meta .stats svg{width:11px;height:11px;color:var(--color-text-muted)}
+.ico-btn{width:32px;height:32px;border-radius:var(--radius-md);display:grid;place-items:center;border:none;background:transparent;color:var(--color-text-muted);cursor:pointer;transition:all var(--dur-base) var(--ease-out)}
+.ico-btn:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.ico-btn svg{width:16px;height:16px}
+
+/* New project tile */
+.new-tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;border-radius:var(--card-radius);border:1.5px dashed var(--color-border-default);background:transparent;cursor:pointer;min-height:240px;color:var(--color-text-secondary);transition:all var(--dur-base) var(--ease-spring)}
+.new-tile:hover{border-color:var(--color-primary);color:var(--color-text-primary);transform:translateY(-3px);background:rgba(52,216,196,0.04)}
+.new-tile .nb{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:var(--color-bg-surface);box-shadow:var(--shadow-rest);transition:all var(--dur-base) var(--ease-spring)}
+.new-tile:hover .nb{box-shadow:var(--glow-teal);color:var(--color-primary)}
+.new-tile .nb svg{width:24px;height:24px}
+.new-tile .nl{font-size:var(--text-body-lg);font-weight:600}
+.new-tile .nd{font-family:var(--font-mono);font-size:9.5px;color:var(--color-text-muted);letter-spacing:0.06em}
+
+/* Empty state — brand moment */
+.empty{margin:32px 2px 8px;padding:var(--space-2xl) var(--space-xl);background:var(--card-bg);border-radius:var(--radius-xl);box-shadow:var(--shadow-rest);border:1px solid var(--color-border-subtle);position:relative;overflow:hidden;text-align:center}
+.empty::before{content:'';position:absolute;inset:0;background:var(--bloom-amber);opacity:0.6;pointer-events:none}
+.empty-inner{position:relative;z-index:1;max-width:620px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:var(--space-md)}
+.empty-kicker{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.22em;color:var(--color-text-muted)}
+.empty-quote{font-family:var(--font-display);font-size:var(--text-display-lg);font-weight:500;font-style:italic;line-height:1.25;letter-spacing:-0.02em;color:var(--color-text-primary)}
+.empty-quote .accent{color:var(--color-accent)}
+.empty-sub{font-size:var(--text-body-lg);color:var(--color-text-secondary);max-width:440px}
+.empty-actions{display:flex;gap:12px;margin-top:6px}
+
+.note{padding:14px 28px 8px;font-family:var(--font-mono);font-size:9.5px;color:var(--color-text-muted);letter-spacing:0.04em;display:flex;gap:16px;flex-shrink:0;flex-wrap:wrap}
+.note b{color:var(--color-primary)}
+.note .amber{color:var(--color-accent)}
+
+@media (prefers-reduced-motion: reduce){*{animation-duration:0.001ms!important;transition-duration:0.001ms!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <nav class="global-rail" aria-label="全局导航">
+    <div class="brand-mark">L</div>
+    <a class="rail-ico active" href="workspace.html" title="工作区" aria-current="page" aria-label="工作区"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg></a>
+    <a class="rail-ico" href="library.html" title="资产库" aria-label="资产库"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4M3 17l9 4 9-4"/></svg></a>
+    <a class="rail-ico" href="playground.html" title="Playground" aria-label="Playground"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></a>
+    <div class="rail-spacer"></div>
+    <a class="rail-ico" href="settings.html" title="设置" aria-label="设置"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 7 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-1.1-2.7H1a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 2.6 7a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H7a1.6 1.6 0 0 0 1-1.5V1a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V7a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg></a>
+  </nav>
+
+  <aside class="side" aria-label="系列导航">
+    <div class="side-head">
+      <div class="side-crumb">LUMENX STUDIO</div>
+      <div class="side-title">工作区</div>
+      <div class="side-meta">8 PROJECTS · 3 SERIES</div>
+    </div>
+    <div class="side-sec">系列 Series</div>
+    <nav class="side-nav" aria-label="系列">
+      <a class="side-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v16H4z"/><path d="M4 9h16M9 4v16"/></svg>全部项目<span class="ct">8</span></a>
+      <a class="side-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>霓虹追凶<span class="ct">4</span></a>
+      <a class="side-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4"/></svg>潮汐之城<span class="ct">2</span></a>
+      <a class="side-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3l14 9-14 9V3z"/></svg>暗室手记<span class="ct">2</span></a>
+    </nav>
+    <div class="side-sec">状态</div>
+    <nav class="side-nav" aria-label="状态">
+      <a class="side-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 6L9 17l-5-5"/></svg>已完成<span class="ct">3</span></a>
+      <a class="side-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>进行中<span class="ct">4</span></a>
+      <a class="side-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14"/></svg>草稿<span class="ct">1</span></a>
+    </nav>
+    <div class="side-foot">
+      <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>新建项目</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="main-head">
+      <div class="head-titles">
+        <div class="eyebrow">WORKSPACE · <span class="n">画廊</span></div>
+        <h1 class="page-title">我的创作</h1>
+      </div>
+      <div class="head-actions">
+        <button class="btn btn-soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>排序</button>
+        <button class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>新建项目</button>
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+        <input type="search" placeholder="搜索项目 / 系列 / 镜头…" aria-label="搜索项目">
+      </div>
+      <div class="pill-tabs" role="tablist" aria-label="视图切换">
+        <button class="pill-tab active" role="tab" aria-selected="true">画廊</button>
+        <button class="pill-tab" role="tab" aria-selected="false">列表</button>
+      </div>
+    </div>
+
+    <div class="scroll">
+
+      <div class="group-h">
+        <span class="gt">霓虹追凶</span>
+        <span class="gc">NEON MANHUNT · 4 EPISODES</span>
+        <span class="gl"></span>
+      </div>
+
+      <section class="grid" aria-label="霓虹追凶 项目">
+
+        <!-- FEAT: starred + amber halation -->
+        <article class="proj feat" tabindex="0">
+          <div class="proj-thumb">
+            <img src="../assets/shot-01.png" alt="雨夜街头 · 霓虹下侦探特写的项目封面">
+            <div class="thumb-top">
+              <span class="badge starred"><span class="led"></span>精选</span>
+            </div>
+            <div class="thumb-play"><div class="pb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div>
+            <div class="thumb-foot">
+              <div class="pt">雨夜街头</div>
+              <div class="ps">EP.01 · R2V · 12 SHOTS · 720P</div>
+            </div>
+          </div>
+          <div class="proj-meta">
+            <div class="mleft">
+              <span class="crumb">已完成 · 2 天前</span>
+              <div class="stats"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 15l5-5 4 4 3-3 6 6"/></svg>12 镜</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>0:48</span></div>
+            </div>
+            <button class="ico-btn" aria-label="更多操作"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+          </div>
+        </article>
+
+        <article class="proj" tabindex="0">
+          <div class="proj-thumb">
+            <img src="../assets/shot-02.png" alt="后巷追逐 · 项目封面">
+            <div class="thumb-top"><span class="badge processing"><span class="led"></span>生成中</span></div>
+            <div class="thumb-play"><div class="pb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div>
+            <div class="thumb-foot">
+              <div class="pt">后巷追逐</div>
+              <div class="ps">EP.02 · T2I→I2V · 9 SHOTS</div>
+            </div>
+          </div>
+          <div class="proj-meta">
+            <div class="mleft">
+              <span class="crumb">渲染中 · 4/9 镜</span>
+              <div class="stats"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 15l5-5 4 4 3-3 6 6"/></svg>9 镜</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>0:36</span></div>
+            </div>
+            <button class="ico-btn" aria-label="更多操作"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+          </div>
+        </article>
+
+        <article class="proj" tabindex="0">
+          <div class="proj-thumb">
+            <img src="../assets/shot-03.png" alt="天台对峙 · 项目封面">
+            <div class="thumb-top"><span class="badge completed"><span class="led"></span>已完成</span></div>
+            <div class="thumb-play"><div class="pb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div>
+            <div class="thumb-foot">
+              <div class="pt">天台对峙</div>
+              <div class="ps">EP.03 · R2V · 10 SHOTS · 1080P</div>
+            </div>
+          </div>
+          <div class="proj-meta">
+            <div class="mleft">
+              <span class="crumb">已完成 · 5 天前</span>
+              <div class="stats"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 15l5-5 4 4 3-3 6 6"/></svg>10 镜</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>0:42</span></div>
+            </div>
+            <button class="ico-btn" aria-label="更多操作"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+          </div>
+        </article>
+
+        <article class="proj" tabindex="0">
+          <div class="proj-thumb">
+            <img src="../assets/scene-skyline.png" alt="霓虹尾声 · 城市天际线项目封面">
+            <div class="thumb-top"><span class="badge pending"><span class="led"></span>草稿</span></div>
+            <div class="thumb-play"><div class="pb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div>
+            <div class="thumb-foot">
+              <div class="pt">霓虹尾声</div>
+              <div class="ps">EP.04 · 草稿 · 脚本待解析</div>
+            </div>
+          </div>
+          <div class="proj-meta">
+            <div class="mleft">
+              <span class="crumb">草稿 · 今天</span>
+              <div class="stats"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h5"/></svg>脚本就绪</span></div>
+            </div>
+            <button class="ico-btn" aria-label="更多操作"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+          </div>
+        </article>
+
+        <button class="new-tile" aria-label="新建项目">
+          <span class="nb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
+          <span class="nl">新建项目</span>
+          <span class="nd">从脚本开始</span>
+        </button>
+
+      </section>
+
+      <div class="group-h">
+        <span class="gt">潮汐之城</span>
+        <span class="gc">TIDAL CITY · 2 PROJECTS</span>
+        <span class="gl"></span>
+      </div>
+
+      <section class="grid" aria-label="潮汐之城 项目">
+        <article class="proj" tabindex="0">
+          <div class="proj-thumb">
+            <img src="../assets/shot-05.png" alt="证物之夜 · 项目封面">
+            <div class="thumb-top"><span class="badge completed"><span class="led"></span>已完成</span></div>
+            <div class="thumb-play"><div class="pb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div>
+            <div class="thumb-foot">
+              <div class="pt">证物之夜</div>
+              <div class="ps">EP.01 · R2V · 8 SHOTS · 1080P</div>
+            </div>
+          </div>
+          <div class="proj-meta">
+            <div class="mleft">
+              <span class="crumb">已完成 · 1 周前</span>
+              <div class="stats"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 15l5-5 4 4 3-3 6 6"/></svg>8 镜</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>0:32</span></div>
+            </div>
+            <button class="ico-btn" aria-label="更多操作"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+          </div>
+        </article>
+
+        <article class="proj" tabindex="0">
+          <div class="proj-thumb">
+            <img src="../assets/char-detective.png" alt="海雾审讯 · 侦探角色项目封面">
+            <div class="thumb-top"><span class="badge processing"><span class="led"></span>生成中</span></div>
+            <div class="thumb-play"><div class="pb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div>
+            <div class="thumb-foot">
+              <div class="pt">海雾审讯</div>
+              <div class="ps">EP.02 · T2I→I2V · 11 SHOTS</div>
+            </div>
+          </div>
+          <div class="proj-meta">
+            <div class="mleft">
+              <span class="crumb">渲染中 · 7/11 镜</span>
+              <div class="stats"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 15l5-5 4 4 3-3 6 6"/></svg>11 镜</span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>0:44</span></div>
+            </div>
+            <button class="ico-btn" aria-label="更多操作"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+          </div>
+        </article>
+      </section>
+
+      <!-- EMPTY STATE — brand moment -->
+      <section aria-label="空系列引导">
+        <div class="empty">
+          <div class="empty-inner">
+            <div class="empty-kicker">RENDER NOISE INTO NARRATIVE</div>
+            <p class="empty-quote">"每一座城市，都藏着一个还没被<span class="accent">讲出来</span>的故事。"</p>
+            <p class="empty-sub">「暗室手记」系列还没有项目。粘贴一段剧本，让 LumenX 把文字渲染成影像 —— 你只需要一个开头。</p>
+            <div class="empty-actions">
+              <button class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>新建项目</button>
+              <button class="btn btn-ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h5"/></svg>导入剧本</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <div class="note">
+      <span><b>Line B · Luminous Atelier</b> — 编辑式画廊 · 衬线项目名 · 近无框浮起卡片</span>
+      <span class="amber">Signature：精选项目封面 amber halation</span>
+      <span>氛围：胶片颗粒 + 双角落光晕泄漏</span>
+    </div>
+  </main>
+</div>
+</body>
+</html>

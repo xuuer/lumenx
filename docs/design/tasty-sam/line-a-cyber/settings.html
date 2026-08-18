@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LumenX Studio · Line A (Cyber Refined) — 设置</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--color-bg-base);color:var(--color-text-primary);font-family:var(--font-body);font-size:var(--text-body);line-height:var(--leading-body);-webkit-font-smoothing:antialiased;height:100vh;overflow:hidden}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--p-gray-700);border-radius:6px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:var(--p-gray-500)}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px;border-radius:4px}
+
+.shell{display:flex;height:100vh}
+
+/* Global rail */
+.global-rail{width:56px;flex-shrink:0;background:var(--color-bg-base);border-right:1px solid var(--color-border-subtle);display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:6px}
+.brand-mark{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,rgba(100,108,255,0.18),rgba(255,0,128,0.10));border:1px solid rgba(100,108,255,0.4);display:grid;place-items:center;font-family:var(--font-mono);font-weight:800;color:var(--color-primary);font-size:15px;margin-bottom:12px}
+.rail-ico{width:38px;height:38px;border-radius:9px;display:grid;place-items:center;color:var(--color-text-muted);cursor:pointer;transition:all var(--dur-fast) var(--ease-out);border:1px solid transparent}
+.rail-ico:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.rail-ico.active{background:rgba(100,108,255,0.10);border-color:rgba(100,108,255,0.25);color:var(--color-primary)}
+.rail-ico svg{width:18px;height:18px}
+.rail-spacer{flex:1}
+
+/* Settings nav (sidebar shell) */
+.set-sb{width:var(--sidebar-w);flex-shrink:0;background:var(--color-bg-surface);border-right:1px solid var(--color-border-default);display:flex;flex-direction:column}
+.set-head{padding:16px;border-bottom:1px solid var(--color-border-subtle)}
+.set-head .sh-eyebrow{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.18em;color:var(--color-text-muted)}
+.set-head .sh-title{font-family:var(--font-display);font-size:var(--text-display);font-weight:600;margin-top:6px}
+.set-nav{flex:1;padding:10px 8px;display:flex;flex-direction:column;gap:2px}
+.set-link{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:var(--radius-md);cursor:pointer;transition:all var(--dur-fast) var(--ease-out);border:1px solid transparent;position:relative;text-decoration:none;color:var(--color-text-secondary)}
+.set-link:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.set-link.active{background:rgba(100,108,255,0.08);border-color:rgba(100,108,255,0.18);color:var(--color-text-primary)}
+.set-link.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:18px;background:var(--color-primary);border-radius:0 3px 3px 0}
+.set-link svg{width:15px;height:15px;flex-shrink:0}
+.set-link .sl{font-size:var(--text-body);font-weight:500}
+.set-link.active .sl{font-weight:600}
+.set-foot{padding:14px;border-top:1px solid var(--color-border-subtle);font-family:var(--font-mono);font-size:9px;color:var(--color-text-muted);letter-spacing:0.04em}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;border-radius:var(--btn-radius);font-size:var(--text-body);font-weight:600;cursor:pointer;transition:all var(--dur-fast) var(--ease-out);border:1px solid transparent;padding:7px 14px}
+.btn svg{width:13px;height:13px}
+.btn-primary{background:var(--color-primary);border-color:var(--p-blue-dim);color:var(--color-on-primary);box-shadow:var(--glow-primary)}
+.btn-primary:hover{background:var(--color-primary-hover);box-shadow:0 0 24px -4px rgba(100,108,255,0.7)}
+.btn-glass{background:var(--color-bg-elevated);border-color:var(--color-border-default);color:var(--color-text-primary)}
+.btn-glass:hover{background:var(--p-gray-800);border-color:var(--color-border-strong)}
+.btn-ghost{background:transparent;color:var(--color-text-secondary)}
+.btn-ghost:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.btn-sm{padding:5px 10px;font-size:var(--text-body-sm)}
+
+/* main */
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{height:56px;flex-shrink:0;border-bottom:1px solid var(--color-border-default);display:flex;align-items:center;padding:0 24px;gap:12px;background:var(--color-bg-surface)}
+.tb-title{font-family:var(--font-display);font-size:var(--text-display);font-weight:600}
+.tb-sub{font-family:var(--font-mono);font-size:9.5px;color:var(--color-text-muted);letter-spacing:0.06em;margin-top:1px}
+.scroll{flex:1;overflow-y:auto;padding:24px;background:
+  radial-gradient(120% 60% at 50% -8%, rgba(100,108,255,0.04), transparent 55%),
+  var(--color-bg-base)}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+
+/* offline banner */
+.offline-banner{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:var(--radius-lg);background:var(--status-processing-bg);border:1px solid var(--status-processing-border);color:var(--status-processing-fg)}
+.offline-banner svg{width:18px;height:18px;flex-shrink:0}
+.offline-banner .ob-body{flex:1}
+.offline-banner .ob-t{font-size:12.5px;font-weight:600;color:var(--color-text-primary)}
+.offline-banner .ob-s{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+
+/* form section card */
+.fsec{background:var(--color-bg-surface);border:1px solid var(--color-border-default);border-radius:var(--radius-lg);box-shadow:var(--shadow-rest);overflow:hidden}
+.fsec-head{padding:14px 18px;border-bottom:1px solid var(--color-border-subtle)}
+.fsec-eyebrow{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.16em;color:var(--color-text-muted)}
+.fsec-eyebrow .n{color:var(--color-primary);font-weight:700}
+.fsec-title{font-family:var(--font-display);font-size:var(--text-display-sm);font-weight:600;margin-top:3px}
+.fsec-body{padding:18px}
+
+/* form row */
+.frow{display:grid;grid-template-columns:200px 1fr;gap:18px;padding:14px 0;border-bottom:1px solid var(--color-border-subtle);align-items:start}
+.frow:first-child{padding-top:0}
+.frow:last-child{padding-bottom:0;border-bottom:none}
+.frow .flabel{font-size:12.5px;font-weight:600}
+.frow .fhint{font-size:11px;color:var(--color-text-muted);margin-top:4px;line-height:1.5}
+.frow .fcontrol{min-width:0}
+
+label.fl{display:block;font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);margin-bottom:5px}
+select,input[type=text],input[type=password],input[type=url]{width:100%;background:var(--color-bg-input);border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:9px 11px;color:var(--color-text-primary);font-family:var(--font-body);font-size:12.5px;outline:none;transition:border-color var(--dur-fast) var(--ease-out)}
+select:hover,input:hover:not(:disabled){border-color:var(--color-border-strong)}
+select:focus,input:focus{border-color:rgba(100,108,255,0.5);box-shadow:0 0 0 3px rgba(100,108,255,0.12)}
+input:disabled{opacity:0.45;cursor:not-allowed;background:var(--color-bg-inset)}
+.input-mono{font-family:var(--font-mono);font-size:11.5px;letter-spacing:0.02em}
+
+/* masked key field */
+.key-field{position:relative}
+.key-field input{padding-right:78px}
+.key-field .key-toggle{position:absolute;right:6px;top:50%;transform:translateY(-50%);display:flex;gap:2px}
+.key-field .kt-btn{width:28px;height:28px;border-radius:6px;display:grid;place-items:center;border:none;background:transparent;color:var(--color-text-muted);cursor:pointer;transition:all var(--dur-fast) var(--ease-out)}
+.key-field .kt-btn:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.key-field .kt-btn svg{width:14px;height:14px}
+.key-status{display:inline-flex;align-items:center;gap:5px;font-family:var(--font-mono);font-size:9.5px;margin-top:6px;letter-spacing:0.04em}
+.key-status.ok{color:var(--status-completed-fg)}
+.key-status.warn{color:var(--status-processing-fg)}
+.key-status svg{width:11px;height:11px}
+
+/* toggle */
+.toggle{position:relative;width:42px;height:24px;border-radius:99px;background:var(--color-bg-inset);border:1px solid var(--color-border-strong);cursor:pointer;transition:all var(--dur-fast) var(--ease-out);flex-shrink:0}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:var(--p-gray-400);transition:all var(--dur-fast) var(--ease-out)}
+.toggle.on{background:rgba(100,108,255,0.25);border-color:var(--color-primary)}
+.toggle.on::after{left:21px;background:var(--color-primary);box-shadow:0 0 8px var(--color-primary)}
+.toggle-row{display:flex;align-items:center;gap:14px}
+.toggle-row .tr-body{flex:1}
+.toggle-row .tr-t{font-size:12.5px;font-weight:600}
+.toggle-row .tr-s{font-size:11px;color:var(--color-text-muted);margin-top:3px}
+
+/* model option chips with provider */
+.model-pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.08em;padding:3px 8px;border-radius:5px;background:var(--color-bg-inset);border:1px solid var(--color-border-default);color:var(--color-text-secondary);margin-top:7px}
+.model-pill .d{width:5px;height:5px;border-radius:50%;background:var(--status-completed-fg)}
+
+/* theme info */
+.theme-card{display:flex;gap:14px;align-items:center;padding:14px;border:1px solid var(--color-border-default);border-radius:var(--radius-md);background:var(--color-bg-inset)}
+.theme-swatches{display:flex;gap:6px}
+.theme-sw{width:28px;height:28px;border-radius:7px;border:1px solid var(--color-border-strong)}
+.theme-info-body .ti-t{font-size:12.5px;font-weight:600}
+.theme-info-body .ti-s{font-size:11px;color:var(--color-text-muted);margin-top:3px}
+
+/* about rows */
+.about-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-border-subtle);font-size:12.5px}
+.about-row:last-child{border-bottom:none}
+.about-row .ak{color:var(--color-text-secondary)}
+.about-row .av{font-family:var(--font-mono);font-size:11.5px;color:var(--color-text-primary)}
+
+.save-bar{display:flex;justify-content:flex-end;gap:10px;padding-top:4px}
+
+@media (max-width:720px){.frow{grid-template-columns:1fr}}
+@media (prefers-reduced-motion: reduce){*{animation-duration:0.001ms!important;transition-duration:0.001ms!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- Global rail -->
+  <nav class="global-rail" aria-label="全局导航">
+    <div class="brand-mark" aria-hidden="true">X</div>
+    <a class="rail-ico" href="workspace.html" title="工作区" aria-label="工作区"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></a>
+    <a class="rail-ico" href="library.html" title="资产库" aria-label="资产库"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4M3 17l9 4 9-4"/></svg></a>
+    <a class="rail-ico" href="playground.html" title="Playground" aria-label="Playground"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></a>
+    <div class="rail-spacer"></div>
+    <a class="rail-ico active" href="settings.html" title="设置" aria-label="设置" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.5-2.3 1a7 7 0 0 0-1.7-1l-.3-2.5h-4l-.3 2.5a7 7 0 0 0-1.7 1l-2.3-1-2 3.5 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.5 2.3-1a7 7 0 0 0 1.7 1l.3 2.5h4l.3-2.5a7 7 0 0 0 1.7-1l2.3 1 2-3.5-2-1.5c.1-.3.1-.7.1-1z"/></svg></a>
+  </nav>
+
+  <!-- Settings nav -->
+  <aside class="set-sb">
+    <div class="set-head">
+      <div class="sh-eyebrow">SETTINGS</div>
+      <div class="sh-title">设置</div>
+    </div>
+    <nav class="set-nav" aria-label="设置分类">
+      <a class="set-link" href="#general"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M3 12h3M18 12h3M12 3v3M12 18v3"/></svg><span class="sl">通用</span></a>
+      <a class="set-link active" href="#models" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg><span class="sl">模型</span></a>
+      <a class="set-link" href="#apikeys"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="15" r="4"/><path d="M10.8 12.2L21 2M16 7l3 3M14 9l3 3"/></svg><span class="sl">API 密钥</span></a>
+      <a class="set-link" href="#storage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/></svg><span class="sl">存储 OSS</span></a>
+      <a class="set-link" href="#about"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg><span class="sl">关于</span></a>
+    </nav>
+    <div class="set-foot">LUMENX STUDIO · v0.2.0<br>LINE A · CYBER REFINED</div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <div class="tb-title">模型与服务</div>
+        <div class="tb-sub">MODELS · API KEYS · STORAGE</div>
+      </div>
+      <div style="margin-left:auto"><button class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>保存更改</button></div>
+    </header>
+
+    <div class="scroll">
+      <div class="wrap">
+
+        <!-- Offline banner -->
+        <div class="offline-banner" role="status">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l22 22"/><path d="M16.7 11.1a6 6 0 0 0-8-1M5 12.5a10 10 0 0 1 3-2M8.5 16.1a4 4 0 0 1 5 0"/><path d="M12 20h.01"/></svg>
+          <div class="ob-body">
+            <div class="ob-t">当前处于离线模式</div>
+            <div class="ob-s">未检测到云端连接。已缓存的资产仍可浏览，但生成与导出将在恢复网络后排队执行。</div>
+          </div>
+          <button class="btn btn-glass btn-sm">重试连接</button>
+        </div>
+
+        <!-- MODELS -->
+        <section class="fsec" id="models" aria-labelledby="models-t">
+          <div class="fsec-head">
+            <div class="fsec-eyebrow">SECTION <span class="n">01</span> · MODEL SELECTION</div>
+            <h2 class="fsec-title" id="models-t">模型选择</h2>
+          </div>
+          <div class="fsec-body">
+            <div class="frow">
+              <div><div class="flabel">语言模型 (LLM)</div><div class="fhint">用于剧本解析、分镜文案与提示词生成。</div></div>
+              <div class="fcontrol">
+                <label class="fl">CHAT / SCRIPT MODEL</label>
+                <select aria-label="语言模型">
+                  <option selected>Qwen-Max · 通义千问</option>
+                  <option>Qwen-Plus · 通义千问</option>
+                  <option>Qwen-Turbo · 通义千问</option>
+                </select>
+                <span class="model-pill"><span class="d"></span>DASHSCOPE · 已连接</span>
+              </div>
+            </div>
+            <div class="frow">
+              <div><div class="flabel">文生图模型</div><div class="fhint">角色、场景、道具与分镜首帧渲染。</div></div>
+              <div class="fcontrol">
+                <label class="fl">TEXT-TO-IMAGE MODEL</label>
+                <select aria-label="文生图模型">
+                  <option selected>Wan 2.1 · 通义万相</option>
+                  <option>Qwen-Image 2.0</option>
+                  <option>Seedream 5.0</option>
+                </select>
+                <span class="model-pill"><span class="d"></span>WAN · DEFAULT</span>
+              </div>
+            </div>
+            <div class="frow">
+              <div><div class="flabel">视频模型</div><div class="fhint">R2V / I2V 分镜动态生成。可按项目覆盖。</div></div>
+              <div class="fcontrol">
+                <label class="fl">VIDEO MODEL</label>
+                <select aria-label="视频模型">
+                  <option selected>Wan 2.1 R2V · 通义万相</option>
+                  <option>Kling 1.6 · 可灵</option>
+                  <option>Vidu Q1</option>
+                  <option>PixVerse V4</option>
+                </select>
+                <span class="model-pill"><span class="d"></span>WAN-R2V · DEFAULT</span>
+              </div>
+            </div>
+            <div class="frow">
+              <div><div class="flabel">默认时长 / 帧率</div><div class="fhint">新建分镜的默认生成参数。</div></div>
+              <div class="fcontrol" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div><label class="fl">DURATION</label><select aria-label="默认时长"><option>4 秒</option><option selected>5 秒</option></select></div>
+                <div><label class="fl">FPS</label><select aria-label="默认帧率"><option selected>24 FPS</option><option>30 FPS</option></select></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- API KEYS -->
+        <section class="fsec" id="apikeys" aria-labelledby="keys-t">
+          <div class="fsec-head">
+            <div class="fsec-eyebrow">SECTION <span class="n">02</span> · API KEYS</div>
+            <h2 class="fsec-title" id="keys-t">API 密钥</h2>
+          </div>
+          <div class="fsec-body">
+            <div class="frow">
+              <div><div class="flabel">DashScope 密钥</div><div class="fhint">阿里云百炼 / 通义系列服务凭证。</div></div>
+              <div class="fcontrol">
+                <label class="fl">DASHSCOPE_API_KEY</label>
+                <div class="key-field">
+                  <input type="password" class="input-mono" value="sk-3f9a2c7e8b14d6a0f5e2" aria-label="DashScope API 密钥">
+                  <div class="key-toggle">
+                    <button class="kt-btn" aria-label="显示密钥" title="显示/隐藏"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                    <button class="kt-btn" aria-label="复制密钥" title="复制"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button>
+                  </div>
+                </div>
+                <span class="key-status ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>已验证 · 配额充足</span>
+              </div>
+            </div>
+            <div class="frow">
+              <div><div class="flabel">Kling 密钥</div><div class="fhint">可灵视频生成（可选）。</div></div>
+              <div class="fcontrol">
+                <label class="fl">KLING_API_KEY</label>
+                <div class="key-field">
+                  <input type="password" class="input-mono" value="kl-aa00bb11cc22dd33" aria-label="Kling API 密钥">
+                  <div class="key-toggle">
+                    <button class="kt-btn" aria-label="显示密钥" title="显示/隐藏"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                    <button class="kt-btn" aria-label="复制密钥" title="复制"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button>
+                  </div>
+                </div>
+                <span class="key-status warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>配额剩余 12% · 建议充值</span>
+              </div>
+            </div>
+            <div class="frow">
+              <div><div class="flabel">Vidu 密钥</div><div class="fhint">输入框默认状态 · 尚未配置。</div></div>
+              <div class="fcontrol">
+                <label class="fl">VIDU_API_KEY</label>
+                <input type="text" class="input-mono" placeholder="vd-xxxxxxxxxxxxxxxx" aria-label="Vidu API 密钥">
+                <span class="key-status warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>未配置 · 该模型不可用</span>
+              </div>
+            </div>
+            <div class="frow">
+              <div><div class="flabel">PixVerse 密钥</div><div class="fhint">禁用状态示例 · 当前套餐不含此服务。</div></div>
+              <div class="fcontrol">
+                <label class="fl">PIXVERSE_API_KEY · DISABLED</label>
+                <input type="text" class="input-mono" value="需升级套餐解锁" disabled aria-label="PixVerse API 密钥（禁用）">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- STORAGE OSS -->
+        <section class="fsec" id="storage" aria-labelledby="storage-t">
+          <div class="fsec-head">
+            <div class="fsec-eyebrow">SECTION <span class="n">03</span> · STORAGE</div>
+            <h2 class="fsec-title" id="storage-t">存储 OSS</h2>
+          </div>
+          <div class="fsec-body">
+            <div class="frow">
+              <div><div class="flabel">云端存储</div><div class="fhint">开启后生成结果将同步至阿里云 OSS。</div></div>
+              <div class="fcontrol">
+                <div class="toggle-row">
+                  <button class="toggle on" role="switch" aria-checked="true" aria-label="云端存储开关"></button>
+                  <div class="tr-body"><div class="tr-t">OSS 同步已启用</div><div class="tr-s">本地与云端双写，跨设备可访问</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="frow">
+              <div><div class="flabel">Bucket 名称</div><div class="fhint">存储桶标识。</div></div>
+              <div class="fcontrol"><label class="fl">OSS_BUCKET</label><input type="text" class="input-mono" value="lumenx-comic-prod" aria-label="OSS Bucket 名称"></div>
+            </div>
+            <div class="frow">
+              <div><div class="flabel">Endpoint</div><div class="fhint">区域访问端点。</div></div>
+              <div class="fcontrol"><label class="fl">OSS_ENDPOINT</label><input type="url" class="input-mono" value="oss-cn-hangzhou.aliyuncs.com" aria-label="OSS Endpoint"></div>
+            </div>
+            <div class="frow">
+              <div><div class="flabel">本地缓存目录</div><div class="fhint">禁用 · 由系统管理。</div></div>
+              <div class="fcontrol"><label class="fl">LOCAL_CACHE · MANAGED</label><input type="text" class="input-mono" value="~/.tron/comic/cache" disabled aria-label="本地缓存目录（禁用）"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- GENERAL / THEME -->
+        <section class="fsec" id="general" aria-labelledby="general-t">
+          <div class="fsec-head">
+            <div class="fsec-eyebrow">SECTION <span class="n">04</span> · GENERAL &amp; THEME</div>
+            <h2 class="fsec-title" id="general-t">通用与主题</h2>
+          </div>
+          <div class="fsec-body">
+            <div class="frow">
+              <div><div class="flabel">界面语言</div><div class="fhint">影响菜单与提示文案。</div></div>
+              <div class="fcontrol"><label class="fl">LANGUAGE</label><select aria-label="界面语言"><option selected>简体中文</option><option>English</option><option>日本語</option></select></div>
+            </div>
+            <div class="frow">
+              <div><div class="flabel">主题</div><div class="fhint">LumenX 为暗色优先设计，不提供亮色模式。</div></div>
+              <div class="fcontrol">
+                <div class="theme-card">
+                  <div class="theme-swatches">
+                    <span class="theme-sw" style="background:#050508"></span>
+                    <span class="theme-sw" style="background:#646cff"></span>
+                    <span class="theme-sw" style="background:#ff0080"></span>
+                  </div>
+                  <div class="theme-info-body"><div class="ti-t">Cyber Refined · 深空暗色</div><div class="ti-s">#050508 · 电蓝 #646cff · 品红 #ff0080</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="frow">
+              <div><div class="flabel">动效</div><div class="fhint">关闭后将尊重系统的减少动态偏好。</div></div>
+              <div class="fcontrol">
+                <div class="toggle-row">
+                  <button class="toggle on" role="switch" aria-checked="true" aria-label="界面动效开关"></button>
+                  <div class="tr-body"><div class="tr-t">启用过渡动效</div><div class="tr-s">包含扫描线呼吸等签名动效</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ABOUT -->
+        <section class="fsec" id="about" aria-labelledby="about-t">
+          <div class="fsec-head">
+            <div class="fsec-eyebrow">SECTION <span class="n">05</span> · ABOUT</div>
+            <h2 class="fsec-title" id="about-t">关于</h2>
+          </div>
+          <div class="fsec-body">
+            <div class="about-row"><span class="ak">应用版本</span><span class="av">LumenX Studio v0.2.0</span></div>
+            <div class="about-row"><span class="ak">设计方向</span><span class="av">Line A · Cyber Refined</span></div>
+            <div class="about-row"><span class="ak">后端 API</span><span class="av">FastAPI · :17177</span></div>
+            <div class="about-row"><span class="ak">数据目录</span><span class="av">~/.tron/comic</span></div>
+            <div class="about-row"><span class="ak">FFmpeg</span><span class="av" style="color:var(--status-completed-fg)">已检测 · 6.1</span></div>
+          </div>
+        </section>
+
+        <div class="save-bar">
+          <button class="btn btn-ghost">恢复默认</button>
+          <button class="btn btn-glass">取消</button>
+          <button class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>保存更改</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

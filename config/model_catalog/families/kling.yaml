@@ -1,0 +1,123 @@
+family: kling
+display_name: "Kling (可灵)"
+provider: kling
+routing_prefixes:
+  - kling/kling-
+  - kling-
+supported_backends:
+  - dashscope
+  - vendor
+default_backend: dashscope
+backend_env_key: KLING_PROVIDER_MODE
+credential_sources:
+  dashscope:
+    - DASHSCOPE_API_KEY
+  vendor:
+    - KLING_ACCESS_KEY
+    - KLING_SECRET_KEY
+supported_modalities:
+  - t2v
+  - i2v
+  - r2v
+transport:
+  image_input_mode:
+    dashscope: dashscope_image_to_video
+    vendor: kling_vendor_base64_image
+  audio_input_mode:
+    dashscope: dashscope_temp_file_url
+    vendor: kling_vendor_audio_url
+  reference_video_input_mode:
+    dashscope: dashscope_temp_file_url
+    vendor: kling_vendor_video_url
+docs:
+  official_snapshot_ids:
+    - kling/2026-04-25
+models:
+  - id: kling/kling-v3-video
+    display_name: Kling V3 Video
+    description: Kling AI latest video model with I2V and R2V modes
+    status: active
+    release_stage: stable
+    runtime:
+      dashscope:
+        gateway: dashscope
+      vendor:
+        gateway: kling
+    docs:
+      context_hub_doc_ids:
+        - aliyun/bailian-kling-proxy
+        - kling/vendor-api
+    modes:
+      i2v:
+        legacy_id: kling-v3-i2v
+        display_name: Kling V3 I2V
+        description: First-frame image to video generation
+        capabilities: [i2v]
+        runtime:
+          dashscope:
+            api_model_id: kling/kling-v3-video-generation
+        ui:
+          selection_group: i2v
+          visible_in: [project_settings, series_settings, video_sidebar, global_settings]
+          order: 100
+          badges: [latest, proxy-capable]
+        duration:
+          type: slider
+          min: 3
+          max: 15
+          step: 1
+          default: 5
+        params:
+          negativePrompt: true
+          seed: false
+          promptExtend: false
+          watermark: false
+          mode:
+            options: [std, pro]
+            default: std
+          aspectRatio:
+            options: ["16:9", "9:16", "1:1"]
+            default: "16:9"
+          sound: true
+          cfgScale:
+            min: 0
+            max: 1
+            step: 0.1
+            default: 0.5
+        inputs:
+          reference_images:
+            max: 1
+            reference_type: image
+      r2v:
+        legacy_id: kling-v3-r2v
+        display_name: Kling V3 R2V
+        description: Reference-based video generation with multi-modal input
+        capabilities: [r2v]
+        runtime:
+          dashscope:
+            api_model_id: kling/kling-v3-omni-video-generation
+        ui:
+          selection_group: r2v
+          visible_in: [project_settings, series_settings, video_sidebar, global_settings]
+          order: 80
+        duration:
+          type: slider
+          min: 3
+          max: 15
+          step: 1
+          default: 5
+        params:
+          negativePrompt: true
+          seed: false
+          promptExtend: false
+          watermark: false
+          mode:
+            options: [std, pro]
+            default: std
+          aspectRatio:
+            options: ["16:9", "9:16", "1:1"]
+            default: "16:9"
+        inputs:
+          reference_images:
+            max: 9
+            reference_type: image

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LumenX Studio · Line A (Cyber Refined) — 资产库</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--color-bg-base);color:var(--color-text-primary);font-family:var(--font-body);font-size:var(--text-body);line-height:var(--leading-body);-webkit-font-smoothing:antialiased;height:100vh;overflow:hidden}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--p-gray-700);border-radius:6px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:var(--p-gray-500)}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px;border-radius:4px}
+
+.shell{display:flex;height:100vh}
+
+/* Global rail */
+.global-rail{width:56px;flex-shrink:0;background:var(--color-bg-base);border-right:1px solid var(--color-border-subtle);display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:6px}
+.brand-mark{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,rgba(100,108,255,0.18),rgba(255,0,128,0.10));border:1px solid rgba(100,108,255,0.4);display:grid;place-items:center;font-family:var(--font-mono);font-weight:800;color:var(--color-primary);font-size:15px;margin-bottom:12px}
+.rail-ico{width:38px;height:38px;border-radius:9px;display:grid;place-items:center;color:var(--color-text-muted);cursor:pointer;transition:all var(--dur-fast) var(--ease-out);border:1px solid transparent}
+.rail-ico:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.rail-ico.active{background:rgba(100,108,255,0.10);border-color:rgba(100,108,255,0.25);color:var(--color-primary)}
+.rail-ico svg{width:18px;height:18px}
+.rail-spacer{flex:1}
+
+/* Filter sidebar (reuses pipe-sb shell language) */
+.filter-sb{width:var(--sidebar-w);flex-shrink:0;background:var(--color-bg-surface);border-right:1px solid var(--color-border-default);display:flex;flex-direction:column;overflow-y:auto}
+.fs-head{padding:14px 16px;border-bottom:1px solid var(--color-border-subtle)}
+.fs-crumb{font-family:var(--font-mono);font-size:10px;color:var(--color-text-muted);letter-spacing:0.06em}
+.fs-title{font-family:var(--font-display);font-size:var(--text-display);font-weight:600;margin-top:6px;letter-spacing:-0.01em}
+.fs-meta{font-family:var(--font-mono);font-size:9.5px;color:var(--color-text-muted);margin-top:3px;letter-spacing:0.04em}
+.fs-group{padding:14px 12px;border-bottom:1px solid var(--color-border-subtle)}
+.fs-group-t{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.16em;color:var(--color-text-muted);margin:0 4px 9px}
+.f-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius-md);cursor:pointer;transition:all var(--dur-fast) var(--ease-out);border:1px solid transparent}
+.f-item:hover{background:var(--color-bg-hover)}
+.f-item.on{background:rgba(100,108,255,0.08);border-color:rgba(100,108,255,0.18)}
+.f-item .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.f-item.char .dot{background:#60a5fa}.f-item.scene .dot{background:#4ade80}.f-item.prop .dot{background:#fb923c}.f-item.video .dot{background:#c084fc}
+.f-item .fl{font-size:12px;color:var(--color-text-secondary);flex:1}
+.f-item.on .fl{color:var(--color-text-primary);font-weight:600}
+.f-item .cnt{font-family:var(--font-mono);font-size:9.5px;color:var(--color-text-muted)}
+.f-radio{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:var(--radius-md);cursor:pointer;transition:background var(--dur-fast) var(--ease-out)}
+.f-radio:hover{background:var(--color-bg-hover)}
+.f-radio .ring{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--color-border-strong);flex-shrink:0;display:grid;place-items:center}
+.f-radio.on .ring{border-color:var(--color-primary)}
+.f-radio.on .ring::after{content:'';width:7px;height:7px;border-radius:50%;background:var(--color-primary)}
+.f-radio span{font-size:12px;color:var(--color-text-secondary)}
+.f-radio.on span{color:var(--color-text-primary)}
+
+/* main */
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{height:56px;flex-shrink:0;border-bottom:1px solid var(--color-border-default);display:flex;align-items:center;padding:0 20px;gap:12px;background:var(--color-bg-surface)}
+.tb-title{font-family:var(--font-display);font-size:var(--text-display);font-weight:600}
+.tb-sub{font-family:var(--font-mono);font-size:9.5px;color:var(--color-text-muted);letter-spacing:0.06em}
+.search{position:relative;width:280px;margin-left:8px}
+.search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--color-text-muted)}
+.search input{width:100%;background:var(--color-bg-input);border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:8px 12px 8px 33px;color:var(--color-text-primary);font-size:12px;outline:none;transition:border-color var(--dur-fast) var(--ease-out)}
+.search input::placeholder{color:var(--color-text-muted)}
+.search input:focus{border-color:rgba(100,108,255,0.45)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;border-radius:var(--btn-radius);font-size:var(--text-body);font-weight:600;cursor:pointer;transition:all var(--dur-fast) var(--ease-out);border:1px solid transparent;padding:7px 13px}
+.btn svg{width:13px;height:13px}
+.btn-primary{background:var(--color-primary);border-color:var(--p-blue-dim);color:var(--color-on-primary);box-shadow:var(--glow-primary)}
+.btn-primary:hover{background:var(--color-primary-hover);box-shadow:0 0 24px -4px rgba(100,108,255,0.7)}
+.btn-glass{background:var(--color-bg-elevated);border-color:var(--color-border-default);color:var(--color-text-primary)}
+.btn-glass:hover{background:var(--p-gray-800);border-color:var(--color-border-strong)}
+.btn-ghost{background:transparent;color:var(--color-text-secondary)}
+.btn-ghost:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.btn-sm{padding:5px 10px;font-size:var(--text-body-sm)}
+
+/* multi-select toolbar */
+.msbar{display:flex;align-items:center;gap:12px;padding:10px 20px;background:rgba(100,108,255,0.08);border-bottom:1px solid rgba(100,108,255,0.2)}
+.msbar .ms-count{font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--color-primary)}
+.msbar .ms-count span{color:var(--color-text-secondary);font-weight:400}
+.msbar .ms-actions{display:flex;align-items:center;gap:6px;margin-left:auto}
+
+/* content area split with drawer */
+.content{flex:1;display:flex;min-height:0}
+.grid-scroll{flex:1;overflow-y:auto;padding:20px;background:
+  radial-gradient(120% 60% at 50% -8%, rgba(100,108,255,0.04), transparent 55%),
+  var(--color-bg-base)}
+.masonry{columns:4;column-gap:14px}
+@media (max-width:1500px){.masonry{columns:3}}
+@media (max-width:1100px){.masonry{columns:2}}
+
+/* asset card */
+.acard{break-inside:avoid;margin-bottom:14px;background:var(--card-bg);border:1px solid var(--color-border-default);border-radius:var(--card-radius);overflow:hidden;box-shadow:var(--shadow-rest);cursor:pointer;transition:border-color var(--dur-fast) var(--ease-out),box-shadow var(--dur-fast) var(--ease-out),transform var(--dur-fast) var(--ease-out)}
+.acard:hover{border-color:var(--color-border-strong);box-shadow:var(--shadow-lift);transform:translateY(-2px)}
+.acard.sel{border-color:rgba(100,108,255,0.55);box-shadow:0 0 0 1px rgba(100,108,255,0.35),var(--shadow-lift)}
+.acard.active{border-color:rgba(100,108,255,0.6);box-shadow:0 0 0 1px rgba(100,108,255,0.4),0 0 20px -6px var(--color-primary)}
+.acard .ac-media{position:relative;background:var(--color-bg-inset);overflow:hidden}
+.acard .ac-media img{width:100%;display:block}
+.ac-check{position:absolute;top:8px;left:8px;width:20px;height:20px;border-radius:5px;border:1.5px solid var(--color-border-strong);background:rgba(5,5,8,0.6);display:grid;place-items:center;backdrop-filter:blur(2px);transition:all var(--dur-fast) var(--ease-out)}
+.ac-check svg{width:12px;height:12px;color:#fff;opacity:0}
+.acard.sel .ac-check{background:var(--color-primary);border-color:var(--color-primary)}
+.acard.sel .ac-check svg{opacity:1}
+.ac-type{position:absolute;top:8px;right:8px;display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:99px;font-family:var(--font-mono);font-size:8.5px;font-weight:600;backdrop-filter:blur(3px)}
+.ac-type .d{width:5px;height:5px;border-radius:50%}
+.ac-type.char{background:rgba(96,165,250,0.18);border:1px solid rgba(96,165,250,0.4);color:#bfdbfe}.ac-type.char .d{background:#60a5fa}
+.ac-type.scene{background:rgba(74,222,128,0.18);border:1px solid rgba(74,222,128,0.4);color:#bbf7d0}.ac-type.scene .d{background:#4ade80}
+.ac-type.prop{background:rgba(251,146,60,0.18);border:1px solid rgba(251,146,60,0.4);color:#fed7aa}.ac-type.prop .d{background:#fb923c}
+.ac-type.video{background:rgba(192,132,252,0.18);border:1px solid rgba(192,132,252,0.4);color:#e9d5ff}.ac-type.video .d{background:#c084fc}
+.ac-vcount{position:absolute;bottom:8px;right:8px;padding:2px 7px;border-radius:5px;background:rgba(5,5,8,0.7);font-family:var(--font-mono);font-size:9px;color:#fff;backdrop-filter:blur(2px);display:inline-flex;align-items:center;gap:4px}
+.ac-vcount svg{width:10px;height:10px}
+.ac-star{position:absolute;bottom:8px;left:8px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:rgba(5,5,8,0.6);backdrop-filter:blur(2px);color:var(--status-starred-solid)}
+.ac-star svg{width:12px;height:12px}
+.ac-play{position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,0.15);opacity:0;transition:opacity var(--dur-fast) var(--ease-out)}
+.acard:hover .ac-play{opacity:1}
+.ac-play .pb{width:38px;height:38px;border-radius:50%;background:rgba(5,5,8,0.6);border:1px solid rgba(255,255,255,0.3);display:grid;place-items:center;backdrop-filter:blur(4px)}
+.ac-play .pb svg{width:15px;height:15px;color:#fff}
+.acard .ac-body{padding:10px 12px}
+.acard .ac-name{font-size:12px;font-weight:600}
+.acard .ac-meta{font-family:var(--font-mono);font-size:9px;color:var(--color-text-muted);margin-top:3px;letter-spacing:0.04em}
+
+/* detail drawer */
+.drawer{width:340px;flex-shrink:0;background:var(--color-bg-surface);border-left:1px solid var(--color-border-default);display:flex;flex-direction:column;box-shadow:var(--shadow-float)}
+.dr-head{padding:13px 16px;border-bottom:1px solid var(--color-border-subtle);display:flex;align-items:center;justify-content:space-between}
+.dr-head .dr-t{font-family:var(--font-mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;color:var(--color-text-secondary)}
+.dr-close{width:26px;height:26px;border-radius:6px;display:grid;place-items:center;border:none;background:transparent;color:var(--color-text-muted);cursor:pointer;transition:all var(--dur-fast) var(--ease-out)}
+.dr-close:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.dr-close svg{width:15px;height:15px}
+.dr-scroll{flex:1;overflow-y:auto;padding:16px}
+.dr-preview{position:relative;aspect-ratio:3/4;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--color-border-default);background:var(--color-bg-inset)}
+.dr-preview img{width:100%;height:100%;object-fit:cover}
+.dr-preview .badge{position:absolute;top:10px;left:10px}
+.dr-name{font-family:var(--font-display);font-size:var(--text-display);font-weight:600;margin-top:14px}
+.dr-sub{font-family:var(--font-mono);font-size:9.5px;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);margin-top:4px}
+.dr-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.6;margin-top:10px}
+.dr-section{margin-top:18px}
+.dr-section-t{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.16em;color:var(--color-text-muted);margin-bottom:9px}
+.variants{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.variant{position:relative;aspect-ratio:1;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--color-border-default);cursor:pointer;transition:all var(--dur-fast) var(--ease-out)}
+.variant:hover{border-color:var(--color-border-strong)}
+.variant.sel{border-color:var(--status-starred-border);box-shadow:0 0 0 1px var(--status-starred-border),0 0 14px -4px var(--status-starred-solid)}
+.variant img{width:100%;height:100%;object-fit:cover}
+.variant .vstar{position:absolute;top:3px;right:3px;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;background:rgba(0,0,0,0.5);color:var(--color-text-muted);backdrop-filter:blur(2px)}
+.variant.sel .vstar{color:var(--status-starred-solid)}
+.variant .vstar svg{width:9px;height:9px}
+.meta-table{display:flex;flex-direction:column;gap:0;border:1px solid var(--color-border-subtle);border-radius:var(--radius-md);overflow:hidden}
+.meta-row{display:flex;justify-content:space-between;padding:8px 11px;border-bottom:1px solid var(--color-border-subtle);font-size:11.5px}
+.meta-row:last-child{border-bottom:none}
+.meta-row .mk{font-family:var(--font-mono);font-size:9.5px;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.06em}
+.meta-row .mv{color:var(--color-text-secondary)}
+.dr-foot{padding:12px 16px;border-top:1px solid var(--color-border-subtle);display:flex;gap:8px}
+
+/* badge */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;backdrop-filter:blur(2px)}
+.badge .led{width:5px;height:5px;border-radius:50%}
+.badge.starred{color:var(--status-starred-fg);background:var(--status-starred-bg);border:1px solid var(--status-starred-border)}.badge.starred .led{background:var(--status-starred-solid)}
+.badge.completed{color:var(--status-completed-fg);background:var(--status-completed-bg);border:1px solid var(--status-completed-border)}.badge.completed .led{background:var(--status-completed-fg)}
+
+@media (max-width:1280px){.drawer{display:none}}
+@media (prefers-reduced-motion: reduce){*{animation-duration:0.001ms!important;transition-duration:0.001ms!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- Global rail -->
+  <nav class="global-rail" aria-label="全局导航">
+    <div class="brand-mark" aria-hidden="true">X</div>
+    <a class="rail-ico" href="workspace.html" title="工作区" aria-label="工作区"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></a>
+    <a class="rail-ico active" href="library.html" title="资产库" aria-label="资产库" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4M3 17l9 4 9-4"/></svg></a>
+    <a class="rail-ico" href="playground.html" title="Playground" aria-label="Playground"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></a>
+    <div class="rail-spacer"></div>
+    <a class="rail-ico" href="settings.html" title="设置" aria-label="设置"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.5-2.3 1a7 7 0 0 0-1.7-1l-.3-2.5h-4l-.3 2.5a7 7 0 0 0-1.7 1l-2.3-1-2 3.5 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.5 2.3-1a7 7 0 0 0 1.7 1l.3 2.5h4l.3-2.5a7 7 0 0 0 1.7-1l2.3 1 2-3.5-2-1.5c.1-.3.1-.7.1-1z"/></svg></a>
+  </nav>
+
+  <!-- Filter sidebar -->
+  <aside class="filter-sb" aria-label="资产筛选">
+    <div class="fs-head">
+      <div class="fs-crumb">LIBRARY</div>
+      <div class="fs-title">资产库</div>
+      <div class="fs-meta">218 ITEMS · 5 SERIES</div>
+    </div>
+    <div class="fs-group">
+      <div class="fs-group-t">类型 · TYPE</div>
+      <div class="f-item char on" role="checkbox" aria-checked="true" tabindex="0"><span class="dot"></span><span class="fl">角色</span><span class="cnt">42</span></div>
+      <div class="f-item scene on" role="checkbox" aria-checked="true" tabindex="0"><span class="dot"></span><span class="fl">场景</span><span class="cnt">36</span></div>
+      <div class="f-item prop" role="checkbox" aria-checked="false" tabindex="0"><span class="dot"></span><span class="fl">道具</span><span class="cnt">58</span></div>
+      <div class="f-item video on" role="checkbox" aria-checked="true" tabindex="0"><span class="dot"></span><span class="fl">视频</span><span class="cnt">82</span></div>
+    </div>
+    <div class="fs-group">
+      <div class="fs-group-t">系列 · SERIES</div>
+      <div class="f-radio on" role="radio" aria-checked="true" tabindex="0"><span class="ring"></span><span>全部系列</span></div>
+      <div class="f-radio" role="radio" aria-checked="false" tabindex="0"><span class="ring"></span><span>霓虹追凶</span></div>
+      <div class="f-radio" role="radio" aria-checked="false" tabindex="0"><span class="ring"></span><span>暗巷档案</span></div>
+      <div class="f-radio" role="radio" aria-checked="false" tabindex="0"><span class="ring"></span><span>子夜证词</span></div>
+    </div>
+    <div class="fs-group" style="border-bottom:none">
+      <div class="fs-group-t">状态 · STATUS</div>
+      <div class="f-radio on" role="radio" aria-checked="true" tabindex="0"><span class="ring"></span><span>全部</span></div>
+      <div class="f-radio" role="radio" aria-checked="false" tabindex="0"><span class="ring"></span><span>仅精选 ★</span></div>
+      <div class="f-radio" role="radio" aria-checked="false" tabindex="0"><span class="ring"></span><span>已锁定</span></div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <div class="tb-title">全部资产</div>
+        <div class="tb-sub">160 ITEMS MATCH · SORTED BY RECENT</div>
+      </div>
+      <div class="search" role="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="search" placeholder="搜索资产名称、标签…" aria-label="搜索资产">
+      </div>
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <button class="btn btn-glass btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M6 12h12M10 18h4"/></svg>排序</button>
+        <button class="btn btn-primary btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>上传资产</button>
+      </div>
+    </header>
+
+    <!-- Multi-select toolbar -->
+    <div class="msbar" role="toolbar" aria-label="批量操作">
+      <span class="ms-count">已选 3 <span>/ 160 项</span></span>
+      <button class="btn btn-ghost btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>全选</button>
+      <div class="ms-actions">
+        <button class="btn btn-glass btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>设为精选</button>
+        <button class="btn btn-glass btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>锁定</button>
+        <button class="btn btn-glass btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>导出</button>
+        <button class="btn btn-glass btn-sm" style="color:var(--status-failed-fg)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>删除</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- Grid -->
+      <div class="grid-scroll">
+        <div class="masonry">
+
+          <article class="acard active sel" tabindex="0" aria-label="资产 陈侦探 · 已选中">
+            <div class="ac-media">
+              <img src="../assets/char-detective.png" alt="角色资产 陈侦探 立绘">
+              <span class="ac-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="ac-type char"><span class="d"></span>角色</span>
+              <span class="ac-star"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg></span>
+              <span class="ac-vcount"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>4</span>
+            </div>
+            <div class="ac-body"><div class="ac-name">陈侦探</div><div class="ac-meta">CHARACTER · 霓虹追凶 · 4 变体</div></div>
+          </article>
+
+          <article class="acard sel" tabindex="0" aria-label="资产 霓虹街口 · 已选中">
+            <div class="ac-media">
+              <img src="../assets/scene-skyline.png" alt="场景资产 霓虹街口 天际线">
+              <span class="ac-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="ac-type scene"><span class="d"></span>场景</span>
+              <span class="ac-vcount"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>3</span>
+            </div>
+            <div class="ac-body"><div class="ac-name">霓虹街口</div><div class="ac-meta">SCENE · 霓虹追凶 · 3 变体</div></div>
+          </article>
+
+          <article class="acard" tabindex="0" aria-label="资产 雨夜街头 镜头视频">
+            <div class="ac-media">
+              <img src="../assets/shot-01.png" alt="视频资产 雨夜街头 镜头 01">
+              <span class="ac-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="ac-type video"><span class="d"></span>视频</span>
+              <span class="ac-vcount">0:04</span>
+              <div class="ac-play"><div class="pb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div>
+            </div>
+            <div class="ac-body"><div class="ac-name">SHOT 01 · 侦探特写</div><div class="ac-meta">VIDEO · WAN-R2V · 0:04</div></div>
+          </article>
+
+          <article class="acard sel" tabindex="0" aria-label="资产 后巷追踪 视频 · 已选中">
+            <div class="ac-media">
+              <img src="../assets/shot-03.png" alt="视频资产 后巷追踪">
+              <span class="ac-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="ac-type video"><span class="d"></span>视频</span>
+              <span class="ac-vcount">0:05</span>
+              <div class="ac-play"><div class="pb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div>
+            </div>
+            <div class="ac-body"><div class="ac-name">SHOT 03 · 后巷追踪</div><div class="ac-meta">VIDEO · KLING · 0:05</div></div>
+          </article>
+
+          <article class="acard" tabindex="0" aria-label="资产 积水倒影 场景">
+            <div class="ac-media">
+              <img src="../assets/shot-02.png" alt="场景资产 积水倒影">
+              <span class="ac-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="ac-type scene"><span class="d"></span>场景</span>
+              <span class="ac-vcount"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>2</span>
+            </div>
+            <div class="ac-body"><div class="ac-name">积水倒影</div><div class="ac-meta">SCENE · 暗巷档案 · 2 变体</div></div>
+          </article>
+
+          <article class="acard" tabindex="0" aria-label="资产 证物卡片 道具">
+            <div class="ac-media">
+              <img src="../assets/shot-05.png" alt="道具资产 证物卡片">
+              <span class="ac-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="ac-type prop"><span class="d"></span>道具</span>
+              <span class="ac-star"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg></span>
+              <span class="ac-vcount"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>5</span>
+            </div>
+            <div class="ac-body"><div class="ac-name">血指纹卡片</div><div class="ac-meta">PROP · 子夜证词 · 5 变体</div></div>
+          </article>
+
+          <article class="acard" tabindex="0" aria-label="资产 天际线建立镜头 场景">
+            <div class="ac-media">
+              <img src="../assets/scene-skyline.png" alt="场景资产 城市天际线建立镜头">
+              <span class="ac-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="ac-type scene"><span class="d"></span>场景</span>
+              <span class="ac-vcount"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>3</span>
+            </div>
+            <div class="ac-body"><div class="ac-name">城市天际线</div><div class="ac-meta">SCENE · 霓虹追凶 · 建立镜头</div></div>
+          </article>
+
+          <article class="acard" tabindex="0" aria-label="资产 档案室证物 视频">
+            <div class="ac-media">
+              <img src="../assets/shot-05.png" alt="视频资产 档案室证物特写">
+              <span class="ac-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="ac-type video"><span class="d"></span>视频</span>
+              <span class="ac-vcount">0:04</span>
+              <div class="ac-play"><div class="pb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div>
+            </div>
+            <div class="ac-body"><div class="ac-name">SHOT 05 · 证物特写</div><div class="ac-meta">VIDEO · WAN-R2V · 0:04</div></div>
+          </article>
+
+          <article class="acard" tabindex="0" aria-label="资产 线人 阿水 角色">
+            <div class="ac-media">
+              <img src="../assets/char-detective.png" alt="角色资产 线人 阿水">
+              <span class="ac-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="ac-type char"><span class="d"></span>角色</span>
+              <span class="ac-vcount"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>2</span>
+            </div>
+            <div class="ac-body"><div class="ac-name">线人 · 阿水</div><div class="ac-meta">CHARACTER · 霓虹追凶 · 2 变体</div></div>
+          </article>
+
+          <article class="acard" tabindex="0" aria-label="资产 风衣 道具">
+            <div class="ac-media">
+              <img src="../assets/shot-02.png" alt="道具资产 米色风衣">
+              <span class="ac-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="ac-type prop"><span class="d"></span>道具</span>
+              <span class="ac-vcount"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>3</span>
+            </div>
+            <div class="ac-body"><div class="ac-name">米色风衣</div><div class="ac-meta">PROP · 霓虹追凶 · 3 变体</div></div>
+          </article>
+
+        </div>
+      </div>
+
+      <!-- Detail drawer -->
+      <aside class="drawer" aria-label="资产详情">
+        <div class="dr-head">
+          <span class="dr-t">ASSET DETAIL</span>
+          <button class="dr-close" aria-label="关闭详情"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+        </div>
+        <div class="dr-scroll">
+          <div class="dr-preview">
+            <img src="../assets/char-detective.png" alt="陈侦探 主变体预览">
+            <span class="badge starred"><span class="led"></span>精选变体</span>
+          </div>
+          <div class="dr-name">陈侦探</div>
+          <div class="dr-sub">CHARACTER · 霓虹追凶 · 主角</div>
+          <p class="dr-desc">疲惫而锐利的城市侦探，米色风衣、压低的礼帽，雨水常驻肩头。电蓝与品红霓虹在湿润脸庞上流动，浅景深电影质感。</p>
+
+          <div class="dr-section">
+            <div class="dr-section-t">变体 · 4 VARIANTS · ★ 已选 #1</div>
+            <div class="variants">
+              <div class="variant sel"><img src="../assets/char-detective.png" alt="变体 1 · 已选"><span class="vstar"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg></span></div>
+              <div class="variant"><img src="../assets/shot-01.png" alt="变体 2"><span class="vstar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg></span></div>
+              <div class="variant"><img src="../assets/shot-03.png" alt="变体 3"><span class="vstar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg></span></div>
+            </div>
+          </div>
+
+          <div class="dr-section">
+            <div class="dr-section-t">元数据 · METADATA</div>
+            <div class="meta-table">
+              <div class="meta-row"><span class="mk">Model</span><span class="mv">Qwen-Image 2.0</span></div>
+              <div class="meta-row"><span class="mk">Resolution</span><span class="mv">896 × 1152</span></div>
+              <div class="meta-row"><span class="mk">Seed</span><span class="mv">182733944</span></div>
+              <div class="meta-row"><span class="mk">Created</span><span class="mv">2024-06-09 21:14</span></div>
+              <div class="meta-row"><span class="mk">Status</span><span class="mv" style="color:var(--status-completed-fg)">已锁定</span></div>
+            </div>
+          </div>
+
+          <div class="dr-section">
+            <div class="dr-section-t">引用 · USED IN</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              <span class="badge completed" style="text-transform:none;letter-spacing:0">EP.01 SHOT 01</span>
+              <span class="badge completed" style="text-transform:none;letter-spacing:0">EP.01 SHOT 04</span>
+              <span class="badge completed" style="text-transform:none;letter-spacing:0">EP.02 SHOT 02</span>
+            </div>
+          </div>
+        </div>
+        <div class="dr-foot">
+          <button class="btn btn-glass btn-sm" style="flex:1;justify-content:center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>下载</button>
+          <button class="btn btn-primary btn-sm" style="flex:1;justify-content:center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>用于分镜</button>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+</body>
+</html>

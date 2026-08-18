@@ -1,0 +1,160 @@
+/*
+ * LumenX Studio — Line A "Cyber Refined" Design Tokens
+ * by Tasty Sam · Token architecture: seed → semantic → component
+ *
+ * Continuity line: honours the existing Cyber Brutalism × Cinematic Restraint
+ * brand (#646cff electric blue, #ff0080 hot pink, JetBrains Mono wordmark,
+ * angular lotus logo). Refines execution where the QoderWork pass left gaps:
+ *   - tighter surface hierarchy (5 readable tiers, not all bg-surface)
+ *   - blur reduced to 2px max; depth from light, not fog
+ *   - CTA clearly dominant; glass reserved, not universal
+ *   - full motion / status / focus token coverage
+ */
+
+:root {
+  /* ═══════════ SEED LAYER (shared family DNA) ═══════════ */
+  --seed-bg:      #050508;
+  --seed-fg:      #ededed;
+  --seed-primary: #646cff;   /* electric blue */
+  --seed-accent:  #ff0080;   /* hot pink */
+  --seed-radius:  8px;
+
+  /* ═══════════ PRIMITIVE LAYER ═══════════ */
+  --p-black:     #050508;
+  --p-gray-950:  #0a0a0d;
+  --p-gray-900:  #101013;
+  --p-gray-850:  #161619;
+  --p-gray-800:  #1c1c20;
+  --p-gray-700:  #26262b;
+  --p-gray-500:  #6b7280;
+  --p-gray-400:  #9ca3af;
+  --p-gray-300:  #c4c7cf;
+  --p-blue:      #646cff;
+  --p-blue-bright: #7c83ff;
+  --p-blue-dim:  #535bf2;
+  --p-pink:      #ff0080;
+
+  /* ═══════════ SEMANTIC: BACKGROUND (5 readable tiers) ═══════════ */
+  --color-bg-base:     var(--seed-bg);        /* page floor — darkest */
+  --color-bg-surface:  var(--p-gray-900);     /* cards / panels — SOLID, readable */
+  --color-bg-elevated: var(--p-gray-850);     /* modal / popover */
+  --color-bg-inset:    var(--p-gray-950);     /* media wells, nested */
+  --color-bg-hover:    rgba(255,255,255,0.055);
+  --color-bg-input:    rgba(0,0,0,0.32);
+
+  /* ═══════════ SEMANTIC: TEXT ═══════════ */
+  --color-text-primary:   var(--seed-fg);
+  --color-text-secondary: var(--p-gray-400);
+  --color-text-muted:     var(--p-gray-500);
+  --color-on-primary:     #ffffff;
+
+  /* ═══════════ SEMANTIC: BORDER ═══════════ */
+  --color-border-default: rgba(255,255,255,0.08);
+  --color-border-subtle:  rgba(255,255,255,0.04);
+  --color-border-strong:  rgba(255,255,255,0.14);
+  --color-border-focus:   var(--seed-primary);
+
+  /* ═══════════ SEMANTIC: INTERACTIVE ═══════════ */
+  --color-primary:       var(--seed-primary);
+  --color-primary-hover: var(--p-blue-bright);
+  --color-accent:        var(--seed-accent);
+  --color-destructive:   #e5484d;
+  --color-overlay:       rgba(0,0,0,0.82);
+
+  /* ═══════════ SEMANTIC: STATUS (OKLCH) ═══════════ */
+  --status-pending-fg:     oklch(0.85 0.13 250);
+  --status-pending-border: oklch(0.75 0.16 250 / 0.45);
+  --status-pending-bg:     oklch(0.75 0.16 250 / 0.10);
+
+  --status-processing-fg:     oklch(0.88 0.16 80);
+  --status-processing-border: oklch(0.78 0.18 80 / 0.45);
+  --status-processing-bg:     oklch(0.78 0.18 80 / 0.12);
+
+  --status-completed-fg:     oklch(0.88 0.16 155);
+  --status-completed-border: oklch(0.78 0.18 155 / 0.45);
+  --status-completed-bg:     oklch(0.78 0.18 155 / 0.12);
+
+  --status-failed-fg:     oklch(0.78 0.20 25);
+  --status-failed-border: oklch(0.68 0.21 25 / 0.45);
+  --status-failed-bg:     oklch(0.68 0.21 25 / 0.12);
+
+  --status-starred-fg:     oklch(0.90 0.15 90);
+  --status-starred-border: oklch(0.85 0.16 90 / 0.55);
+  --status-starred-bg:     oklch(0.85 0.16 90 / 0.18);
+  --status-starred-solid:  oklch(0.85 0.16 90);
+
+  /* ═══════════ TYPOGRAPHY ═══════════ */
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body:    'Inter', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+
+  --text-chrome-sm: 10px;
+  --text-chrome:    11px;
+  --text-body-sm:   12px;
+  --text-body:      13px;
+  --text-display-sm: 14px;
+  --text-display:    16px;
+  --text-display-lg: 22px;
+  --text-hero:       30px;
+
+  --tracking-chrome:  0.18em;
+  --tracking-display: -0.01em;
+  --leading-body:     1.5;
+  --leading-display:  1.2;
+
+  /* ═══════════ SPACING (8px grid) ═══════════ */
+  --space-2xs: 4px;
+  --space-xs:  8px;
+  --space-sm:  12px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  40px;
+  --space-2xl: 64px;
+
+  /* ═══════════ RADIUS ═══════════ */
+  --radius-sm: 4px;
+  --radius-md: var(--seed-radius);
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 999px;
+
+  /* ═══════════ ELEVATION (light, low blur) ═══════════ */
+  --shadow-rest:  0 1px 2px rgba(0,0,0,0.45);
+  --shadow-lift:  0 8px 28px rgba(0,0,0,0.55);
+  --shadow-float: 0 24px 60px rgba(0,0,0,0.72);
+  --glow-primary: 0 0 18px -5px rgba(100,108,255,0.55);
+  --glow-accent:  0 0 18px -5px rgba(255,0,128,0.50);
+
+  /* ═══════════ MOTION ═══════════ */
+  --dur-fast: 150ms;
+  --dur-base: 250ms;
+  --dur-slow: 400ms;
+  --ease-out:  cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-expo: cubic-bezier(0.16, 1, 0.30, 1);
+
+  /* ═══════════ ATMOSPHERE (brutalist motifs, restrained) ═══════════ */
+  --grid-color: rgba(255,255,255,0.025);
+  --grid-size:  32px;
+  --scanline:   rgba(100,108,255,0.05);
+
+  /* ═══════════ COMPONENT TOKENS ═══════════ */
+  --card-bg:      var(--color-bg-surface);
+  --card-radius:  var(--radius-lg);
+  --card-shadow:  var(--shadow-rest);
+  --card-pad:     var(--space-md);
+
+  --btn-radius:   var(--radius-md);
+  --btn-pad-x:    var(--space-md);
+  --btn-pad-y:    var(--space-xs);
+
+  --input-bg:     var(--color-bg-input);
+  --input-radius: var(--radius-md);
+
+  --sidebar-w:    224px;
+  --media-radius: var(--radius-md);
+
+  /* Brand v0.2 (Cyber Brutalism wordmark) */
+  --brand-mark-sm: 24px;
+  --brand-mark-md: 28px;
+  --brand-wordmark-size: 15px;
+}

@@ -1,0 +1,406 @@
+family: wan
+display_name: "Wan (通义万相)"
+provider: aliyun
+routing_prefixes:
+  - wan2.7-
+  - wan2.6-
+  - wan2.5-
+  - wan2.2-
+supported_backends:
+  - dashscope
+default_backend: dashscope
+credential_sources:
+  dashscope:
+    - DASHSCOPE_API_KEY
+supported_modalities:
+  - t2i
+  - i2i
+  - i2v
+  - r2v
+  - v2v
+transport:
+  image_input_mode:
+    dashscope: dashscope_multimodal_message
+  audio_input_mode:
+    dashscope: dashscope_temp_file_url
+  reference_video_input_mode:
+    dashscope: dashscope_temp_file_url
+docs:
+  official_snapshot_ids:
+    - aliyun/wan/2026-04-25
+models:
+  # ── Wan 2.7 Image (T2I + I2I merged) ──────────────────────────────
+  - id: wan2.7-image-pro
+    display_name: Wan 2.7 Image Pro
+    description: Full-featured image generation and editing with text rendering, brand color, and 4K support
+    status: active
+    release_stage: stable
+    capabilities: [t2i, i2i]
+    docs:
+      context_hub_doc_ids: [aliyun/wan-image-27]
+    runtime:
+      dashscope:
+        gateway: dashscope
+        api_model_id: wan2.7-image-pro
+    ui:
+      selection_group: image
+      visible_in: [project_settings, series_settings, global_settings]
+      order: 120
+      badges: [latest]
+    params:
+      size:
+        options: ["1024*1024", "1280*1280", "1440*1440", "2048*2048", "1280*720", "720*1280", "1024*576", "576*1024"]
+        default: "1280*1280"
+      negativePrompt: true
+      seed: true
+      promptExtend: true
+      watermark: true
+    inputs:
+      reference_images:
+        max: 9
+  - id: wan2.7-image
+    display_name: Wan 2.7 Image
+    description: Standard image generation and editing model
+    status: active
+    release_stage: stable
+    capabilities: [t2i, i2i]
+    docs:
+      context_hub_doc_ids: [aliyun/wan-image-27]
+    runtime:
+      dashscope:
+        gateway: dashscope
+        api_model_id: wan2.7-image
+    ui:
+      selection_group: image
+      visible_in: [project_settings, series_settings, global_settings]
+      order: 110
+    params:
+      size:
+        options: ["1024*1024", "1280*1280", "1440*1440", "2048*2048", "1280*720", "720*1280", "1024*576", "576*1024"]
+        default: "1280*1280"
+      negativePrompt: true
+      seed: true
+      promptExtend: true
+      watermark: true
+    inputs:
+      reference_images:
+        max: 9
+
+  # ── Wan 2.7 Video (I2V / R2V / T2V / VideoEdit) ──────────────────
+  - id: wan/wan2.7-video
+    display_name: Wan 2.7 Video
+    description: Wan 2.7 video generation with I2V, R2V, T2V, and VideoEdit modes
+    status: active
+    release_stage: stable
+    docs:
+      context_hub_doc_ids: [aliyun/wan-i2v-r2v]
+    runtime:
+      dashscope:
+        gateway: dashscope
+    modes:
+      i2v:
+        legacy_id: wan2.7-i2v
+        display_name: Wan 2.7 I2V
+        description: Image-to-video with first/last frame, driving audio, and first clip support
+        capabilities: [i2v]
+        ui:
+          selection_group: i2v
+          visible_in: [project_settings, series_settings, video_sidebar, global_settings]
+          order: 80
+          badges: [latest]
+        duration:
+          type: slider
+          min: 2
+          max: 15
+          step: 1
+          default: 5
+        params:
+          resolution:
+            options: [720p, 1080p]
+            default: 1080p
+          ratio:
+            options: ["16:9", "9:16", "1:1", "4:3", "3:4"]
+            default: "16:9"
+          seed: true
+          negativePrompt: true
+          promptExtend: true
+          watermark: true
+        inputs:
+          reference_images:
+            max: 1
+            reference_type: image
+      r2v:
+        legacy_id: wan2.7-r2v
+        display_name: Wan 2.7 R2V
+        description: Reference images to video generation with multi-image support
+        capabilities: [r2v]
+        ui:
+          selection_group: r2v
+          visible_in: [project_settings, series_settings, video_sidebar, global_settings]
+          order: 80
+        duration:
+          type: slider
+          min: 3
+          max: 15
+          step: 1
+          default: 5
+        params:
+          resolution:
+            options: [720p, 1080p]
+            default: 1080p
+          seed: true
+          negativePrompt: false
+          promptExtend: false
+          watermark: true
+        inputs:
+          reference_images:
+            max: 5
+            reference_type: image
+      t2v:
+        legacy_id: wan2.7-t2v
+        display_name: Wan 2.7 T2V
+        description: Text-to-video generation
+        status: hidden
+        capabilities: [t2v]
+        ui:
+          selection_group: i2v
+          visible_in: []
+          order: 5
+      videoedit:
+        legacy_id: wan2.7-videoedit
+        display_name: Wan 2.7 VideoEdit
+        description: Video editing with reference images
+        status: hidden
+        capabilities: [v2v]
+        ui:
+          selection_group: i2v
+          visible_in: []
+          order: 2
+
+  # ── Wan 2.6 Video (deprecated — replaced by 2.7) ──────────────────
+  - id: wan/wan2.6-video
+    display_name: Wan 2.6 Video
+    description: Wan 2.6 video line (deprecated)
+    status: deprecated
+    release_stage: stable
+    docs:
+      context_hub_doc_ids: [aliyun/wan-i2v-r2v]
+    runtime:
+      dashscope:
+        gateway: dashscope
+    modes:
+      i2v:
+        legacy_id: wan2.6-i2v
+        display_name: Wan 2.6 I2V / R2V
+        description: Legacy model, supports R2V (deprecated — replaced by 2.7)
+        status: deprecated
+        capabilities: [i2v, r2v]
+        ui:
+          selection_group: i2v
+          visible_in: []
+          order: 75
+        duration:
+          type: slider
+          min: 2
+          max: 15
+          step: 1
+          default: 5
+        params:
+          resolution:
+            options: [480p, 720p, 1080p]
+            default: 720p
+          seed: true
+          negativePrompt: true
+          promptExtend: true
+          shotType: true
+          audio: true
+      r2v:
+        legacy_id: wan2.6-r2v
+        display_name: Wan 2.6 R2V
+        description: Dedicated reference-to-video route (deprecated — replaced by 2.7)
+        status: deprecated
+        capabilities: [r2v]
+        ui:
+          selection_group: i2v
+          visible_in: []
+          order: 10
+        inputs:
+          reference_images:
+            max: 3
+            reference_type: video
+  - id: wan2.6-i2v-flash
+    display_name: Wan 2.6 I2V Flash
+    description: Fast generation (deprecated — replaced by 2.7)
+    status: deprecated
+    release_stage: stable
+    capabilities: [i2v]
+    docs:
+      context_hub_doc_ids: [aliyun/wan-i2v-r2v]
+    ui:
+      selection_group: i2v
+      visible_in: []
+      order: 70
+    duration:
+      type: slider
+      min: 2
+      max: 15
+      step: 1
+      default: 5
+    params:
+      resolution:
+        options: [480p, 720p, 1080p]
+        default: 720p
+      seed: true
+      negativePrompt: true
+      promptExtend: true
+      shotType: true
+      audio: true
+
+  # ── Deprecated: Wan 2.6 Image models ──────────────────────────────
+  - id: wan2.6-t2i
+    display_name: Wan 2.6 T2I
+    description: Legacy T2I model
+    status: deprecated
+    release_stage: stable
+    capabilities: [t2i]
+    docs:
+      context_hub_doc_ids: [aliyun/wan-t2i]
+    ui:
+      selection_group: t2i
+      visible_in: []
+      order: 80
+  - id: wan2.6-image
+    display_name: Wan 2.6 Image
+    description: Legacy I2I model
+    status: deprecated
+    release_stage: stable
+    capabilities: [i2i]
+    docs:
+      context_hub_doc_ids: [aliyun/wan-image]
+    ui:
+      selection_group: i2i
+      visible_in: []
+      order: 70
+    inputs:
+      reference_images:
+        max: 4
+
+  # ── Deprecated: Wan 2.5 series ─────────────────────────────────────
+  - id: wan2.5-t2i-preview
+    display_name: Wan 2.5 T2I Preview
+    description: Legacy T2I option
+    status: deprecated
+    release_stage: stable
+    capabilities: [t2i]
+    docs:
+      context_hub_doc_ids: [aliyun/wan-t2i]
+    ui:
+      selection_group: t2i
+      visible_in: []
+      order: 60
+  - id: wan2.5-i2i-preview
+    display_name: Wan 2.5 I2I Preview
+    description: Legacy I2I option
+    status: deprecated
+    release_stage: stable
+    capabilities: [i2i]
+    docs:
+      context_hub_doc_ids: [aliyun/wan-image]
+    ui:
+      selection_group: i2i
+      visible_in: []
+      order: 60
+    inputs:
+      reference_images:
+        max: 3
+  - id: wan2.5-i2v-preview
+    display_name: Wan 2.5 I2V Preview
+    description: Legacy I2V option
+    status: deprecated
+    release_stage: stable
+    capabilities: [i2v]
+    docs:
+      context_hub_doc_ids: [aliyun/wan-i2v-r2v]
+    ui:
+      selection_group: i2v
+      visible_in: []
+      order: 60
+    duration:
+      type: buttons
+      options: [5, 10]
+      default: 5
+    params:
+      resolution:
+        options: [480p, 720p, 1080p]
+        default: 720p
+      seed: true
+      negativePrompt: true
+      audio: true
+
+  # ── Deprecated: Wan 2.2 series ─────────────────────────────────────
+  - id: wan2.2-t2i-plus
+    display_name: Wan 2.2 T2I Plus
+    description: Legacy T2I option
+    status: deprecated
+    release_stage: stable
+    capabilities: [t2i]
+    docs:
+      context_hub_doc_ids: [aliyun/wan-t2i]
+    ui:
+      selection_group: t2i
+      visible_in: []
+      order: 50
+  - id: wan2.2-t2i-flash
+    display_name: Wan 2.2 T2I Flash
+    description: Legacy T2I option
+    status: deprecated
+    release_stage: stable
+    capabilities: [t2i]
+    docs:
+      context_hub_doc_ids: [aliyun/wan-t2i]
+    ui:
+      selection_group: t2i
+      visible_in: []
+      order: 40
+  - id: wan2.2-i2v-plus
+    display_name: Wan 2.2 I2V Plus
+    description: Legacy I2V option
+    status: deprecated
+    release_stage: stable
+    capabilities: [i2v]
+    docs:
+      context_hub_doc_ids: [aliyun/wan-i2v-r2v]
+    ui:
+      selection_group: i2v
+      visible_in: []
+      order: 50
+    duration:
+      type: fixed
+      value: 5
+    params:
+      resolution:
+        options: [480p, 720p, 1080p]
+        default: 720p
+      seed: true
+      negativePrompt: true
+  - id: wan2.2-i2v-flash
+    display_name: Wan 2.2 I2V Flash
+    description: Legacy I2V option
+    status: deprecated
+    release_stage: stable
+    capabilities: [i2v]
+    docs:
+      context_hub_doc_ids: [aliyun/wan-i2v-r2v]
+    ui:
+      selection_group: i2v
+      visible_in: []
+      order: 40
+    duration:
+      type: fixed
+      value: 5
+    params:
+      resolution:
+        options: [480p, 720p, 1080p]
+        default: 720p
+      seed: true
+      negativePrompt: true

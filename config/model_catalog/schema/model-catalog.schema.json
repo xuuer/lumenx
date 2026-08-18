@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "compat": {
+      "type": "object"
+    },
+    "defaults": {
+      "type": "object"
+    },
+    "families": {
+      "type": "object"
+    },
+    "model_lines": {
+      "type": "object"
+    },
+    "models": {
+      "type": "object"
+    },
+    "modes": {
+      "type": "object"
+    },
+    "version": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "version",
+    "defaults",
+    "families",
+    "models"
+  ],
+  "title": "LumenX Model Catalog",
+  "type": "object"
+}

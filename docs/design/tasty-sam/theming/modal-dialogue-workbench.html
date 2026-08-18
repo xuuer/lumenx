@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="atelier-dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LumenX Studio · DialogueWorkbenchModal（补稿）</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--color-bg-base);color:var(--color-text-primary);font-family:var(--font-inter);
+    -webkit-font-smoothing:antialiased;font-size:13px;transition:background .4s cubic-bezier(.22,1,.36,1),color .4s;min-height:100%}
+  body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--grain-op);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");transition:opacity .4s}
+
+  .pagetop{position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:16px;
+    padding:18px 26px;border-bottom:1px solid var(--color-border-subtle);flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:11px}
+  .brand img{width:34px;height:34px;object-fit:contain;filter:var(--logo-filter);transition:filter .4s}
+  .brand .nm{font-family:var(--font-display);font-size:18px;font-weight:600;letter-spacing:-.01em}
+  .brand .nm .x{color:var(--color-primary)}
+  .themepick{display:flex;gap:5px;background:var(--color-bg-inset);padding:4px;border-radius:10px;border:1px solid var(--color-border-subtle)}
+  .tdot{width:22px;height:22px;border-radius:7px;cursor:pointer;border:2px solid transparent;transition:.15s}
+  .tdot:hover{transform:scale(1.12)}.tdot.on{border-color:var(--color-text-primary)}
+  .tdot[data-t="atelier-dark"]{background:linear-gradient(135deg,#0c0b0e 50%,#34d8c4 50%)}
+  .tdot[data-t="bridge-dark"]{background:linear-gradient(135deg,#0a0a0d 50%,#646cff 50%)}
+  .tdot[data-t="brand-dark"]{background:linear-gradient(135deg,#050508 50%,#ff0080 50%)}
+  .tdot[data-t="atelier-light"]{background:linear-gradient(135deg,#f6f1e9 50%,#1d9c8d 50%)}
+  .tdot[data-t="brand-light"]{background:linear-gradient(135deg,#f8f9fa 50%,#646cff 50%)}
+
+  .caption{position:relative;z-index:3;max-width:1180px;margin:0 auto;padding:18px 26px 6px}
+  .caption h1{font-family:var(--font-display);font-size:22px;font-weight:600;letter-spacing:-.02em}
+  .caption p{color:var(--color-text-secondary);font-size:12.5px;margin-top:4px;max-width:780px;line-height:1.55}
+
+  /* two-up: trigger row + modal side by side on wide */
+  .stage{position:relative;z-index:1;max-width:1180px;margin:14px auto 30px;padding:0 26px;display:grid;grid-template-columns:300px 1fr;gap:22px;align-items:start}
+  @media(max-width:900px){.stage{grid-template-columns:1fr}}
+
+  .triggerwrap h3{font-family:var(--font-jetbrains-mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:10px}
+  .trigger{width:100%;border-radius:10px;border:1px solid var(--card-border);background:color-mix(in srgb,var(--color-glass) 50%,transparent);padding:10px 12px;text-align:left;cursor:pointer;transition:.15s}
+  .trigger:hover{border-color:var(--color-border-default)}
+  .trow1{display:flex;align-items:center;gap:8px}
+  .trow1 .lbl{font-family:var(--font-jetbrains-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-text-muted)}
+  .badge{font-family:var(--font-jetbrains-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;border-radius:5px}
+  .b-ready{background:color-mix(in srgb,var(--color-primary) 14%,transparent);color:var(--color-primary)}
+  .b-dub{background:var(--color-status-completed-bg);color:var(--color-status-completed-fg)}
+  .b-prev{background:var(--color-status-starred-bg);color:var(--color-status-starred-fg)}
+  .b-err{background:var(--color-status-failed-bg);color:var(--color-status-failed-fg)}
+  .tchev{margin-left:auto;font-family:var(--font-jetbrains-mono);font-size:10px;color:var(--color-text-secondary)}
+  .tquote{font-size:11px;color:var(--color-text-muted);margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ico{width:13px;height:13px;display:inline-block;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle}
+
+  /* modal */
+  .modal{position:relative;width:100%;max-width:580px;margin:0 auto;border-radius:14px;border:1px solid var(--card-border);
+    background:var(--color-bg-elevated);box-shadow:0 24px 60px -22px rgba(0,0,0,.8);overflow:hidden;display:flex;flex-direction:column;max-height:84vh}
+  .mhead{display:flex;align-items:flex-start;gap:11px;padding:16px 18px;border-bottom:1px solid var(--color-border-subtle)}
+  .mtile{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;flex-shrink:0;
+    background:color-mix(in srgb,var(--color-primary) 10%,transparent);border:1px solid color-mix(in srgb,var(--color-primary) 22%,transparent);color:var(--color-primary)}
+  .mhtxt h2{font-size:14px;font-weight:600}
+  .mhtxt .sub{font-size:11px;color:var(--color-text-muted);margin-top:2px}
+  .mclose{margin-left:auto;width:28px;height:28px;border-radius:7px;border:none;background:transparent;color:var(--color-text-muted);cursor:pointer;font-size:18px;line-height:1}
+  .mclose:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+
+  .mbody{padding:16px 18px;overflow-y:auto;display:flex;flex-direction:column;gap:18px}
+  .step .shead{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+  .step .shead .t{font-size:12px;font-weight:600;color:var(--color-text-secondary)}
+  .warnchip{font-size:10px;color:var(--color-status-starred-fg);background:var(--color-status-starred-bg);padding:2px 7px;border-radius:5px}
+  textarea,.txt{width:100%;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);
+    padding:9px 11px;font-size:12px;color:var(--color-text-primary);font-family:var(--font-inter);resize:none;outline:none}
+  textarea:focus,.txt:focus{border-color:color-mix(in srgb,var(--color-primary) 40%,transparent)}
+
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px}
+  .echip{padding:3px 10px;border-radius:999px;border:1px solid var(--color-border-default);background:var(--input-bg);
+    color:var(--color-text-muted);font-family:var(--font-jetbrains-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:.12s}
+  .echip:hover{color:var(--color-text-secondary)}
+  .echip.on{border-color:var(--color-primary);background:color-mix(in srgb,var(--color-primary) 15%,transparent);color:var(--color-primary)}
+
+  .actrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .btn{font-family:var(--font-inter);font-size:12px;font-weight:600;padding:8px 12px;border-radius:8px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;border:1px solid var(--color-border-default);background:var(--input-bg);color:var(--color-text-primary);transition:.15s}
+  .btn.pri{border-color:color-mix(in srgb,var(--color-primary) 40%,transparent);background:color-mix(in srgb,var(--color-primary) 10%,transparent);color:var(--color-primary)}
+  .btn.ok{border-color:color-mix(in srgb,var(--color-status-completed-fg) 40%,transparent);background:var(--color-status-completed-bg);color:var(--color-status-completed-fg)}
+  .btn.warn{border-color:color-mix(in srgb,var(--color-status-starred-fg) 35%,transparent);background:var(--color-status-starred-bg);color:var(--color-status-starred-fg)}
+  .okflag{font-size:10px;color:var(--color-status-completed-fg)}
+
+  .step3{border-top:1px solid var(--color-border-subtle);padding-top:16px}
+  .vidwrap{position:relative;border-radius:9px;overflow:hidden;background:#000;max-height:200px}
+  .vidwrap img{width:100%;max-height:200px;object-fit:contain;display:block;opacity:.92}
+  .vidflag{position:absolute;left:8px;top:8px;font-family:var(--font-jetbrains-mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:999px}
+  .vidflag.prev{background:var(--color-status-starred-bg);color:var(--color-status-starred-fg)}
+  .vidflag.dub{background:var(--color-status-completed-bg);color:var(--color-status-completed-fg)}
+  .ctrlcap{position:absolute;left:0;right:0;bottom:0;height:30px;background:linear-gradient(transparent,rgba(0,0,0,.55));display:flex;align-items:center;padding:0 10px;gap:8px}
+  .ctrlcap .bar{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.25);position:relative}
+  .ctrlcap .bar::after{content:"";position:absolute;left:0;top:0;bottom:0;width:40%;background:#fff;border-radius:2px}
+  .ctrlcap .tt{font-family:var(--font-jetbrains-mono);font-size:9px;color:#fff}
+
+  .offrow{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .markbtn{border-color:color-mix(in srgb,var(--color-primary) 30%,transparent);background:color-mix(in srgb,var(--color-primary) 5%,transparent);color:var(--color-primary)}
+  .hint{font-size:10px;color:var(--color-text-muted)}
+  .stepper{display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap}
+  .stepper .lab{font-size:11px;color:var(--color-text-secondary)}
+  .sq{width:24px;height:24px;border-radius:6px;border:1px solid var(--color-border-default);background:var(--input-bg);color:var(--color-text-secondary);cursor:pointer;display:grid;place-items:center}
+  .num{width:64px;text-align:center;font-family:var(--font-jetbrains-mono);font-size:11px;color:var(--color-primary);border:1px solid var(--input-border);background:var(--input-bg);border-radius:6px;padding:4px}
+  .slider{flex:1;min-width:120px;height:5px;border-radius:999px;background:var(--color-bg-inset);position:relative}
+  .slider::after{content:"";position:absolute;left:24%;top:50%;transform:translate(-50%,-50%);width:12px;height:12px;border-radius:50%;background:var(--color-primary)}
+  .previewhint{font-size:10px;color:var(--color-text-muted);margin-top:10px;line-height:1.5}
+
+  .mfoot{padding:12px 18px;border-top:1px solid var(--color-border-subtle);background:var(--color-overlay);text-align:right}
+  .closebtn{font-size:12px;color:var(--color-text-muted);background:transparent;border:none;cursor:pointer}
+  .closebtn:hover{color:var(--color-text-secondary)}
+
+  /* delta */
+  .delta{position:relative;z-index:3;max-width:1180px;margin:0 auto 60px;padding:0 26px}
+  .delta .box{border-radius:14px;border:1px solid var(--color-status-failed-border);background:var(--color-status-failed-bg);padding:18px 20px}
+  .delta h2{font-family:var(--font-display);font-size:15px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .delta .lead{font-size:12px;color:var(--color-text-secondary);margin-bottom:14px}
+  .delta table{width:100%;border-collapse:collapse;font-size:12px}
+  .delta th,.delta td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--color-border-subtle);vertical-align:top;line-height:1.5}
+  .delta th{font-family:var(--font-jetbrains-mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-text-muted)}
+  .delta td b{color:var(--color-text-primary)}
+  .rk{font-family:var(--font-jetbrains-mono);font-size:9px;padding:2px 7px;border-radius:999px;white-space:nowrap}
+  .rk.same{color:var(--color-status-completed-fg);background:var(--color-status-completed-bg);border:1px solid var(--color-status-completed-border)}
+  .rk.low{color:var(--color-status-processing-fg);background:var(--color-status-processing-bg);border:1px solid var(--color-status-processing-border)}
+  .rk.med{color:var(--color-status-starred-fg);background:var(--color-status-starred-bg);border:1px solid var(--color-status-starred-border)}
+</style>
+</head>
+<body>
+<div class="pagetop">
+  <div class="brand">
+    <img id="logo" src="assets/logo-dark.png" alt="LumenX">
+    <div class="nm">Lumen<span class="x">X</span> · DialogueWorkbench</div>
+  </div>
+  <div class="themepick" id="themepick">
+    <span class="tdot on" data-t="atelier-dark" title="Full Atelier"></span>
+    <span class="tdot" data-t="bridge-dark" title="Warm Bridge"></span>
+    <span class="tdot" data-t="brand-dark" title="Brand-True"></span>
+    <span class="tdot" data-t="atelier-light" title="暖亮 Atelier"></span>
+    <span class="tdot" data-t="brand-light" title="品牌亮色"></span>
+  </div>
+</div>
+
+<div class="caption">
+  <h1>配音工作台 · DialogueWorkbenchModal</h1>
+  <p>三步流程：① 对白文本 → ② 情绪与生成（TTS） → ③ 覆盖到视频（dub）。源组件 <code>storyboard-r2v/DialogueAudioRow.tsx</code>（含触发行 + 模态两个导出）。下图展示「Step 3 预览版」态。</p>
+</div>
+
+<div class="stage">
+  <div class="triggerwrap">
+    <h3>触发行 DialogueAudioRow</h3>
+    <button class="trigger">
+      <div class="trow1">
+        <svg class="ico" viewBox="0 0 24 24" style="color:var(--color-text-muted)"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+        <span class="lbl">对白音频</span>
+        <span class="badge b-ready">就绪</span>
+        <span class="badge b-prev">预览中</span>
+        <span class="tchev">配音工作台 →</span>
+      </div>
+      <div class="tquote">「他抬起头，雨水顺着帽檐滑落——『你来晚了。』」</div>
+    </button>
+    <p style="font-size:11px;color:var(--color-text-muted);margin-top:12px;line-height:1.6">
+      点击触发行打开右侧模态。徽章随状态变化：<br>
+      <span class="badge b-ready">就绪</span> 音频已生成 ·
+      <span class="badge b-dub">已覆盖</span> ·
+      <span class="badge b-prev">预览中</span> ·
+      <span class="badge b-err">失败</span></p>
+  </div>
+
+  <div class="modal" role="dialog" aria-label="配音工作台">
+    <div class="mhead">
+      <div class="mtile"><svg class="ico" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg></div>
+      <div class="mhtxt">
+        <h2>配音工作台</h2>
+        <div class="sub">编辑对白 → 生成语音 → 覆盖到视频</div>
+      </div>
+      <button class="mclose" aria-label="关闭">×</button>
+    </div>
+
+    <div class="mbody">
+      <!-- step 1 -->
+      <div class="step">
+        <div class="shead"><span class="t">① 对白文本</span></div>
+        <textarea rows="2" placeholder="输入该镜头的对白文本...">他抬起头，雨水顺着帽檐滑落——「你来晚了。」</textarea>
+      </div>
+
+      <!-- step 2 -->
+      <div class="step">
+        <div class="shead"><span class="t">② 情绪与生成</span></div>
+        <div class="chips">
+          <span class="echip">neutral</span><span class="echip">happy</span><span class="echip">sad</span>
+          <span class="echip on">angry</span><span class="echip">surprised</span><span class="echip">calm</span>
+          <span class="echip">gentle</span><span class="echip">serious</span>
+        </div>
+        <input class="txt" type="text" maxlength="80" placeholder="或自定义语气提示（≤ 80 字）" value="压低声音，带着克制的怒意">
+        <div class="actrow">
+          <button class="btn pri"><svg class="ico" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>重新生成</button>
+          <button class="btn"><svg class="ico" viewBox="0 0 24 24" style="fill:currentColor;stroke:none"><polygon points="6 4 20 12 6 20 6 4"/></svg>试听TTS</button>
+          <span class="okflag">✓ 已生成</span>
+        </div>
+      </div>
+
+      <!-- step 3 -->
+      <div class="step step3">
+        <div class="shead"><span class="t">③ 覆盖到视频</span><span class="badge b-prev">预览版</span></div>
+        <div class="vidwrap">
+          <img src="assets/shot-02.png" alt="">
+          <span class="vidflag prev">预览版</span>
+          <div class="ctrlcap"><svg class="ico" viewBox="0 0 24 24" style="width:11px;height:11px;color:#fff;fill:#fff;stroke:none"><polygon points="6 4 20 12 6 20 6 4"/></svg><div class="bar"></div><span class="tt">0:02 / 0:05</span></div>
+        </div>
+        <div class="offrow">
+          <button class="btn markbtn"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>标记起始点</button>
+          <span class="hint">暂停视频到口型张开处，点此标记</span>
+        </div>
+        <div class="stepper">
+          <span class="lab">音频位置</span>
+          <button class="sq"><svg class="ico" viewBox="0 0 24 24" style="width:11px;height:11px"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <input class="num" value="1200"><span class="lab">ms</span>
+          <button class="sq"><svg class="ico" viewBox="0 0 24 24" style="width:11px;height:11px"><polyline points="9 18 15 12 9 6"/></svg></button>
+          <div class="slider"></div>
+        </div>
+        <div class="actrow">
+          <button class="btn pri"><svg class="ico" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="2" y1="7" x2="22" y2="7"/><line x1="7" y1="3" x2="7" y2="7"/><line x1="17" y1="3" x2="17" y2="7"/></svg>预听</button>
+          <button class="btn ok">应用覆盖</button>
+        </div>
+        <p class="previewhint">当前为预览版——确认效果后点「应用覆盖」正式替换，或调整 offset 后重新预听。</p>
+      </div>
+    </div>
+
+    <div class="mfoot"><button class="closebtn">关闭</button></div>
+  </div>
+</div>
+
+<div class="delta">
+  <div class="box">
+    <h2>⚠ 与现状的差异 & 交互风险（落地前必读）</h2>
+    <p class="lead">本补稿严格还原 <code>DialogueWorkbenchModal</code>，仅做主题化换肤。重点提示文案硬编码与三态显隐逻辑。</p>
+    <table>
+      <thead><tr><th style="width:18%">维度</th><th style="width:32%">现状（真实组件）</th><th style="width:34%">本补稿处理</th><th style="width:16%">风险</th></tr></thead>
+      <tbody>
+        <tr><td><b>三步结构</b></td><td>① 对白文本 ② 情绪与生成 ③ 覆盖到视频；副标题硬编码「编辑对白 → 生成语音 → 覆盖到视频」</td><td>1:1 还原三段 + 副标题原文</td><td><span class="rk same">一致</span></td></tr>
+        <tr><td><b>视频源三态</b></td><td>显示优先级 <code>previewVideoUrl &gt; dubbedVideoUrl &gt; videoUrl</code>；浮标「预览版/配音版」随之变</td><td>展示「预览版」态（amber 浮标 + 预听/应用覆盖）；表下方列出另两态按钮组合</td><td><span class="rk low">低</span></td></tr>
+        <tr><td><b>Step 3 显隐</b></td><td>仅当 <code>canDub</code>（audio+video+taskId+onPreviewDub 全有）才渲染；否则整段隐藏</td><td>默认展示完整 Step 3；落地须保留 <code>canDub</code> 门控，缺一即隐藏</td><td><span class="rk med">需确认</span></td></tr>
+        <tr><td><b>offset 标记</b></td><td>「标记起始点」读取 video.currentTime；±50ms 步进 + 数字框 + range，clamp [0, 时长]</td><td>完整还原标记/步进/滑块；演示值 1200ms</td><td><span class="rk same">一致</span></td></tr>
+        <tr><td><b>音色绑定警告</b></td><td>无 voiceId 时 Step1 出 amber「需先在「角色」中绑定音色」，生成按钮禁用</td><td>本图为已绑定态（无警告）；落地须保留未绑定分支</td><td><span class="rk med">需确认</span></td></tr>
+        <tr><td><b>TTS 预听</b></td><td>用独立 <code>new Audio()</code>，非视频元素；instructions = 「情绪chip; 自由文本」</td><td>试听TTS 按钮还原；逻辑说明见此</td><td><span class="rk low">低</span></td></tr>
+        <tr><td><b>i18n 混杂</b></td><td>标题/「已覆盖」「预览中」「试听TTS」等多处<u>硬编码中文</u>，与 i18n 键混用</td><td>补稿内联原文仅为视觉保真；落地 MUST 抽取为 i18n 键（next-intl）并补 CN/EN，硬编码中文属待修复缺陷</td><td><span class="rk med">落地须 i18n 化</span></td></tr>
+        <tr><td><b>按钮组合</b></td><td>idle=仅预听；preview=预听+应用覆盖+hint；applied=预听+撤销覆盖</td><td>展示 preview 组合；其余两组在落地按 state 切换</td><td><span class="rk low">低</span></td></tr>
+        <tr><td><b>布局变化</b></td><td>—</td><td>结构、层级、控件顺序 1:1，仅颜色 token 化。<b>无布局重构</b></td><td><span class="rk same">一致</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement,logo=document.getElementById('logo');
+  var LOGO={'atelier-dark':'assets/logo-dark.png','bridge-dark':'assets/logo-dark.png','brand-dark':'assets/logo-dark.png','atelier-light':'assets/logo-light-teal.png','brand-light':'assets/logo-light.png'};
+  document.querySelectorAll('.tdot').forEach(function(d){d.addEventListener('click',function(){
+    var t=d.dataset.t;root.setAttribute('data-theme',t);
+    document.querySelectorAll('.tdot').forEach(function(x){x.classList.remove('on')});d.classList.add('on');logo.src=LOGO[t];
+  });});
+  document.querySelectorAll('.echip').forEach(function(c){c.addEventListener('click',function(){
+    var was=c.classList.contains('on');
+    document.querySelectorAll('.echip').forEach(function(x){x.classList.remove('on')});
+    if(!was)c.classList.add('on');
+  });});
+})();
+</script>
+</body>
+</html>

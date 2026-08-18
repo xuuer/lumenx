@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LumenX Studio · Line A (Cyber Refined) — 工作区</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--color-bg-base);color:var(--color-text-primary);font-family:var(--font-body);font-size:var(--text-body);line-height:var(--leading-body);-webkit-font-smoothing:antialiased;height:100vh;overflow:hidden}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--p-gray-700);border-radius:6px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:var(--p-gray-500)}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px;border-radius:4px}
+
+/* ───── Shell ───── */
+.shell{display:flex;height:100vh}
+
+/* Global rail */
+.global-rail{width:56px;flex-shrink:0;background:var(--color-bg-base);border-right:1px solid var(--color-border-subtle);display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:6px}
+.brand-mark{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,rgba(100,108,255,0.18),rgba(255,0,128,0.10));border:1px solid rgba(100,108,255,0.4);display:grid;place-items:center;font-family:var(--font-mono);font-weight:800;color:var(--color-primary);font-size:15px;margin-bottom:12px}
+.rail-ico{width:38px;height:38px;border-radius:9px;display:grid;place-items:center;color:var(--color-text-muted);cursor:pointer;transition:all var(--dur-fast) var(--ease-out);border:1px solid transparent}
+.rail-ico:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.rail-ico.active{background:rgba(100,108,255,0.10);border-color:rgba(100,108,255,0.25);color:var(--color-primary)}
+.rail-ico svg{width:18px;height:18px}
+.rail-spacer{flex:1}
+
+/* main column */
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+
+/* top bar */
+.topbar{height:64px;flex-shrink:0;border-bottom:1px solid var(--color-border-default);display:flex;align-items:center;padding:0 24px;gap:16px;background:var(--color-bg-surface)}
+.tb-brand{display:flex;flex-direction:column;line-height:1.1}
+.tb-word{font-family:var(--font-mono);font-size:var(--brand-wordmark-size);font-weight:700;letter-spacing:0.02em}
+.tb-word .x{color:var(--color-primary)}
+.tb-tag{font-family:var(--font-mono);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--color-text-muted);margin-top:2px}
+.search{flex:1;max-width:420px;position:relative;margin-left:8px}
+.search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--color-text-muted)}
+.search input{width:100%;background:var(--color-bg-input);border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:9px 12px 9px 34px;color:var(--color-text-primary);font-family:var(--font-body);font-size:12px;outline:none;transition:border-color var(--dur-fast) var(--ease-out)}
+.search input::placeholder{color:var(--color-text-muted)}
+.search input:focus{border-color:rgba(100,108,255,0.45)}
+.tb-actions{display:flex;align-items:center;gap:10px;margin-left:auto}
+.tb-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--p-blue-dim),var(--p-pink));display:grid;place-items:center;font-family:var(--font-mono);font-size:11px;font-weight:700;color:#fff;border:1px solid var(--color-border-strong)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;border-radius:var(--btn-radius);font-size:var(--text-body);font-weight:600;cursor:pointer;transition:all var(--dur-fast) var(--ease-out);border:1px solid transparent;padding:8px 15px}
+.btn svg{width:14px;height:14px}
+.btn-primary{background:var(--color-primary);border-color:var(--p-blue-dim);color:var(--color-on-primary);box-shadow:var(--glow-primary)}
+.btn-primary:hover{background:var(--color-primary-hover);box-shadow:0 0 24px -4px rgba(100,108,255,0.7)}
+.btn-glass{background:var(--color-bg-elevated);border-color:var(--color-border-default);color:var(--color-text-primary)}
+.btn-glass:hover{background:var(--p-gray-800);border-color:var(--color-border-strong)}
+.btn-ghost{background:transparent;color:var(--color-text-secondary)}
+.btn-ghost:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.btn-sm{padding:6px 11px;font-size:var(--text-body-sm)}
+
+/* scroll body */
+.scroll{flex:1;overflow-y:auto;padding:24px;background:
+  radial-gradient(120% 80% at 50% -10%, rgba(100,108,255,0.04), transparent 60%),
+  var(--color-bg-base)}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:32px}
+
+/* section heads */
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:14px}
+.sec-eyebrow{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.2em;color:var(--color-text-muted)}
+.sec-eyebrow .n{color:var(--color-primary);font-weight:700}
+.sec-title{font-family:var(--font-display);font-size:var(--text-display-lg);font-weight:600;letter-spacing:-0.01em;margin-top:4px}
+.sec-link{font-family:var(--font-mono);font-size:10px;letter-spacing:0.06em;color:var(--color-text-secondary);text-decoration:none;display:inline-flex;align-items:center;gap:4px;cursor:pointer}
+.sec-link:hover{color:var(--color-primary)}
+.sec-link svg{width:12px;height:12px}
+
+/* hero stat strip */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stat{background:var(--color-bg-surface);border:1px solid var(--color-border-default);border-radius:var(--radius-lg);padding:16px 18px;box-shadow:var(--shadow-rest)}
+.stat .k{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.16em;color:var(--color-text-muted)}
+.stat .v{font-family:var(--font-display);font-size:26px;font-weight:600;margin-top:6px;letter-spacing:-0.02em}
+.stat .v small{font-size:12px;color:var(--color-text-secondary);font-family:var(--font-body);font-weight:500;margin-left:4px}
+.stat .v .accent{color:var(--color-primary)}
+
+/* series row */
+.series-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.series{position:relative;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--color-border-default);min-height:148px;cursor:pointer;transition:border-color var(--dur-fast) var(--ease-out),box-shadow var(--dur-fast) var(--ease-out)}
+.series:hover{border-color:var(--color-border-strong);box-shadow:var(--shadow-lift)}
+.series img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform var(--dur-base) var(--ease-out)}
+.series:hover img{transform:scale(1.05)}
+.series .scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,8,0.15),rgba(5,5,8,0.88))}
+.series .info{position:absolute;left:0;right:0;bottom:0;padding:14px 16px}
+.series .stag{font-family:var(--font-mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:#b9bdff}
+.series .sname{font-family:var(--font-display);font-size:var(--text-display);font-weight:600;margin-top:2px}
+.series .smeta{font-family:var(--font-mono);font-size:9px;color:var(--color-text-secondary);margin-top:4px;letter-spacing:0.04em}
+
+/* project grid */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{background:var(--card-bg);border:1px solid var(--color-border-default);border-radius:var(--card-radius);box-shadow:var(--shadow-rest);overflow:hidden;cursor:pointer;transition:border-color var(--dur-fast) var(--ease-out),box-shadow var(--dur-fast) var(--ease-out),transform var(--dur-fast) var(--ease-out)}
+.card:hover{border-color:var(--color-border-strong);box-shadow:var(--shadow-lift);transform:translateY(-3px)}
+.card .thumb{position:relative;aspect-ratio:16/9;background:var(--color-bg-inset);overflow:hidden}
+.card .thumb img{width:100%;height:100%;object-fit:cover;transition:transform var(--dur-base) var(--ease-out)}
+.card:hover .thumb img{transform:scale(1.04)}
+.card .thumb .grad{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,8,0) 55%,rgba(5,5,8,0.7))}
+.thumb-top{position:absolute;top:8px;left:8px;right:8px;display:flex;justify-content:space-between;align-items:flex-start}
+.chip-ep{padding:3px 8px;border-radius:5px;background:rgba(5,5,8,0.65);font-family:var(--font-mono);font-size:9px;font-weight:600;color:var(--color-text-primary);backdrop-filter:blur(2px)}
+.card .body{padding:13px 14px}
+.card .ptitle{font-family:var(--font-display);font-size:var(--text-display-sm);font-weight:600;letter-spacing:-0.01em}
+.card .pmeta{font-family:var(--font-mono);font-size:9.5px;color:var(--color-text-muted);margin-top:4px;letter-spacing:0.04em;display:flex;gap:8px}
+.card .pmeta span::before{content:'·';margin-right:8px;color:var(--color-text-muted);opacity:0.5}
+.card .pmeta span:first-child::before{display:none}
+.progress{margin-top:11px}
+.progress .ptrack{height:5px;border-radius:99px;background:var(--color-bg-inset);overflow:hidden;border:1px solid var(--color-border-subtle)}
+.progress .pfill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--p-blue-dim),var(--color-primary));box-shadow:0 0 8px -2px var(--color-primary)}
+.progress .ptext{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:9px;color:var(--color-text-muted);margin-top:5px;letter-spacing:0.04em}
+.progress .ptext b{color:var(--color-text-secondary);font-weight:600}
+
+/* status badge */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;backdrop-filter:blur(2px)}
+.badge .led{width:5px;height:5px;border-radius:50%}
+.badge.pending{color:var(--status-pending-fg);background:var(--status-pending-bg);border:1px solid var(--status-pending-border)}.badge.pending .led{background:var(--status-pending-fg)}
+.badge.processing{color:var(--status-processing-fg);background:var(--status-processing-bg);border:1px solid var(--status-processing-border)}.badge.processing .led{background:var(--status-processing-fg);animation:pulse 1.2s infinite}
+.badge.completed{color:var(--status-completed-fg);background:var(--status-completed-bg);border:1px solid var(--status-completed-border)}.badge.completed .led{background:var(--status-completed-fg)}
+.badge.failed{color:var(--status-failed-fg);background:var(--status-failed-bg);border:1px solid var(--status-failed-border)}.badge.failed .led{background:var(--status-failed-fg)}
+.badge.starred{color:var(--status-starred-fg);background:var(--status-starred-bg);border:1px solid var(--status-starred-border)}.badge.starred .led{background:var(--status-starred-solid)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* split: projects + activity */
+.split{display:grid;grid-template-columns:1fr 320px;gap:24px;align-items:start}
+
+/* new project card (empty state) */
+.new-card{border:1.5px dashed var(--color-border-strong);border-radius:var(--card-radius);background:var(--color-bg-surface);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;min-height:100%;cursor:pointer;transition:all var(--dur-fast) var(--ease-out);text-align:center}
+.new-card:hover{border-color:var(--color-primary);background:rgba(100,108,255,0.05)}
+.new-card .nc-ico{width:44px;height:44px;border-radius:50%;background:rgba(100,108,255,0.08);border:1px solid rgba(100,108,255,0.3);display:grid;place-items:center;color:var(--color-primary)}
+.new-card .nc-ico svg{width:20px;height:20px}
+.new-card .nc-t{font-family:var(--font-display);font-size:var(--text-display-sm);font-weight:600}
+.new-card .nc-s{font-size:11px;color:var(--color-text-muted);max-width:180px}
+
+/* empty state region */
+.empty-region{background:var(--color-bg-surface);border:1px solid var(--color-border-default);border-radius:var(--radius-lg);padding:40px 24px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.empty-region .er-ico{width:56px;height:56px;border-radius:14px;background:var(--color-bg-inset);border:1px solid var(--color-border-default);display:grid;place-items:center;color:var(--color-text-muted)}
+.empty-region .er-ico svg{width:26px;height:26px;opacity:0.6}
+.empty-region .er-t{font-family:var(--font-display);font-size:var(--text-display);font-weight:600}
+.empty-region .er-s{font-size:12px;color:var(--color-text-secondary);max-width:360px;line-height:1.6}
+
+/* activity feed */
+.panel{background:var(--color-bg-surface);border:1px solid var(--color-border-default);border-radius:var(--radius-lg);box-shadow:var(--shadow-rest);overflow:hidden}
+.panel-head{padding:13px 16px;border-bottom:1px solid var(--color-border-subtle);display:flex;align-items:center;justify-content:space-between}
+.panel-head .ph-t{font-family:var(--font-mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.16em;color:var(--color-text-secondary)}
+.feed{display:flex;flex-direction:column}
+.feed-item{display:flex;gap:11px;padding:12px 16px;border-bottom:1px solid var(--color-border-subtle);transition:background var(--dur-fast) var(--ease-out)}
+.feed-item:last-child{border-bottom:none}
+.feed-item:hover{background:var(--color-bg-hover)}
+.fi-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.fi-dot.blue{background:var(--color-primary);box-shadow:0 0 6px var(--color-primary)}
+.fi-dot.green{background:var(--status-completed-fg)}
+.fi-dot.amber{background:var(--status-processing-fg)}
+.fi-dot.pink{background:var(--color-accent)}
+.fi-body{min-width:0}
+.fi-text{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.fi-text b{color:var(--color-text-primary);font-weight:600}
+.fi-time{font-family:var(--font-mono);font-size:9px;color:var(--color-text-muted);margin-top:3px;letter-spacing:0.04em}
+
+@media (max-width:1080px){.series-row,.grid{grid-template-columns:repeat(2,1fr)}.split{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
+@media (prefers-reduced-motion: reduce){*{animation-duration:0.001ms!important;transition-duration:0.001ms!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- Global rail -->
+  <nav class="global-rail" aria-label="全局导航">
+    <div class="brand-mark" aria-hidden="true">X</div>
+    <a class="rail-ico active" href="workspace.html" title="工作区" aria-label="工作区" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></a>
+    <a class="rail-ico" href="library.html" title="资产库" aria-label="资产库"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4M3 17l9 4 9-4"/></svg></a>
+    <a class="rail-ico" href="playground.html" title="Playground" aria-label="Playground"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></a>
+    <div class="rail-spacer"></div>
+    <a class="rail-ico" href="settings.html" title="设置" aria-label="设置"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.5-2.3 1a7 7 0 0 0-1.7-1l-.3-2.5h-4l-.3 2.5a7 7 0 0 0-1.7 1l-2.3-1-2 3.5 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.5 2.3-1a7 7 0 0 0 1.7 1l.3 2.5h4l.3-2.5a7 7 0 0 0 1.7-1l2.3 1 2-3.5-2-1.5c.1-.3.1-.7.1-1z"/></svg></a>
+  </nav>
+
+  <!-- Main column -->
+  <div class="main">
+    <!-- Top bar -->
+    <header class="topbar">
+      <div class="tb-brand">
+        <div class="tb-word">Lumen<span class="x">X</span> STUDIO</div>
+        <div class="tb-tag">Render Noise into Narrative</div>
+      </div>
+      <div class="search" role="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="search" placeholder="搜索项目、剧集或资产…" aria-label="搜索项目、剧集或资产">
+      </div>
+      <div class="tb-actions">
+        <button class="btn btn-glass btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>导入剧本</button>
+        <button class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>新建项目</button>
+        <div class="tb-avatar" title="创作者" aria-label="当前用户">CY</div>
+      </div>
+    </header>
+
+    <div class="scroll">
+      <div class="wrap">
+
+        <!-- Stats -->
+        <section aria-label="工作区概览">
+          <div class="stats">
+            <div class="stat"><div class="k">ACTIVE PROJECTS</div><div class="v">7<small>个进行中</small></div></div>
+            <div class="stat"><div class="k">RENDERING NOW</div><div class="v"><span class="accent">3</span><small>个镜头生成中</small></div></div>
+            <div class="stat"><div class="k">ASSETS LIBRARY</div><div class="v">218<small>项素材</small></div></div>
+            <div class="stat"><div class="k">EXPORTED THIS WEEK</div><div class="v">12<small>支成片</small></div></div>
+          </div>
+        </section>
+
+        <!-- Series -->
+        <section aria-labelledby="series-h">
+          <div class="sec-head">
+            <div>
+              <div class="sec-eyebrow">SERIES · <span class="n">系列剧集</span></div>
+              <h2 class="sec-title" id="series-h">我的系列</h2>
+            </div>
+            <a class="sec-link" tabindex="0">全部系列 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></a>
+          </div>
+          <div class="series-row">
+            <article class="series">
+              <img src="../assets/scene-skyline.png" alt="霓虹追凶系列封面：雨夜城市天际线">
+              <div class="scrim"></div>
+              <div class="info">
+                <div class="stag">NEON NOIR · 连载中</div>
+                <div class="sname">霓虹追凶</div>
+                <div class="smeta">4 EPISODES · 48 SHOTS · 1080P</div>
+              </div>
+            </article>
+            <article class="series">
+              <img src="../assets/shot-03.png" alt="暗巷档案系列封面：潮湿后巷霓虹光">
+              <div class="scrim"></div>
+              <div class="info">
+                <div class="stag">CRIME · 筹备中</div>
+                <div class="sname">暗巷档案</div>
+                <div class="smeta">2 EPISODES · 16 SHOTS · 720P</div>
+              </div>
+            </article>
+            <article class="series">
+              <img src="../assets/shot-05.png" alt="子夜证词系列封面：审讯室冷暖光交织">
+              <div class="scrim"></div>
+              <div class="info">
+                <div class="stag">THRILLER · 草稿</div>
+                <div class="sname">子夜证词</div>
+                <div class="smeta">1 EPISODE · 9 SHOTS · 720P</div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- Projects + Activity -->
+        <section class="split" aria-label="项目与活动">
+          <div>
+            <div class="sec-head">
+              <div>
+                <div class="sec-eyebrow">PROJECTS · <span class="n">剧集 / 单集</span></div>
+                <h2 class="sec-title">最近项目</h2>
+              </div>
+              <a class="sec-link" tabindex="0">查看全部 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></a>
+            </div>
+            <div class="grid">
+
+              <!-- Project: in progress -->
+              <article class="card" tabindex="0" aria-label="项目 雨夜街头 EP.01">
+                <div class="thumb">
+                  <img src="../assets/shot-01.png" alt="雨夜街头分镜：侦探霓虹特写">
+                  <div class="grad"></div>
+                  <div class="thumb-top">
+                    <span class="chip-ep">EP.01</span>
+                    <span class="badge processing"><span class="led"></span>生成中</span>
+                  </div>
+                </div>
+                <div class="body">
+                  <div class="ptitle">雨夜街头</div>
+                  <div class="pmeta"><span>霓虹追凶</span><span>12 镜头</span><span>R2V</span></div>
+                  <div class="progress">
+                    <div class="ptrack"><div class="pfill" style="width:66%"></div></div>
+                    <div class="ptext"><span>分镜 R2V · 8/12 完成</span><b>66%</b></div>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Project: completed -->
+              <article class="card" tabindex="0" aria-label="项目 天台对峙 EP.02">
+                <div class="thumb">
+                  <img src="../assets/shot-02.png" alt="天台对峙分镜：积水霓虹倒影">
+                  <div class="grad"></div>
+                  <div class="thumb-top">
+                    <span class="chip-ep">EP.02</span>
+                    <span class="badge completed"><span class="led"></span>已完成</span>
+                  </div>
+                </div>
+                <div class="body">
+                  <div class="ptitle">天台对峙</div>
+                  <div class="pmeta"><span>霓虹追凶</span><span>10 镜头</span><span>已导出</span></div>
+                  <div class="progress">
+                    <div class="ptrack"><div class="pfill" style="width:100%"></div></div>
+                    <div class="ptext"><span>已合成导出 · 1080P</span><b>100%</b></div>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Project: draft / pending -->
+              <article class="card" tabindex="0" aria-label="项目 档案室之夜 EP.03">
+                <div class="thumb">
+                  <img src="../assets/shot-03.png" alt="档案室之夜分镜：后巷潮湿地面">
+                  <div class="grad"></div>
+                  <div class="thumb-top">
+                    <span class="chip-ep">EP.03</span>
+                    <span class="badge pending"><span class="led"></span>待开始</span>
+                  </div>
+                </div>
+                <div class="body">
+                  <div class="ptitle">档案室之夜</div>
+                  <div class="pmeta"><span>霓虹追凶</span><span>9 镜头</span><span>草稿</span></div>
+                  <div class="progress">
+                    <div class="ptrack"><div class="pfill" style="width:18%"></div></div>
+                    <div class="ptext"><span>脚本已解析 · 待美术方向</span><b>18%</b></div>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Project: failed -->
+              <article class="card" tabindex="0" aria-label="项目 审讯 EP.01">
+                <div class="thumb">
+                  <img src="../assets/shot-05.png" alt="审讯分镜：审讯室冷暖光">
+                  <div class="grad"></div>
+                  <div class="thumb-top">
+                    <span class="chip-ep">EP.01</span>
+                    <span class="badge failed"><span class="led"></span>部分失败</span>
+                  </div>
+                </div>
+                <div class="body">
+                  <div class="ptitle">审讯</div>
+                  <div class="pmeta"><span>子夜证词</span><span>9 镜头</span><span>R2V</span></div>
+                  <div class="progress">
+                    <div class="ptrack"><div class="pfill" style="width:44%"></div></div>
+                    <div class="ptext"><span>2 个镜头生成失败 · 待重试</span><b>44%</b></div>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Project: starred -->
+              <article class="card" tabindex="0" aria-label="项目 雨幕跟踪 EP.02">
+                <div class="thumb">
+                  <img src="../assets/scene-skyline.png" alt="雨幕跟踪分镜：城市天际线霓虹">
+                  <div class="grad"></div>
+                  <div class="thumb-top">
+                    <span class="chip-ep">EP.02</span>
+                    <span class="badge starred"><span class="led"></span>精选</span>
+                  </div>
+                </div>
+                <div class="body">
+                  <div class="ptitle">雨幕跟踪</div>
+                  <div class="pmeta"><span>暗巷档案</span><span>8 镜头</span><span>已合成</span></div>
+                  <div class="progress">
+                    <div class="ptrack"><div class="pfill" style="width:88%"></div></div>
+                    <div class="ptext"><span>合成导出 · 待终审</span><b>88%</b></div>
+                  </div>
+                </div>
+              </article>
+
+              <!-- New project (inline empty CTA card) -->
+              <button class="new-card" aria-label="新建项目">
+                <div class="nc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+                <div class="nc-t">新建项目</div>
+                <div class="nc-s">粘贴剧本文本，AI 自动拆解场景与分镜</div>
+              </button>
+
+            </div>
+          </div>
+
+          <!-- Recent activity -->
+          <aside>
+            <div class="sec-head">
+              <div>
+                <div class="sec-eyebrow">ACTIVITY · <span class="n">动态</span></div>
+                <h2 class="sec-title" style="font-size:var(--text-display)">最近活动</h2>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><span class="ph-t">RECENT ACTIVITY</span><button class="btn btn-ghost btn-sm">清空</button></div>
+              <div class="feed">
+                <div class="feed-item">
+                  <span class="fi-dot green"></span>
+                  <div class="fi-body"><div class="fi-text"><b>天台对峙 EP.02</b> 合成导出完成，1080P / 42s</div><div class="fi-time">2 MIN AGO · EXPORT</div></div>
+                </div>
+                <div class="feed-item">
+                  <span class="fi-dot amber"></span>
+                  <div class="fi-body"><div class="fi-text"><b>雨夜街头</b> SHOT 08 正在渲染 · WAN-R2V</div><div class="fi-time">6 MIN AGO · RENDER</div></div>
+                </div>
+                <div class="feed-item">
+                  <span class="fi-dot blue"></span>
+                  <div class="fi-body"><div class="fi-text">新增角色资产 <b>陈侦探</b> 4 个变体到资产库</div><div class="fi-time">21 MIN AGO · ASSET</div></div>
+                </div>
+                <div class="feed-item">
+                  <span class="fi-dot pink"></span>
+                  <div class="fi-body"><div class="fi-text"><b>审讯 EP.01</b> SHOT 04 生成失败 · 内容安全拦截</div><div class="fi-time">38 MIN AGO · ERROR</div></div>
+                </div>
+                <div class="feed-item">
+                  <span class="fi-dot blue"></span>
+                  <div class="fi-body"><div class="fi-text">Playground 结果 <b>霓虹街口</b> 已保存到资产库</div><div class="fi-time">1 HR AGO · PLAYGROUND</div></div>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </section>
+
+        <!-- Empty state region -->
+        <section aria-labelledby="empty-h">
+          <div class="sec-head">
+            <div>
+              <div class="sec-eyebrow">EMPTY STATE · <span class="n">空状态示例</span></div>
+              <h2 class="sec-title" id="empty-h">归档系列</h2>
+            </div>
+          </div>
+          <div class="empty-region">
+            <div class="er-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 15h6"/></svg></div>
+            <div class="er-t">还没有归档的系列</div>
+            <div class="er-s">当你完成并归档一个系列后，它会出现在这里。归档不会删除任何资产或成片，你随时可以恢复继续创作。</div>
+            <button class="btn btn-glass btn-sm" style="margin-top:4px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>从模板新建系列</button>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

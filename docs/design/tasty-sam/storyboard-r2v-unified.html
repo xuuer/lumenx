@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LumenX Studio · R2V 分镜工作台（统一台 · Atelier）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════════════════════════════
+   LumenX Studio — R2V Storyboard Workbench (Unified)
+   Skin: Line B "Luminous Atelier" (Tasty Sam) — tokens inlined below.
+   Structure: theming workbench (queue / shotpanel / candidates / dialogue).
+   Shell: left vertical step rail (modeled on PipelineSidebar, w-64) + right queue.
+   ════════════════════════════════════════════════════════════════ */
+
+:root{
+  /* ── SEED ── */
+  --seed-bg:#0c0b0e; --seed-fg:#f2ede4; --seed-teal:#34d8c4; --seed-amber:#ffa94d; --seed-rose:#ff6b6b;
+  /* ── PRIMITIVES ── */
+  --p-graphite-950:#0c0b0e; --p-graphite-900:#131116; --p-graphite-850:#181620;
+  --p-graphite-800:#1e1b26; --p-graphite-700:#292430; --p-graphite-600:#38323f;
+  --p-mist-500:#8b8597; --p-mist-400:#a8a2b0; --p-mist-300:#c8c2ce;
+  --p-teal-bright:#5ee9d6; --p-teal:#34d8c4; --p-teal-deep:#1d9c8d;
+  --p-amber:#ffa94d; --p-amber-deep:#e8852b; --p-rose:#ff6b6b;
+  /* ── BACKGROUND ── */
+  --color-bg-base:var(--seed-bg);
+  --color-bg-surface:var(--p-graphite-900);
+  --color-bg-elevated:var(--p-graphite-850);
+  --color-bg-inset:#0a090c;            /* media wells / nested — a touch deeper */
+  --color-bg-hover:rgba(255,255,255,0.045);
+  --color-bg-input:rgba(0,0,0,0.28);
+  /* ── TEXT ── */
+  --color-text-primary:var(--seed-fg);
+  --color-text-secondary:var(--p-mist-400);
+  --color-text-muted:var(--p-mist-500);
+  --color-on-accent:#0c0b0e;
+  /* ── BORDER (frameless = whispers) ── */
+  --color-border-default:rgba(255,255,255,0.06);
+  --color-border-subtle:rgba(255,255,255,0.03);
+  --color-border-focus:var(--p-teal);
+  /* ── INTERACTIVE ── */
+  --color-primary:var(--p-teal);
+  --color-primary-hover:var(--p-teal-bright);
+  --color-accent:var(--p-amber);
+  --color-accent-hover:var(--p-amber-deep);
+  --color-destructive:var(--p-rose);
+  --color-overlay:rgba(8,7,10,0.78);
+  /* ── STATUS (OKLCH, warm-tuned) ── */
+  --status-pending-fg:oklch(0.82 0.06 250);
+  --status-pending-border:oklch(0.72 0.08 250 / 0.40);
+  --status-pending-bg:oklch(0.72 0.08 250 / 0.10);
+  --status-processing-fg:oklch(0.86 0.14 75);
+  --status-processing-border:oklch(0.78 0.16 75 / 0.45);
+  --status-processing-bg:oklch(0.78 0.16 75 / 0.12);
+  --status-completed-fg:oklch(0.85 0.13 180);
+  --status-completed-border:oklch(0.75 0.14 180 / 0.45);
+  --status-completed-bg:oklch(0.75 0.14 180 / 0.12);
+  --status-failed-fg:oklch(0.75 0.18 22);
+  --status-failed-border:oklch(0.66 0.19 22 / 0.45);
+  --status-failed-bg:oklch(0.66 0.19 22 / 0.12);
+  --status-starred-fg:oklch(0.88 0.14 85);
+  --status-starred-border:oklch(0.83 0.15 85 / 0.55);
+  --status-starred-bg:oklch(0.83 0.15 85 / 0.16);
+  --status-starred-solid:oklch(0.83 0.15 85);
+  /* ── TYPE ── */
+  --font-display:'Fraunces','Newsreader',Georgia,serif;
+  --font-body:'Space Grotesk',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --text-chrome-sm:10px; --text-chrome:11px; --text-body-sm:12px; --text-body:13px; --text-body-lg:15px;
+  --text-display-sm:18px; --text-display:24px; --text-display-lg:34px;
+  --leading-body:1.6;
+  /* ── SPACE (4px base, gallery-generous) ── */
+  --space-2xs:4px; --space-xs:8px; --space-sm:12px; --space-md:20px; --space-lg:32px; --space-xl:52px;
+  /* ── RADIUS ── */
+  --radius-sm:8px; --radius-md:14px; --radius-lg:20px; --radius-xl:28px; --radius-pill:999px;
+  /* ── ELEVATION (light, not boxes) ── */
+  --shadow-rest:0 2px 8px rgba(0,0,0,0.40),inset 0 1px 0 rgba(255,255,255,0.04);
+  --shadow-lift:0 12px 40px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,255,255,0.06);
+  --shadow-float:0 28px 80px rgba(0,0,0,0.65),inset 0 1px 0 rgba(255,255,255,0.07);
+  --glow-teal:0 0 0 1px rgba(52,216,196,0.30),0 0 24px -6px rgba(52,216,196,0.45);
+  --glow-amber:0 0 0 1px rgba(255,169,77,0.35),0 0 28px -6px rgba(255,169,77,0.50);
+  /* ── MOTION ── */
+  --dur-fast:160ms; --dur-base:280ms; --dur-slow:460ms;
+  --ease-out:cubic-bezier(0.22,1,0.36,1);
+  --ease-spring:cubic-bezier(0.34,1.56,0.64,1);
+  /* ── ATMOSPHERE (signature) ── */
+  --grain-opacity:0.045;
+  --bloom-teal:radial-gradient(60% 50% at 20% 0%,rgba(52,216,196,0.10),transparent 70%);
+  --bloom-amber:radial-gradient(55% 45% at 85% 100%,rgba(255,169,77,0.08),transparent 70%);
+  /* ── COMPONENT ── */
+  --card-bg:var(--color-bg-surface);
+  --card-radius:var(--radius-lg);
+  --btn-radius:var(--radius-pill);
+  --input-bg:var(--color-bg-input);
+  --media-radius:var(--radius-md);
+  --rail-w:256px;            /* left step rail — w-64 */
+  --queue-w:344px;
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:var(--color-bg-base);color:var(--color-text-primary);
+  font-family:var(--font-body);font-size:var(--text-body);line-height:var(--leading-body);
+  -webkit-font-smoothing:antialiased;overflow:hidden;position:relative;
+}
+/* signature atmosphere — dual-corner teal+amber bloom + fine grain */
+body::before{content:'';position:fixed;inset:0;background:var(--bloom-teal),var(--bloom-amber);pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1;opacity:var(--grain-opacity);mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--p-graphite-700);border-radius:8px;border:3px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:var(--p-graphite-600)}
+button{font-family:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px;border-radius:8px}
+svg{display:block}
+
+.shell{display:flex;height:100vh;position:relative;z-index:2}
+
+/* ══════════════ LEFT STEP RAIL — modeled on PipelineSidebar (w-64), Atelier-skinned ══════════════ */
+.rail{width:var(--rail-w);flex-shrink:0;display:flex;flex-direction:column;
+  border-right:1px solid var(--color-border-subtle);background:var(--color-bg-surface);backdrop-filter:blur(20px)}
+
+/* breadcrumb header = return-to-home (moved here out of the page header) */
+.rail-head{display:flex;align-items:center;gap:8px;padding:20px;border-bottom:1px solid var(--color-border-subtle)}
+.rail-back{flex-shrink:0;width:24px;height:24px;display:grid;place-items:center;border:none;background:transparent;cursor:pointer;
+  color:var(--color-text-secondary);border-radius:var(--radius-sm);transition:color var(--dur-base) var(--ease-out),background var(--dur-base) var(--ease-out)}
+.rail-back:hover{color:var(--color-text-primary);background:var(--color-bg-hover)}
+.rail-back svg{width:16px;height:16px;stroke-width:1.9}
+.crumb{display:flex;align-items:center;gap:5px;min-width:0;font-family:var(--font-mono);font-size:11px;letter-spacing:0.02em}
+.crumb a{color:var(--color-text-muted);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color var(--dur-base) var(--ease-out)}
+.crumb a:hover{color:var(--color-text-primary)}
+.crumb .sep{flex-shrink:0;color:var(--color-text-muted);opacity:.55}
+.crumb .cur{color:var(--color-text-primary);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* vertical steps */
+.rail-nav{flex:1;display:flex;flex-direction:column;gap:8px;padding:16px;overflow-y:auto}
+.rstep{position:relative;display:flex;align-items:center;gap:12px;width:100%;padding:12px 16px;border-radius:var(--radius-md);
+  text-align:left;background:none;border:1px solid transparent;cursor:pointer;color:var(--color-text-secondary);overflow:hidden;
+  transition:background var(--dur-base) var(--ease-out),color var(--dur-base) var(--ease-out),border-color var(--dur-base) var(--ease-out)}
+.rstep:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.rstep .rico{width:20px;height:20px;flex-shrink:0;stroke-width:1.7;color:var(--color-text-muted);transition:color var(--dur-base) var(--ease-out)}
+.rstep:hover .rico{color:var(--color-text-primary)}
+.rstep .rtx{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.rstep .rlbl{font-size:14px;font-weight:500;line-height:1.2}
+.rstep .ridx{font-family:var(--font-mono);font-size:9px;letter-spacing:0.12em;color:var(--color-text-muted);opacity:.7}
+/* done = small teal check */
+.rstep.done .rico{color:var(--color-text-secondary)}
+.rstep .rcheck{margin-left:auto;flex-shrink:0;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;
+  background:rgba(52,216,196,0.12);border:1px solid var(--status-completed-border);color:var(--status-completed-fg)}
+.rstep .rcheck svg{width:11px;height:11px;stroke-width:2.6}
+/* active (04) = teal left pill + faint teal bg + teal icon/text + chevron */
+.rstep.active{background:rgba(52,216,196,0.10);border-color:rgba(52,216,196,0.20);color:var(--color-primary)}
+.rstep.active .rico{color:var(--color-primary)}
+.rstep.active .rlbl{font-weight:600}
+.rstep.active .ridx{color:var(--color-primary);opacity:.85}
+.rstep.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:60%;border-radius:0 3px 3px 0;background:var(--color-primary)}
+.rstep .rchev{margin-left:auto;flex-shrink:0;color:var(--color-primary);opacity:.55}
+.rstep .rchev svg{width:16px;height:16px;stroke-width:1.9}
+/* status sub-line: STEP 0N · 状态 (stages, not wizard steps) */
+.rstep .rsub{display:flex;align-items:center;gap:6px;min-width:0}
+.rstep .rsub .ridx{flex-shrink:0}
+.rstep .rstat{font-family:var(--font-mono);font-size:9.5px;letter-spacing:0.03em;color:var(--color-text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rstep.active .rstat{color:var(--color-primary);opacity:.9}
+.rstep .sepdot{color:var(--color-text-muted);opacity:.5}
+/* 3-state status dot (replaces the binary done-check) */
+.rstep .rdot{margin-left:auto;flex-shrink:0;width:8px;height:8px;border-radius:50%}
+.rstep .rdot.ready{background:var(--color-primary);box-shadow:0 0 6px rgba(52,216,196,0.55)}
+.rstep .rdot.warn{background:var(--color-accent);box-shadow:0 0 6px rgba(255,169,77,0.5)}
+.rstep .rdot.idle{background:transparent;border:1.5px solid var(--color-text-muted);opacity:.6}
+/* subtle connector linking the pipeline stages (visual order, not a heavy stepper) */
+.rstep > *{position:relative;z-index:1}
+.rail-nav .rstep:not(:last-child)::after{content:'';position:absolute;z-index:0;left:25px;top:38px;bottom:-8px;width:1.5px;background:var(--color-border-subtle)}
+/* soft-gated stage (reachable-later, NOT hard-locked) */
+.rstep.gated{opacity:.5}
+.rstep.gated .rico{color:var(--color-text-muted)}
+.rstep.gated:hover{opacity:.78;background:var(--color-bg-hover)}
+.rstep .rlock{margin-left:auto;flex-shrink:0;color:var(--color-text-muted)}
+.rstep .rlock svg{width:13px;height:13px;stroke-width:1.8}
+
+/* project card */
+.rail-foot{padding:16px;border-top:1px solid var(--color-border-subtle)}
+.proj-card{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--radius-md);
+  background:var(--color-bg-inset);border:1px solid var(--color-border-subtle)}
+.proj-dot{width:30px;height:30px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--p-teal),var(--p-amber));box-shadow:var(--glow-teal)}
+.proj-tx{display:flex;flex-direction:column;min-width:0}
+.proj-name{font-family:var(--font-display);font-size:15px;font-weight:600;color:var(--color-text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.proj-ver{font-family:var(--font-mono);font-size:10px;letter-spacing:0.04em;color:var(--color-text-muted);margin-top:1px}
+
+/* ══════════════ WORKBENCH ══════════════ */
+.wb{flex:1;display:flex;flex-direction:column;min-width:0}
+
+/* ── Page header (Line B unified pattern) ── */
+.wb-head{padding:22px 28px 16px;display:flex;align-items:flex-start;gap:20px}
+.wb-titles{flex:1;min-width:0}
+.eyebrow{font-family:var(--font-mono);font-size:9.5px;text-transform:uppercase;letter-spacing:0.22em;color:var(--color-text-muted)}
+.eyebrow .n{color:var(--color-primary);font-weight:600}
+.title-row{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-top:5px}
+.wb-title{font-family:var(--font-display);font-size:var(--text-display-lg);font-weight:600;letter-spacing:-0.02em;line-height:1.05}
+.pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:9.5px;letter-spacing:0.06em;
+  padding:4px 11px;border-radius:var(--radius-pill);background:var(--color-bg-inset);border:1px solid var(--color-border-subtle);color:var(--color-text-secondary)}
+.pill .k{color:var(--color-text-muted)}
+.pill b{color:var(--color-primary);font-weight:600}
+.wb-actions{display:flex;align-items:center;gap:10px;flex-shrink:0;padding-top:4px}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:7px;border-radius:var(--btn-radius);font-size:var(--text-body);font-weight:600;
+  cursor:pointer;transition:transform var(--dur-base) var(--ease-out),background var(--dur-base) var(--ease-out),box-shadow var(--dur-base) var(--ease-out);
+  border:1px solid transparent;padding:9px 18px;white-space:nowrap}
+.btn svg{width:14px;height:14px;stroke-width:1.9}
+.btn-primary{background:var(--color-primary);color:var(--color-on-accent);box-shadow:var(--glow-teal)}
+.btn-primary:hover{background:var(--color-primary-hover);transform:translateY(-1px);box-shadow:0 0 32px -4px rgba(52,216,196,0.6)}
+.btn-soft{background:var(--color-bg-surface);color:var(--color-text-primary);box-shadow:var(--shadow-rest)}
+.btn-soft:hover{background:var(--color-bg-elevated);transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--color-text-secondary)}
+.btn-ghost:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.btn-sm{padding:7px 13px;font-size:var(--text-body-sm)}
+.btn-amber{background:var(--status-starred-bg);border-color:var(--status-starred-border);color:var(--status-starred-fg);box-shadow:none}
+.btn-amber:hover{transform:translateY(-1px);box-shadow:var(--glow-amber)}
+.tq-btn{position:relative}
+.tq-btn .cnt{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;border-radius:9px;background:var(--color-accent);
+  color:var(--color-on-accent);font-family:var(--font-mono);font-size:9.5px;font-weight:700;display:grid;place-items:center;padding:0 4px;box-shadow:var(--glow-amber)}
+
+/* ── Scroll body ── */
+.shot-scroll{flex:1;overflow-y:auto;padding:6px 28px 40px;display:flex;flex-direction:column;gap:var(--space-md)}
+
+/* ── Toolbar (count "N in flight" + expand/collapse) ── */
+.toolbar{display:flex;align-items:center;gap:12px;margin-top:2px}
+.count{font-family:var(--font-mono);font-size:11px;letter-spacing:0.04em;color:var(--color-text-secondary)}
+.count .fl{color:var(--status-processing-fg)}
+.tool-r{margin-left:auto;display:flex;gap:8px}
+.tbtn{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:10px;letter-spacing:0.06em;
+  padding:6px 11px;border-radius:var(--radius-pill);background:transparent;border:1px solid var(--color-border-default);
+  color:var(--color-text-secondary);cursor:pointer;transition:all var(--dur-base) var(--ease-out)}
+.tbtn:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.tbtn svg{width:13px;height:13px;stroke-width:1.9}
+
+/* ── GenerationBanner (cross-shot roll-up) ── */
+.banner{display:flex;align-items:center;gap:11px;padding:12px 16px;border-radius:var(--radius-md);
+  background:var(--color-bg-surface);border:1px solid var(--color-border-subtle);box-shadow:var(--shadow-rest);font-size:12.5px}
+.banner svg{width:16px;height:16px;flex-shrink:0;color:var(--status-completed-fg);stroke-width:1.9}
+.banner .teal{color:var(--status-completed-fg);font-weight:600}
+.banner .amber{color:var(--color-accent);font-weight:600}
+.banner b{color:var(--color-text-primary);font-weight:600}
+.banner .cta{margin-left:auto}
+
+/* ── shot scroll area ── */
+
+/* ══════════════ SHOT CARD — frameless floating ══════════════ */
+.card{background:var(--card-bg);border:1px solid var(--color-border-subtle);border-radius:var(--card-radius);flex-shrink:0;
+  box-shadow:var(--shadow-rest);overflow:hidden;transition:transform var(--dur-base) var(--ease-spring),box-shadow var(--dur-base) var(--ease-out)}
+.card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lift)}
+.card.selected{box-shadow:var(--shadow-lift),0 0 0 1px rgba(52,216,196,0.20)}
+
+.card-top{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 20px 12px}
+.shot-badge{display:flex;align-items:center;gap:13px;min-width:0}
+.shot-no{font-family:var(--font-display);font-size:26px;font-weight:600;color:var(--color-text-muted);letter-spacing:-0.03em;line-height:1}
+.card.selected .shot-no{color:var(--color-text-secondary)}
+.shot-cap{font-family:var(--font-mono);font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-text-muted)}
+.shot-cap b{color:var(--color-text-secondary);font-weight:600}
+.top-r{display:flex;align-items:center;gap:10px}
+
+.pill-tabs{display:inline-flex;padding:3px;background:var(--color-bg-inset);border-radius:var(--radius-pill)}
+.pill-tab{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--radius-pill);
+  font-family:var(--font-mono);font-size:9.5px;letter-spacing:0.04em;text-transform:uppercase;font-weight:600;
+  color:var(--color-text-muted);cursor:pointer;border:none;background:transparent;transition:all var(--dur-base) var(--ease-out)}
+.pill-tab.active{background:var(--color-bg-surface);color:var(--color-text-primary);box-shadow:var(--shadow-rest)}
+.pill-tab svg{width:11px;height:11px;stroke-width:1.9}
+
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:var(--radius-pill);
+  font-family:var(--font-mono);font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em}
+.badge .led{width:5px;height:5px;border-radius:50%}
+.badge.pending{color:var(--status-pending-fg);background:var(--status-pending-bg);border:1px solid var(--status-pending-border)}.badge.pending .led{background:var(--status-pending-fg)}
+.badge.processing{color:var(--status-processing-fg);background:var(--status-processing-bg);border:1px solid var(--status-processing-border)}.badge.processing .led{background:var(--status-processing-fg);animation:pulse 1.2s infinite}
+.badge.completed{color:var(--status-completed-fg);background:var(--status-completed-bg);border:1px solid var(--status-completed-border)}.badge.completed .led{background:var(--status-completed-fg)}
+.badge.failed{color:var(--status-failed-fg);background:var(--status-failed-bg);border:1px solid var(--status-failed-border)}.badge.failed .led{background:var(--status-failed-fg)}
+.badge.starred{color:var(--status-starred-fg);background:var(--status-starred-bg);border:1px solid var(--status-starred-border)}.badge.starred .led{background:var(--status-starred-solid)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── card body ── */
+.card-body{display:flex;gap:0;padding:0 20px}
+.preview{width:288px;flex-shrink:0;aspect-ratio:16/9;background:var(--color-bg-inset);border-radius:var(--media-radius);
+  position:relative;display:grid;place-items:center;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.04)}
+.preview img{width:100%;height:100%;object-fit:cover}
+.preview.glow::after{content:'';position:absolute;inset:0;border-radius:var(--media-radius);
+  box-shadow:inset 0 0 42px -8px rgba(255,169,77,0.28);pointer-events:none}   /* amber halation on selected take */
+.ph{display:flex;flex-direction:column;align-items:center;gap:9px;color:var(--color-text-muted)}
+.ph svg{width:24px;height:24px;opacity:.5;stroke-width:1.6}
+.ph span{font-family:var(--font-mono);font-size:10.5px;letter-spacing:0.08em}
+.chip-tl{position:absolute;top:10px;left:10px;display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:var(--radius-pill);
+  font-family:var(--font-mono);font-size:9px;font-weight:600;letter-spacing:0.06em;backdrop-filter:blur(6px)}
+.chip-tl svg{width:10px;height:10px}
+.chip-star{background:rgba(255,169,77,0.20);border:1px solid rgba(255,169,77,0.5);color:var(--color-accent);box-shadow:var(--glow-amber)}
+.chip-dur{position:absolute;bottom:10px;right:10px;padding:3px 9px;border-radius:var(--radius-pill);
+  background:rgba(8,7,10,0.7);font-family:var(--font-mono);font-size:9px;color:var(--color-text-primary);backdrop-filter:blur(4px)}
+.play-ov{position:absolute;inset:0;display:grid;place-items:center;opacity:0;cursor:pointer;background:rgba(8,7,10,0.2);transition:opacity var(--dur-base) var(--ease-out)}
+.preview:hover .play-ov{opacity:1}
+.play-ov .pbtn{width:46px;height:46px;border-radius:50%;background:rgba(242,237,228,0.92);display:grid;place-items:center}
+.play-ov .pbtn svg{width:17px;height:17px;color:var(--color-on-accent);margin-left:2px}
+.ov{position:absolute;inset:0;display:grid;place-items:center;background:rgba(8,7,10,0.55);backdrop-filter:blur(2px)}
+.ov-proc{display:flex;flex-direction:column;align-items:center;gap:10px}
+.ring{width:30px;height:30px}
+.ring circle{fill:none;stroke-width:2.5}
+.ring .bg{stroke:rgba(255,255,255,0.10)}
+.ring .fg{stroke:var(--color-accent);stroke-linecap:round;stroke-dasharray:80;stroke-dashoffset:30;transform-origin:center;animation:spin 1.1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ov-proc .lbl{font-family:var(--font-mono);font-size:9.5px;color:var(--color-accent);letter-spacing:0.1em}
+
+.editor{flex:1;padding:2px 0 2px 20px;display:flex;flex-direction:column;gap:11px;min-width:0}
+.cast-row{display:flex;align-items:center;gap:10px}
+.cast-lbl{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted)}
+.avatars{display:flex}
+.av{width:26px;height:26px;border-radius:50%;border:2px solid var(--color-bg-surface);margin-left:-7px;object-fit:cover;background:var(--color-bg-elevated)}
+.av:first-child{margin-left:0}
+.av.txt{display:grid;place-items:center;font-family:var(--font-mono);font-size:8px;font-weight:700;color:var(--color-text-secondary)}
+.prompt{border-left:2px solid var(--color-border-default);padding:2px 0 2px 14px;font-size:13px;line-height:1.6;color:var(--color-text-primary);transition:border-color var(--dur-base) var(--ease-out)}
+.prompt:hover{border-left-color:var(--color-primary)}
+.prompt .tk{color:var(--p-teal-bright);font-weight:600}
+/* dialogue line — italic Fraunces, echoes the slogan */
+.dlg{padding-left:14px;border-left:2px solid rgba(255,169,77,0.4)}
+.dlg .sp{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted)}
+.dlg .ln{font-family:var(--font-display);font-style:italic;font-size:14.5px;color:var(--color-text-secondary);line-height:1.4;margin-top:2px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:var(--radius-pill);font-size:11px;font-weight:500;
+  background:var(--color-bg-inset);border:1px solid var(--color-border-subtle);color:var(--color-text-secondary)}
+.tag .k{font-family:var(--font-mono);font-size:8.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--color-text-muted)}
+.tag.accent{border-color:rgba(52,216,196,0.3);color:var(--p-teal-bright)}
+.assets{display:flex;flex-wrap:wrap;gap:6px}
+.achip{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:var(--radius-pill);font-size:11px;cursor:pointer;
+  background:var(--color-bg-inset);color:var(--color-text-secondary);transition:background var(--dur-base) var(--ease-out)}
+.achip:hover{background:var(--color-bg-hover)}
+.achip .dot{width:6px;height:6px;border-radius:50%}
+.achip.char .dot{background:#7cc4ff}.achip.scene .dot{background:var(--p-teal)}.achip.prop .dot{background:var(--color-accent)}
+
+/* ── actions = genrow (Generate lives OUTSIDE Params) ── */
+.actions{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 20px 16px;margin-top:4px}
+.act-left{display:flex;align-items:center;gap:3px}
+.ico-btn{width:32px;height:32px;border-radius:var(--radius-md);display:grid;place-items:center;border:none;background:transparent;
+  color:var(--color-text-muted);cursor:pointer;transition:all var(--dur-base) var(--ease-out)}
+.ico-btn:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.ico-btn:disabled{opacity:.25;cursor:not-allowed}
+.ico-btn svg{width:15px;height:15px;stroke-width:1.8}
+.act-right{display:flex;align-items:center;gap:11px}
+.cnt-lbl{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted)}
+.count-sel{display:flex;gap:3px;background:var(--color-bg-inset);padding:3px;border-radius:var(--radius-pill)}
+.cbtn{min-width:30px;height:28px;padding:0 6px;border-radius:var(--radius-pill);display:grid;place-items:center;border:none;background:transparent;
+  font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--color-text-muted);cursor:pointer;transition:all var(--dur-base) var(--ease-out)}
+.cbtn.active{background:var(--color-primary);color:var(--color-on-accent)}
+
+/* ── disclosure bar + ShotPanel ── */
+.disc{display:flex;align-items:center;gap:8px;padding:10px 20px;border-top:1px solid var(--color-border-subtle);
+  font-family:var(--font-mono);font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-text-muted);cursor:pointer;
+  transition:color var(--dur-base) var(--ease-out)}
+.disc:hover{color:var(--color-text-secondary)}
+.disc svg{width:13px;height:13px;stroke-width:2}
+.disc .sub{font-family:var(--font-mono);text-transform:none;letter-spacing:0.04em;color:var(--color-text-muted);opacity:.8}
+.panel{margin:0 20px 18px;animation:reveal var(--dur-base) var(--ease-spring)}
+.disc-chev{transition:transform var(--dur-base) var(--ease-out)}
+.disc.open .disc-chev{transform:rotate(180deg)}
+.advfold{cursor:pointer}
+.adv-chev{transition:transform var(--dur-base) var(--ease-out)}
+.advfold.open .adv-chev{transform:rotate(90deg)}
+.adv-n{font-family:var(--font-mono);font-size:9px;color:var(--color-primary);background:rgba(52,216,196,0.12);border-radius:6px;padding:1px 6px;margin-left:2px}
+.adv-body{display:none;flex-direction:column;gap:10px;margin-top:10px;padding:12px;border:1px dashed var(--color-border-subtle);border-radius:var(--radius-md)}
+.adv-body.open{display:flex}
+.adv-in{flex:1;min-width:0;background:var(--color-bg-inset);border:1px solid var(--color-border-subtle);border-radius:8px;padding:6px 9px;font-size:12px;color:var(--color-text-primary);outline:none;transition:border-color var(--dur-base) var(--ease-out)}
+.adv-in:focus{border-color:var(--color-primary)}
+.seed-row{display:flex;align-items:center;gap:6px}
+.adv-num{width:96px;background:var(--color-bg-inset);border:1px solid var(--color-border-subtle);border-radius:8px;padding:6px 9px;font-family:var(--font-mono);font-size:12px;color:var(--color-text-primary);outline:none}
+.adv-num:focus{border-color:var(--color-primary)}
+.seed-btn{width:28px;height:28px;display:grid;place-items:center;border:1px solid var(--color-border-subtle);border-radius:8px;background:transparent;color:var(--color-text-muted);cursor:pointer;transition:all var(--dur-base) var(--ease-out)}
+.seed-btn:hover{color:var(--color-text-primary);background:var(--color-bg-hover)}
+.seed-btn svg{width:14px;height:14px;stroke-width:1.8}
+.slider-row{display:flex;align-items:center;gap:10px;flex:1}
+.adv-range{flex:1;height:4px;-webkit-appearance:none;appearance:none;background:var(--color-bg-elevated);border-radius:99px;accent-color:var(--color-primary);cursor:pointer}
+.slider-val{font-family:var(--font-mono);font-size:12px;color:var(--color-text-secondary);width:30px;text-align:right}
+.adv-tg{width:36px;height:20px;border-radius:99px;background:var(--color-bg-elevated);position:relative;cursor:pointer;transition:background var(--dur-base) var(--ease-out);flex-shrink:0}
+.adv-tg.on{background:var(--color-primary)}
+.adv-tg .knob{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left var(--dur-base) var(--ease-out)}
+.adv-tg.on .knob{left:18px}
+@keyframes reveal{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.sec{padding:16px 0}
+.sec+.sec{border-top:1px solid var(--color-border-subtle)}
+.sec-h{display:flex;align-items:center;gap:9px;margin-bottom:13px}
+.sec-h .si{width:15px;height:15px;color:var(--color-text-secondary);stroke-width:1.8;flex-shrink:0}
+.sec-t{font-family:var(--font-mono);font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.16em;color:var(--color-text-secondary)}
+.sec-sub{font-family:var(--font-mono);font-size:9.5px;color:var(--color-text-muted)}
+.sec-tr{margin-left:auto}
+.state-tag{font-family:var(--font-mono);font-size:8.5px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--status-processing-fg);background:var(--status-processing-bg);border:1px solid var(--status-processing-border);padding:3px 9px;border-radius:var(--radius-pill)}
+
+/* T2I strip */
+.t2i-strip{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.t2i{position:relative;width:96px;aspect-ratio:16/10;border-radius:var(--radius-md);overflow:hidden;cursor:pointer;
+  box-shadow:var(--shadow-rest);transition:transform var(--dur-base) var(--ease-spring)}
+.t2i:hover{transform:translateY(-2px)}
+.t2i img{width:100%;height:100%;object-fit:cover}
+.t2i.sel{box-shadow:var(--glow-teal)}
+.t2i .pick{position:absolute;top:6px;left:6px;width:18px;height:18px;border-radius:50%;background:var(--color-primary);display:grid;place-items:center;opacity:0}
+.t2i.sel .pick{opacity:1}
+.t2i .pick svg{width:10px;height:10px;color:var(--color-on-accent);stroke-width:3}
+.t2i-add{width:64px;aspect-ratio:16/10;border-radius:var(--radius-md);border:1px dashed var(--color-border-default);
+  display:grid;place-items:center;color:var(--color-text-muted);cursor:pointer;transition:all var(--dur-base) var(--ease-out)}
+.t2i-add:hover{border-color:var(--color-primary);color:var(--color-primary)}
+.t2i-add svg{width:18px;height:18px;stroke-width:1.8}
+.t2i-hint{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:9px;color:var(--color-text-muted)}
+.t2i-hint .lk{display:inline-flex;align-items:center;gap:4px;color:var(--color-text-secondary);cursor:pointer}
+.t2i-hint svg{width:12px;height:12px;stroke-width:1.8}
+
+/* Params clusters */
+.prow{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.prow .pk{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);width:64px;flex-shrink:0;padding-top:7px}
+.cluster{display:flex;gap:6px;flex-wrap:wrap}
+.cluster button{font-family:var(--font-mono);font-size:9.5px;padding:6px 11px;border-radius:var(--radius-pill);
+  border:1px solid var(--color-border-subtle);background:var(--color-bg-inset);color:var(--color-text-secondary);cursor:pointer;transition:all var(--dur-base) var(--ease-out)}
+.cluster button:hover{border-color:var(--color-border-default);color:var(--color-text-primary)}
+.cluster button.active{background:rgba(52,216,196,0.14);color:var(--color-primary);border-color:rgba(52,216,196,0.45)}
+.cluster button.warnd{border-color:var(--status-starred-border);color:var(--status-starred-fg)}
+.advfold{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:9.5px;color:var(--color-primary);cursor:pointer;margin-top:2px}
+.advfold svg{width:12px;height:12px;stroke-width:2}
+.inline-warn{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:11px;padding:8px 11px;border-radius:var(--radius-md);
+  background:var(--status-starred-bg);border:1px solid var(--status-starred-border);color:var(--status-starred-fg)}
+.inline-warn svg{width:14px;height:14px;flex-shrink:0;stroke-width:1.9}
+
+/* Candidates */
+.cand-filter{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.fl{font-family:var(--font-mono);font-size:9.5px;padding:5px 11px;border-radius:var(--radius-pill);
+  border:1px solid var(--color-border-subtle);background:var(--color-bg-inset);color:var(--color-text-secondary);cursor:pointer;transition:all var(--dur-base) var(--ease-out);
+  display:inline-flex;align-items:center;gap:5px}
+.fl:hover{color:var(--color-text-primary)}
+.fl.active{background:rgba(52,216,196,0.14);color:var(--color-primary);border-color:rgba(52,216,196,0.45)}
+.fl svg{width:11px;height:11px}
+.fl .srt-i{stroke-width:1.9}
+/* model dropdown — scales past a pill wall, stays quiet */
+.model-dd{position:relative;min-width:0}
+.dd-trig{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border-radius:var(--radius-md);background:var(--color-bg-inset);border:1px solid var(--color-border-subtle);color:var(--color-text-primary);cursor:pointer;transition:border-color var(--dur-base) var(--ease-out)}
+.dd-trig:hover{border-color:var(--color-border-default)}
+.dd-dot{width:7px;height:7px;border-radius:50%;background:var(--color-primary);flex-shrink:0;box-shadow:var(--glow-teal)}
+.dd-name{font-family:var(--font-mono);font-size:11px}
+.dd-chev{width:14px;height:14px;stroke-width:1.9;color:var(--color-text-muted);margin-left:2px;transition:transform var(--dur-base) var(--ease-out)}
+.model-dd.open .dd-chev{transform:rotate(180deg)}
+.dd-list{display:none;position:absolute;top:calc(100% + 5px);left:0;min-width:208px;z-index:30;flex-direction:column;padding:5px;background:var(--color-bg-elevated);border:1px solid var(--color-border-subtle);border-radius:var(--radius-md);box-shadow:var(--shadow-lift)}
+.model-dd.open .dd-list{display:flex}
+.dd-opt{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;background:none;border:none;text-align:left;font-family:var(--font-mono);font-size:11px;color:var(--color-text-secondary);cursor:pointer;transition:background var(--dur-base) var(--ease-out)}
+.dd-opt:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.dd-opt.active{color:var(--color-primary);background:rgba(52,216,196,0.10)}
+.dd-opt.warn{color:var(--status-starred-fg)}
+.dd-warn{margin-left:auto;font-size:8.5px;letter-spacing:0.06em;color:var(--status-starred-fg);opacity:.85}
+.gen-sum{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:11px;color:var(--color-text-secondary);margin-right:6px}
+.gs-dot{width:6px;height:6px;border-radius:50%;background:var(--color-primary);box-shadow:var(--glow-teal);flex-shrink:0}
+.cand-sort{margin-left:auto}
+.cmp-callout{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:var(--radius-md);
+  background:var(--status-starred-bg);border:1px solid var(--status-starred-border);color:var(--status-starred-fg);font-size:11px;margin-bottom:12px}
+.cmp-callout svg{width:14px;height:14px;flex-shrink:0;stroke-width:1.9}
+.cmp-callout .go{margin-left:auto;display:inline-flex;align-items:center;gap:5px;font-weight:600;cursor:pointer}
+.cmp-callout .go svg{width:12px;height:12px}
+.batch{border:1px solid var(--color-border-subtle);border-radius:var(--radius-md);overflow:hidden;background:rgba(255,255,255,0.012)}
+.batch-h{display:flex;align-items:center;gap:9px;padding:9px 12px;font-family:var(--font-mono);font-size:9.5px;letter-spacing:0.04em;color:var(--color-text-secondary)}
+.batch-h .pips{display:flex;gap:4px}
+.batch-h .pip{width:6px;height:6px;border-radius:50%}
+.pip.done{background:var(--status-completed-fg)}.pip.run{background:var(--status-processing-fg);animation:pulse 1.2s infinite}.pip.fail{background:var(--status-failed-fg)}
+.batch-h .reuse{margin-left:auto;display:inline-flex;align-items:center;gap:5px;color:var(--color-primary);cursor:pointer}
+.batch-h .reuse svg{width:11px;height:11px;stroke-width:2}
+.cand-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:10px;padding:10px}
+.cand{position:relative;aspect-ratio:16/9;border-radius:var(--radius-md);overflow:hidden;cursor:pointer;box-shadow:var(--shadow-rest);
+  transition:transform var(--dur-base) var(--ease-spring),box-shadow var(--dur-base) var(--ease-out)}
+.cand img{width:100%;height:100%;object-fit:cover}
+.cand:hover{transform:translateY(-3px) scale(1.01);box-shadow:var(--shadow-lift)}
+.cand.sel{box-shadow:var(--glow-amber),var(--shadow-lift)}                 /* selected take = amber halation */
+.cand.cmp{box-shadow:0 0 0 2px var(--status-starred-fg),var(--shadow-rest)}
+.cand .corner{position:absolute;top:7px;right:7px;display:flex;gap:4px}
+.cand .cico{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:rgba(8,7,10,0.5);color:var(--color-text-muted);backdrop-filter:blur(4px)}
+.cand .cico svg{width:12px;height:12px}
+.cand .cico.on-star{color:var(--color-accent)}
+.cand .cico.on-pin{color:var(--color-primary)}
+.cand .cmpck{position:absolute;top:7px;left:7px;width:18px;height:18px;border-radius:50%;background:var(--status-starred-solid);color:var(--color-on-accent);display:grid;place-items:center}
+.cand .cmpck svg{width:11px;height:11px;stroke-width:3}
+.cand .meta{position:absolute;bottom:0;left:0;right:0;padding:6px 8px;background:linear-gradient(transparent,rgba(8,7,10,0.85));
+  font-family:var(--font-mono);font-size:8px;color:rgba(242,237,228,0.85);display:flex;justify-content:space-between}
+.cand .c-ov{position:absolute;inset:0;display:grid;place-items:center;background:rgba(8,7,10,0.5)}
+.cand .c-ov .ring{width:24px;height:24px}
+.cand .retry{display:inline-flex;flex-direction:column;align-items:center;gap:5px;color:var(--status-failed-fg);font-size:10px}
+.cand .retry svg{width:16px;height:16px;stroke-width:1.9}
+
+/* ── Dialogue / audio row (state machine) ── */
+.dia{display:flex;align-items:center;gap:10px;margin:0 20px 16px;padding:11px 14px;border-radius:var(--radius-md);
+  background:var(--color-bg-inset);border:1px solid var(--color-border-subtle);font-size:11.5px}
+.dia .mic{width:15px;height:15px;flex-shrink:0;stroke-width:1.8;color:var(--color-text-secondary)}
+.dia.err .mic{color:var(--status-failed-fg)}
+.dia .d-badge{font-family:var(--font-mono);font-size:8.5px;font-weight:600;letter-spacing:0.12em;padding:3px 9px;border-radius:var(--radius-pill);border:1px solid}
+.d-badge.ready{color:var(--color-primary);border-color:var(--color-primary);background:transparent}
+.d-badge.error{color:var(--status-failed-fg);border-color:var(--status-failed-border);background:var(--status-failed-bg)}
+.dia .voice{color:var(--color-text-primary);font-weight:500}
+.dia .note{color:var(--color-text-muted);font-size:10px}
+.dia .err-txt{color:var(--status-failed-fg)}
+.dia .play,.dia .reroll{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--color-border-default);
+  background:transparent;color:var(--color-text-secondary);cursor:pointer;flex-shrink:0;transition:all var(--dur-base) var(--ease-out)}
+.dia .play:hover,.dia .reroll:hover{border-color:var(--color-primary);color:var(--color-primary)}
+.dia .play svg{width:11px;height:11px;margin-left:1px}
+.dia .reroll svg{width:12px;height:12px;stroke-width:1.9}
+.dia .spacer{margin-left:auto}
+.dia .gocast{display:inline-flex;align-items:center;gap:5px;font-family:var(--font-mono);font-size:9.5px;color:var(--color-primary);cursor:pointer;border:none;background:none}
+.dia .gocast svg{width:12px;height:12px;stroke-width:2}
+.dia{width:100%;cursor:pointer;text-align:left;transition:border-color var(--dur-base) var(--ease-out),background var(--dur-base) var(--ease-out)}
+.dia:hover{border-color:var(--color-border-default);background:var(--color-bg-hover)}
+.dia-t{font-family:var(--font-mono);font-size:9px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-text-muted);flex-shrink:0}
+.dia .dia-prev{flex:1;min-width:0;color:var(--color-text-muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ══════════════ RIGHT QUEUE PANEL (toggleable) ══════════════ */
+.queue{width:var(--queue-w);flex-shrink:0;display:flex;flex-direction:column;
+  border-left:1px solid var(--color-border-subtle);background:rgba(19,17,22,0.55);backdrop-filter:blur(20px)}
+.queue.hidden{display:none}
+.q-h{display:flex;align-items:center;gap:8px;padding:18px 18px 14px;border-bottom:1px solid var(--color-border-subtle)}
+.q-h .qt{font-family:var(--font-display);font-size:18px;font-weight:600;letter-spacing:-0.01em}
+.q-h .qx{margin-left:auto;width:28px;height:28px;border-radius:var(--radius-md);display:grid;place-items:center;border:none;background:transparent;color:var(--color-text-muted);cursor:pointer}
+.q-h .qx:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.q-h .qx svg{width:15px;height:15px;stroke-width:1.9}
+.q-tabs{display:flex;gap:6px;padding:12px 16px;border-bottom:1px solid var(--color-border-subtle)}
+.q-tab{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-family:var(--font-mono);font-size:9.5px;letter-spacing:0.04em;
+  padding:7px;border-radius:var(--radius-pill);border:1px solid var(--color-border-subtle);background:var(--color-bg-inset);color:var(--color-text-secondary);cursor:pointer;transition:all var(--dur-base) var(--ease-out)}
+.q-tab .qn{font-weight:700}
+.q-tab.active{background:var(--color-primary);color:var(--color-on-accent);border-color:transparent}
+.q-tab.active.fail{background:var(--status-failed-fg);color:var(--color-on-accent)}
+.q-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.qrow{border:1px solid var(--color-border-subtle);border-radius:var(--radius-md);padding:12px;background:var(--color-bg-inset);box-shadow:var(--shadow-rest)}
+.qrow.fail{border-color:var(--status-failed-border)}
+.qrow-top{display:flex;align-items:center;gap:8px;font-size:11.5px}
+.qrow-top .sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.qrow-top .sn{font-family:var(--font-mono);font-size:10px;letter-spacing:0.06em;color:var(--color-text-primary)}
+.qrow-top .jmp{margin-left:auto;width:24px;height:24px;border-radius:var(--radius-sm);display:grid;place-items:center;border:none;background:transparent;color:var(--color-text-muted);cursor:pointer}
+.qrow-top .jmp:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.qrow-top .jmp svg{width:13px;height:13px;stroke-width:1.9}
+.q-meta{font-family:var(--font-mono);font-size:9px;letter-spacing:0.04em;color:var(--color-text-muted);margin-top:8px}
+.q-prog{height:4px;border-radius:2px;background:var(--color-bg-base);overflow:hidden;margin-top:9px}
+.q-prog i{display:block;height:100%;width:64%;border-radius:2px;background:linear-gradient(90deg,var(--p-teal-deep),var(--p-teal));box-shadow:0 0 12px -2px rgba(52,216,196,0.6)}
+.q-io{display:flex;gap:7px;margin-top:10px}
+.q-io .thb{flex:1;aspect-ratio:16/9;border-radius:var(--radius-sm);overflow:hidden;background:var(--color-bg-base)}
+.q-io .thb img{width:100%;height:100%;object-fit:cover}
+.q-io .xcell{flex:0 0 46px;display:grid;place-items:center;border-radius:var(--radius-sm);background:var(--status-failed-bg);color:var(--status-failed-fg)}
+.q-io .xcell svg{width:16px;height:16px;stroke-width:2}
+.q-err{font-size:10.5px;line-height:1.45;color:var(--status-failed-fg);margin-top:10px}
+.q-pids{margin-top:10px;display:flex;flex-direction:column;gap:5px}
+.q-pid{display:flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:8.5px;color:var(--color-text-secondary)}
+.q-pid .pk{color:var(--color-text-muted)}
+.q-pid .cp{margin-left:auto;display:inline-flex;align-items:center;gap:4px;color:var(--color-primary);cursor:pointer}
+.q-pid .cp svg{width:10px;height:10px;stroke-width:1.9}
+.q-acts{display:flex;gap:8px;margin-top:12px}
+.q-acts .btn{flex:1;justify-content:center}
+
+.note{padding:8px 28px 14px;font-family:var(--font-mono);font-size:9px;letter-spacing:0.04em;color:var(--color-text-muted);display:flex;gap:18px;flex-wrap:wrap;flex-shrink:0}
+.note b{color:var(--color-primary)}
+.note .amber{color:var(--color-accent)}
+
+@media (max-width:1380px){.queue{display:none}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ════════════ LEFT STEP RAIL · modeled on PipelineSidebar (w-64) ════════════ -->
+  <aside class="rail" aria-label="制作流程">
+    <!-- breadcrumb header = return-to-home (moved here out of the page header) -->
+    <div class="rail-head">
+      <button class="rail-back" type="button" aria-label="返回上一级">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <nav class="crumb" aria-label="位置">
+        <a href="#">侦探剧</a>
+        <span class="sep">&rsaquo;</span>
+        <a href="#">S01E03</a>
+        <span class="sep">&rsaquo;</span>
+        <span class="cur">雨夜追踪</span>
+      </nav>
+    </div>
+
+    <nav class="rail-nav" aria-label="制作步骤">
+      <button class="rstep done" type="button">
+        <svg class="rico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>
+        <span class="rtx"><span class="rlbl">脚本</span><span class="rsub"><span class="ridx">STEP 01</span><span class="sepdot">·</span><span class="rstat">已解析</span></span></span>
+        <span class="rdot ready"></span>
+      </button>
+      <button class="rstep done" type="button">
+        <svg class="rico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="13.5" cy="6.5" r="1.3"/><circle cx="17.5" cy="10.5" r="1.3"/><circle cx="8.5" cy="7.5" r="1.3"/><circle cx="6.5" cy="12.5" r="1.3"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.83-.44-1.12-.29-.29-.44-.65-.44-1.13a1.64 1.64 0 0 1 1.67-1.66h1.99c3.05 0 5.56-2.51 5.56-5.56C21.97 6.01 17.46 2 12 2z"/></svg>
+        <span class="rtx"><span class="rlbl">美术方向</span><span class="rsub"><span class="ridx">STEP 02</span><span class="sepdot">·</span><span class="rstat">已设定</span></span></span>
+        <span class="rdot ready"></span>
+      </button>
+      <button class="rstep done" type="button">
+        <svg class="rico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span class="rtx"><span class="rlbl">Cast</span><span class="rsub"><span class="ridx">STEP 03</span><span class="sepdot">·</span><span class="rstat">4 角色已绑定</span></span></span>
+        <span class="rdot ready"></span>
+      </button>
+      <button class="rstep active" type="button" aria-current="step">
+        <svg class="rico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2.5" y="4" width="19" height="16" rx="2"/><path d="M7 4v16M17 4v16M2.5 9h4.5M17 9h4.5M2.5 15h4.5M17 15h4.5"/></svg>
+        <span class="rtx"><span class="rlbl">分镜 R2V</span><span class="rsub"><span class="ridx">STEP 04</span><span class="sepdot">·</span><span class="rstat">8/12 已生成</span></span></span>
+        <span class="rchev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 18 6-6-6-6"/></svg></span>
+      </button>
+      <button class="rstep gated" type="button" title="需先完成分镜 R2V">
+        <svg class="rico" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/></svg>
+        <span class="rtx"><span class="rlbl">合成导出</span><span class="rsub"><span class="ridx">STEP 05</span><span class="sepdot">·</span><span class="rstat">待分镜完成</span></span></span>
+        <span class="rlock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+      </button>
+    </nav>
+
+    <div class="rail-foot">
+      <div class="proj-card">
+        <span class="proj-dot"></span>
+        <span class="proj-tx">
+          <span class="proj-name">雨夜追踪</span>
+          <span class="proj-ver">v0.2.0 · S01E03</span>
+        </span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ════════════ WORKBENCH ════════════ -->
+  <main class="wb">
+    <!-- Page header -->
+    <header class="wb-head">
+      <div class="wb-titles">
+        <div class="eyebrow">STEP <span class="n">04</span> · STORYBOARD R2V</div>
+        <div class="title-row">
+          <h1 class="wb-title">分镜工作台</h1>
+          <span class="pill"><span class="k">画风</span> <b>赛博写实</b></span>
+          <span class="pill"><span class="k">模型</span> <b>wan2.7-r2v</b></span>
+        </div>
+      </div>
+      <div class="wb-actions">
+        <button class="btn btn-soft tq-btn" id="qToggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>
+          任务队列<span class="cnt">4</span>
+        </button>
+        <button class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"/></svg>
+          全部生成
+        </button>
+      </div>
+    </header>
+
+    <div class="shot-scroll">
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <span class="count">6 SHOTS <span class="fl">· 3 IN FLIGHT</span></span>
+        <div class="tool-r">
+          <button class="tbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m7 6 5 5 5-5"/><path d="m7 13 5 5 5-5"/></svg>全部展开</button>
+          <button class="tbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m7 18 5-5 5 5"/><path d="m7 11 5-5 5 5"/></svg>全部折叠</button>
+        </div>
+      </div>
+
+      <!-- GenerationBanner -->
+      <div class="banner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg>
+        <span><span class="teal">已精修 6 帧</span> · <b>4 帧对白待生成</b> · <span class="amber">2 帧缺语音绑定</span></span>
+        <button class="btn btn-amber btn-sm cta">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>
+          合成对白语音
+        </button>
+      </div>
+
+      <!-- ════════ SHOT CARD ① · 已选 take + halation · ShotPanel 展开 ════════ -->
+      <article class="card selected">
+        <div class="card-top">
+          <div class="shot-badge">
+            <div class="shot-no">03</div>
+            <div class="shot-cap">SHOT · <b>近景</b> · 推镜·慢</div>
+          </div>
+          <div class="top-r">
+            <span class="badge starred"><span class="led"></span>已选 take</span>
+            <div class="pill-tabs">
+              <button class="pill-tab active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="3"/></svg>T2I·I2V</button>
+              <button class="pill-tab"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"/></svg>直接·R2V</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="preview glow">
+            <img src="assets/shot-03.png" alt="分镜 03 已选 take：雨夜霓虹街头转身">
+            <span class="chip-tl chip-star"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>SELECTED TAKE</span>
+            <span class="chip-dur">0:05</span>
+            <div class="play-ov"><div class="pbtn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div>
+          </div>
+          <div class="editor">
+            <div class="cast-row">
+              <span class="cast-lbl">Cast</span>
+              <div class="avatars"><img class="av" src="assets/char-detective.png" alt="林默"><img class="av" src="assets/char-detective.png" alt="苏雨"><span class="av txt">+2</span></div>
+            </div>
+            <div class="prompt"><span class="tk">[林默]</span> 雨夜霓虹街头转身，水洼倒影破碎，景深虚化背景人群，冷蓝主调点缀暖橙招牌光。</div>
+            <div class="dlg"><div class="sp">林默</div><div class="ln">"你以为，躲得掉这场雨吗？"</div></div>
+            <div class="tags">
+              <span class="tag"><span class="k">景别</span>近景</span>
+              <span class="tag"><span class="k">机位</span>平视</span>
+              <span class="tag accent"><span class="k">运镜</span>推镜·慢</span>
+              <span class="tag"><span class="k">时长</span>5s</span>
+              <span class="tag"><span class="k">转场</span>硬切</span>
+            </div>
+            <div class="assets">
+              <span class="achip char"><span class="dot"></span>林默</span>
+              <span class="achip char"><span class="dot"></span>苏雨</span>
+              <span class="achip scene"><span class="dot"></span>霓虹街口</span>
+              <span class="achip prop"><span class="dot"></span>雨伞</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- genrow · Generate lives OUTSIDE Params -->
+        <div class="actions">
+          <div class="act-left">
+            <button class="ico-btn" title="资产抽屉"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.9 7.9"/></svg></button>
+            <button class="ico-btn" title="上移"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+            <button class="ico-btn" title="下移"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M19 12l-7 7-7-7"/></svg></button>
+            <button class="ico-btn" title="复制"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button>
+            <button class="ico-btn" title="单帧精修"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/><circle cx="12" cy="12" r="2.6"/></svg></button>
+            <button class="ico-btn" title="删除"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg></button>
+          </div>
+          <div class="act-right">
+            <span class="gen-sum"><span class="gs-dot"></span>wan2.7-r2v · 5s</span>
+            <span class="cnt-lbl">数量</span>
+            <div class="count-sel"><button class="cbtn">×1</button><button class="cbtn active">×2</button><button class="cbtn">×4</button><button class="cbtn">×6</button></div>
+            <button class="btn btn-primary btn-sm">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+              生成 ×2
+            </button>
+          </div>
+        </div>
+
+        <!-- disclosure (open) -->
+        <div class="disc" data-disc>
+          <svg class="disc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m6 9 6 6 6-6"/></svg>
+          <span class="disc-lbl">调整</span> · 参数 / 高级 / 候选 <span class="sub">— SHOT PANEL</span>
+        </div>
+
+        <div class="panel" style="display:none">
+          <!-- SEC · STEP 1 · T2I 首帧 -->
+          <div class="sec">
+            <div class="sec-h">
+              <svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+              <span class="sec-t">Step 1 · 首帧 T2I</span><span class="sec-sub">3 / 10 · FIFO</span>
+            </div>
+            <div class="t2i-strip">
+              <div class="t2i sel"><img src="assets/shot-01.png" alt=""><span class="pick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+              <div class="t2i"><img src="assets/shot-02.png" alt=""><span class="pick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+              <div class="t2i"><img src="assets/shot-05.png" alt=""><span class="pick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+              <div class="t2i-add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg></div>
+              <span class="t2i-hint">
+                <span class="lk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12a9 9 0 1 1 3 6.7"/><path d="M3 21v-5h5"/></svg>Reroll</span>
+                <span class="lk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 20h14"/></svg>上传</span>
+                ≤ 8MB · jpeg/png/webp
+              </span>
+            </div>
+          </div>
+
+          <!-- SEC · STEP 2 · 生成参数 (Generate is NOT here) -->
+          <div class="sec">
+            <div class="sec-h">
+              <svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h10M18 6h2M4 12h2M10 12h10M4 18h7M15 18h5"/><circle cx="16" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="13" cy="18" r="2"/></svg>
+              <span class="sec-t">Step 2 · 生成参数</span><span class="sec-sub">wan2.7-r2v · 1080p · 16:9</span>
+              <span class="sec-tr"><span class="state-tag">2 运行中</span></span>
+            </div>
+            <div class="prow">
+              <span class="pk">模型</span>
+              <div class="model-dd" data-dd>
+                <button class="dd-trig" type="button"><span class="dd-dot"></span><span class="dd-name">wan2.7-r2v</span><svg class="dd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m6 9 6 6 6-6"/></svg></button>
+                <div class="dd-list">
+                  <button class="dd-opt active" type="button">wan2.7-r2v</button>
+                  <button class="dd-opt" type="button">kling-v3</button>
+                  <button class="dd-opt" type="button">viduq3</button>
+                  <button class="dd-opt warn" type="button">happyhorse-1.0 <span class="dd-warn">需参考图</span></button>
+                  <button class="dd-opt" type="button">seedance-2.0-r2v</button>
+                </div>
+              </div>
+            </div>
+            <div class="prow"><span class="pk">时长</span><div class="slider-row"><input class="adv-range" type="range" min="2" max="15" step="1" value="5" data-unit="s"><span class="slider-val">5s</span></div></div>
+            <div class="prow"><span class="pk">分辨率</span><div class="cluster"><button>720p</button><button class="active">1080p</button></div></div>
+            <div class="prow"><span class="pk">比例</span><div class="cluster"><button class="active">16:9</button><button>9:16</button><button>1:1</button></div></div>
+            <div class="advfold" data-adv><svg class="adv-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 18 6-6-6-6"/></svg>高级参数 <span class="adv-n">5</span></div>
+            <div class="adv-body">
+              <div class="prow"><span class="pk">负向词</span><input class="adv-in" type="text" value="模糊, 畸变, 多余手指, 水印" spellcheck="false"></div>
+              <div class="prow"><span class="pk">种子</span><div class="seed-row"><input class="adv-num" type="text" value="284913"><button class="seed-btn" title="随机种子"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.4" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.4" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.4" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.4" fill="currentColor" stroke="none"/></svg></button><button class="seed-btn" title="清除（随机）"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div></div>
+              <div class="prow"><span class="pk">CFG</span><div class="slider-row"><input class="adv-range" type="range" min="1" max="10" step="0.5" value="6"><span class="slider-val">6.0</span></div></div>
+              <div class="prow"><span class="pk">运动幅度</span><div class="cluster"><button>小</button><button class="active">中</button><button>大</button></div></div>
+              <div class="prow"><span class="pk">提示词扩展</span><span class="adv-tg on"><span class="knob"></span></span></div>
+              <div class="prow"><span class="pk">水印</span><span class="adv-tg"><span class="knob"></span></span></div>
+            </div>
+            <div class="inline-warn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+              happyhorse-1.0 需 ≥ 1 张参考图（R2V 参考最多 3 张）
+            </div>
+          </div>
+
+          <!-- SEC · STEP 3 · 视频候选 -->
+          <div class="sec">
+            <div class="sec-h">
+              <svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2.5" y="4" width="19" height="16" rx="2"/><path d="M7 4v16M17 4v16M2.5 9h4.5M17 9h4.5M2.5 15h4.5M17 15h4.5"/></svg>
+              <span class="sec-t">Step 3 · 视频候选</span><span class="sec-sub">2 批 · 6 take</span>
+            </div>
+            <div class="cand-filter">
+              <span class="fl active">全部</span>
+              <span class="fl"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>星标</span>
+              <span class="fl">本模型</span>
+              <span class="cand-sort fl"><svg class="srt-i" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 6h12M3 12h9M3 18h6M17 8V18M17 18l-3-3M17 18l3-3"/></svg>时间</span>
+            </div>
+            <div class="cmp-callout">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="7" height="16" rx="1.5"/><rect x="14" y="4" width="7" height="16" rx="1.5"/></svg>
+              已选 2 个候选进行对比
+              <span class="go">对比 ×2 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+            </div>
+            <div class="batch">
+              <div class="batch-h">
+                ×4 · wan2.7-r2v · 2 分钟前
+                <span class="pips"><span class="pip done"></span><span class="pip done"></span><span class="pip run"></span><span class="pip fail"></span></span>
+                <span class="reuse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12a9 9 0 1 1 3 6.7"/><path d="M3 21v-5h5"/></svg>复用参数</span>
+              </div>
+              <div class="cand-grid">
+                <div class="cand sel">
+                  <img src="assets/shot-03.png" alt="take A">
+                  <div class="corner"><span class="cico on-pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 17v5M9 3h6l-1 7 3 3H7l3-3-1-7z"/></svg></span><span class="cico on-star"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg></span></div>
+                  <span class="meta"><span>WAN · take A</span><span>0:05</span></span>
+                </div>
+                <div class="cand cmp">
+                  <span class="cmpck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6 9 17l-5-5"/></svg></span>
+                  <img src="assets/shot-01.png" alt="take B">
+                  <div class="corner"><span class="cico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 17v5M9 3h6l-1 7 3 3H7l3-3-1-7z"/></svg></span><span class="cico on-star"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg></span></div>
+                  <span class="meta"><span>WAN · take B</span><span>0:05</span></span>
+                </div>
+                <div class="cand">
+                  <img src="assets/shot-02.png" alt="take C" style="opacity:.35">
+                  <div class="c-ov"><svg class="ring" viewBox="0 0 36 36"><circle class="bg" cx="18" cy="18" r="14"/><circle class="fg" cx="18" cy="18" r="14"/></svg></div>
+                </div>
+                <div class="cand">
+                  <div class="c-ov"><span class="retry"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12a9 9 0 1 1 3 6.7"/><path d="M3 21v-5h5"/></svg>重试</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dialogue / audio row · READY -->
+        <button class="dia" type="button" title="打开配音工作台">
+          <svg class="mic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>
+          <span class="dia-t">对白配音</span>
+          <span class="d-badge ready">READY</span>
+          <span class="voice">林默 · cosyvoice</span>
+          <span class="dia-prev">「再不走，就真的来不及了。」</span>
+          <span class="gocast spacer">打开配音工作台 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </button>
+      </article>
+
+      <!-- ════════ SHOT CARD ② · 生成中 · 面板折叠（密度/disclosure 示范）════════ -->
+      <article class="card">
+        <div class="card-top">
+          <div class="shot-badge">
+            <div class="shot-no">04</div>
+            <div class="shot-cap">SHOT · <b>中景</b> · 跟随</div>
+          </div>
+          <div class="top-r">
+            <span class="badge processing"><span class="led"></span>生成中</span>
+            <div class="pill-tabs">
+              <button class="pill-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="3"/></svg>T2I·I2V</button>
+              <button class="pill-tab active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"/></svg>直接·R2V</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="preview">
+            <img src="assets/shot-02.png" alt="分镜 04 参考帧" style="opacity:.3">
+            <div class="ov ov-proc"><svg class="ring" viewBox="0 0 36 36"><circle class="bg" cx="18" cy="18" r="14"/><circle class="fg" cx="18" cy="18" r="14"/></svg><span class="lbl">RENDERING · 约 40s</span></div>
+            <span class="chip-dur">0:08</span>
+          </div>
+          <div class="editor">
+            <div class="cast-row">
+              <span class="cast-lbl">Cast</span>
+              <div class="avatars"><img class="av" src="assets/char-detective.png" alt="苏雨"><span class="av txt">+1</span></div>
+            </div>
+            <div class="prompt"><span class="tk">[苏雨]</span> 撑伞快步穿过雨幕，回头一瞥，伞面水珠飞溅，霓虹在湿发上流动。</div>
+            <div class="dlg"><div class="sp">苏雨</div><div class="ln">"再不走，就真的来不及了。"</div></div>
+            <div class="tags">
+              <span class="tag"><span class="k">景别</span>中景</span>
+              <span class="tag accent"><span class="k">运镜</span>跟随</span>
+              <span class="tag"><span class="k">时长</span>8s</span>
+            </div>
+            <div class="assets">
+              <span class="achip char"><span class="dot"></span>苏雨</span>
+              <span class="achip scene"><span class="dot"></span>后巷</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <div class="act-left">
+            <button class="ico-btn" title="资产抽屉"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.9 7.9"/></svg></button>
+            <button class="ico-btn" title="上移"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+            <button class="ico-btn" title="下移"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M19 12l-7 7-7-7"/></svg></button>
+            <button class="ico-btn" title="删除"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg></button>
+          </div>
+          <div class="act-right">
+            <span class="gen-sum"><span class="gs-dot"></span>kling-v3 · 5s</span>
+            <span class="cnt-lbl">数量</span>
+            <div class="count-sel"><button class="cbtn">×1</button><button class="cbtn">×2</button><button class="cbtn active">×4</button><button class="cbtn">×6</button></div>
+            <button class="btn btn-soft btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>取消</button>
+          </div>
+        </div>
+
+        <div class="disc" data-disc>
+          <svg class="disc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m6 9 6 6 6-6"/></svg>
+          <span class="disc-lbl">调整</span> · 参数 / 候选 <span class="sub">— ×4 运行中</span>
+        </div>
+
+        <div class="panel" style="display:none">
+          <!-- SEC · STEP 2 · 生成参数 (direct R2V) -->
+          <div class="sec">
+            <div class="sec-h">
+              <svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h10M18 6h2M4 12h2M10 12h10M4 18h7M15 18h5"/><circle cx="16" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="13" cy="18" r="2"/></svg>
+              <span class="sec-t">Step 2 · 生成参数</span><span class="sec-sub">kling-v3 · 1080p · 16:9</span>
+              <span class="sec-tr"><span class="state-tag">4 运行中</span></span>
+            </div>
+            <div class="prow"><span class="pk">模型</span>
+              <div class="model-dd" data-dd>
+                <button class="dd-trig" type="button"><span class="dd-dot"></span><span class="dd-name">kling-v3</span><svg class="dd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m6 9 6 6 6-6"/></svg></button>
+                <div class="dd-list">
+                  <button class="dd-opt" type="button">wan2.7-r2v</button>
+                  <button class="dd-opt active" type="button">kling-v3</button>
+                  <button class="dd-opt" type="button">viduq3</button>
+                  <button class="dd-opt warn" type="button">happyhorse-1.0 <span class="dd-warn">需参考图</span></button>
+                  <button class="dd-opt" type="button">seedance-2.0-r2v</button>
+                </div>
+              </div>
+            </div>
+            <div class="prow"><span class="pk">时长</span><div class="slider-row"><input class="adv-range" type="range" min="2" max="15" step="1" value="5" data-unit="s"><span class="slider-val">5s</span></div></div>
+            <div class="prow"><span class="pk">分辨率</span><div class="cluster"><button>720p</button><button class="active">1080p</button></div></div>
+            <div class="prow"><span class="pk">比例</span><div class="cluster"><button class="active">16:9</button><button>9:16</button><button>1:1</button></div></div>
+            <div class="advfold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 18 6-6-6-6"/></svg>高级参数（4）· 负向词 · 种子 · CFG · 运动幅度</div>
+          </div>
+          <!-- SEC · STEP 3 · 视频候选 -->
+          <div class="sec">
+            <div class="sec-h">
+              <svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2.5" y="4" width="19" height="16" rx="2"/><path d="M7 4v16M17 4v16M2.5 9h4.5M17 9h4.5M2.5 15h4.5M17 15h4.5"/></svg>
+              <span class="sec-t">Step 3 · 视频候选</span><span class="sec-sub">1 批 · 4 take</span>
+            </div>
+            <div class="batch">
+              <div class="batch-h">
+                ×4 · kling-v3 · 刚刚
+                <span class="pips"><span class="pip run"></span><span class="pip run"></span><span class="pip run"></span><span class="pip run"></span></span>
+                <span class="reuse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12a9 9 0 1 1 3 6.7"/><path d="M3 21v-5h5"/></svg>复用参数</span>
+              </div>
+              <div class="cand-grid">
+                <div class="cand"><img src="assets/shot-02.png" alt="" style="opacity:.35"><div class="c-ov"><svg class="ring" viewBox="0 0 36 36"><circle class="bg" cx="18" cy="18" r="14"/><circle class="fg" cx="18" cy="18" r="14"/></svg></div></div>
+                <div class="cand"><div class="c-ov"><svg class="ring" viewBox="0 0 36 36"><circle class="bg" cx="18" cy="18" r="14"/><circle class="fg" cx="18" cy="18" r="14"/></svg></div></div>
+                <div class="cand"><div class="c-ov"><svg class="ring" viewBox="0 0 36 36"><circle class="bg" cx="18" cy="18" r="14"/><circle class="fg" cx="18" cy="18" r="14"/></svg></div></div>
+                <div class="cand"><div class="c-ov"><svg class="ring" viewBox="0 0 36 36"><circle class="bg" cx="18" cy="18" r="14"/><circle class="fg" cx="18" cy="18" r="14"/></svg></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dialogue / audio row · ERROR -->
+        <button class="dia err" type="button" title="未绑定语音 · 前往 Cast 绑定">
+          <svg class="mic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>
+          <span class="dia-t">对白配音</span>
+          <span class="d-badge error">ERROR</span>
+          <span class="err-txt">未绑定角色语音 · 苏雨</span>
+          <span class="gocast spacer">前往 Cast 绑定 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </button>
+      </article>
+
+    </div>
+
+    <div class="note">
+      <span><b>Atelier · 统一台</b> — teal↔amber 互补色 · 衬线焦点 · 近无框浮起</span>
+      <span class="amber">Signature：已选 take 的 amber halation</span>
+      <span>音频独立存储，于 05 合成导出一次性多轨 mux</span>
+    </div>
+  </main>
+
+  <!-- ════════════ RIGHT QUEUE PANEL ════════════ -->
+  <aside class="queue" id="queue" aria-label="任务队列">
+    <div class="q-h">
+      <span class="qt">任务队列</span>
+      <button class="qx" id="qClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="q-tabs">
+      <button class="q-tab active">运行中 <span class="qn">3</span></button>
+      <button class="q-tab">已完成 <span class="qn">12</span></button>
+      <button class="q-tab fail">失败 <span class="qn">1</span></button>
+    </div>
+    <div class="q-body">
+      <!-- running -->
+      <div class="qrow">
+        <div class="qrow-top">
+          <span class="sdot" style="background:var(--status-processing-fg)"></span>
+          <span class="sn">SHOT_04 · R2V</span>
+          <button class="jmp" title="跳转"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+        <div class="q-meta">wan2.7-r2v · 1080p · 5s · 已 38s</div>
+        <div class="q-prog"><i></i></div>
+        <div class="q-acts"><button class="btn btn-soft btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>取消</button></div>
+      </div>
+
+      <!-- failed · expanded -->
+      <div class="qrow fail">
+        <div class="qrow-top">
+          <span class="sdot" style="background:var(--status-failed-fg)"></span>
+          <span class="sn">SHOT_06 · I2V</span>
+          <button class="jmp" title="跳转"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+        <div class="q-io">
+          <div class="thb"><img src="assets/shot-02.png" alt="输入参考"></div>
+          <div class="xcell"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+        </div>
+        <div class="q-meta">happyhorse-1.0-i2v · 720p · 5s · seed 81244</div>
+        <div class="q-err">Provider error: reference image required for r2v dispatch.</div>
+        <div class="q-pids">
+          <div class="q-pid"><span class="pk">百炼 task</span> a91f…3c <span class="cp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>复制</span></div>
+          <div class="q-pid"><span class="pk">本地 task</span> t_0612 <span class="cp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>复制</span></div>
+        </div>
+        <div class="q-acts">
+          <button class="btn btn-soft btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>复制诊断</button>
+          <button class="btn btn-primary btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12a9 9 0 1 1 3 6.7"/><path d="M3 21v-5h5"/></svg>重试</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<script>
+(function(){
+  // queue toggle
+  var q=document.getElementById('queue');
+  document.getElementById('qToggle').addEventListener('click',function(){q.classList.toggle('hidden')});
+  document.getElementById('qClose').addEventListener('click',function(){q.classList.add('hidden')});
+  // mode pill-tabs (visual)
+  document.querySelectorAll('.pill-tabs').forEach(function(g){
+    g.querySelectorAll('.pill-tab').forEach(function(t){t.addEventListener('click',function(){
+      g.querySelectorAll('.pill-tab').forEach(function(x){x.classList.remove('active')});t.classList.add('active');
+    });});
+  });
+  // count selectors (visual)
+  document.querySelectorAll('.count-sel').forEach(function(g){
+    g.querySelectorAll('.cbtn').forEach(function(b){b.addEventListener('click',function(){
+      g.querySelectorAll('.cbtn').forEach(function(x){x.classList.remove('active')});b.classList.add('active');
+    });});
+  });
+  // param clusters (visual)
+  document.querySelectorAll('.cluster').forEach(function(g){
+    g.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){
+      g.querySelectorAll('button').forEach(function(x){x.classList.remove('active')});b.classList.add('active');
+    });});
+  });
+  // candidate filter (visual)
+  document.querySelectorAll('.cand-filter').forEach(function(g){
+    g.querySelectorAll('.fl:not(.cand-sort)').forEach(function(b){b.addEventListener('click',function(){
+      g.querySelectorAll('.fl:not(.cand-sort)').forEach(function(x){x.classList.remove('active')});b.classList.add('active');
+    });});
+  });
+  // queue tabs (visual)
+  (function(){var t=document.querySelectorAll('.q-tab');t.forEach(function(b){b.addEventListener('click',function(){
+    t.forEach(function(x){x.classList.remove('active')});b.classList.add('active');
+  });});})();
+  // panel disclosure (toggle hide of the next .panel)
+  document.querySelectorAll('[data-disc]').forEach(function(d){d.addEventListener('click',function(){
+    var p=d.nextElementSibling;
+    if(p&&p.classList.contains('panel')){
+      var hidden=getComputedStyle(p).display==='none';
+      p.style.display=hidden?'':'none';
+      d.classList.toggle('open',hidden);
+    }
+  });});
+  // advanced params fold
+  document.querySelectorAll('[data-adv]').forEach(function(a){a.addEventListener('click',function(){
+    a.classList.toggle('open'); var b=a.nextElementSibling; if(b&&b.classList.contains('adv-body')) b.classList.toggle('open');
+  });});
+  document.querySelectorAll('.adv-tg').forEach(function(t){t.addEventListener('click',function(){t.classList.toggle('on');});});
+  document.querySelectorAll('.adv-range').forEach(function(r){var v=r.parentElement.querySelector('.slider-val');var u=r.getAttribute('data-unit')||'';r.addEventListener('input',function(){if(v)v.textContent=(parseFloat(r.step)%1===0?r.value:parseFloat(r.value).toFixed(1))+u;});});
+  // model dropdown
+  document.querySelectorAll('[data-dd]').forEach(function(dd){
+    var trig=dd.querySelector('.dd-trig');
+    trig.addEventListener('click',function(e){e.stopPropagation();var was=dd.classList.contains('open');document.querySelectorAll('[data-dd].open').forEach(function(o){o.classList.remove('open');});if(!was)dd.classList.add('open');});
+    dd.querySelectorAll('.dd-opt').forEach(function(o){o.addEventListener('click',function(){dd.querySelectorAll('.dd-opt').forEach(function(x){x.classList.remove('active');});o.classList.add('active');var nm=dd.querySelector('.dd-name');if(nm)nm.textContent=o.textContent.trim().split(' ')[0];dd.classList.remove('open');});});
+  });
+  document.addEventListener('click',function(){document.querySelectorAll('[data-dd].open').forEach(function(o){o.classList.remove('open');});});
+})();
+</script>
+</body>
+</html>

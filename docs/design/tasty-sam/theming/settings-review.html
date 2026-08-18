@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SettingsPage 重写 · Before / After Review · LumenX × Tasty Sam</title>
+<style>
+  :root {
+    --bg: #0c0b0e;
+    --bg-soft: #131216;
+    --card: #181519;
+    --line: rgba(255,255,255,0.08);
+    --line-soft: rgba(255,255,255,0.05);
+    --ink: #f4f1ea;
+    --ink-2: #b8b2a8;
+    --ink-3: #7d7870;
+    --teal: #34d8c4;
+    --amber: #ffa94d;
+    --rose: #ff7a90;
+    --ok: #57d9a3;
+    --warn: #ffc15e;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --serif: "Fraunces", "Times New Roman", Georgia, serif;
+    --sans: "Inter", system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(900px 500px at 12% -8%, rgba(52,216,196,0.10), transparent 60%),
+      radial-gradient(900px 600px at 100% 0%, rgba(255,169,77,0.08), transparent 55%),
+      var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .grain {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.4;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+  .wrap { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; padding: 0 28px 120px; }
+
+  /* ---- hero ---- */
+  header.hero { padding: 72px 0 40px; border-bottom: 1px solid var(--line); }
+  .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--teal); margin: 0 0 18px; }
+  h1 { font-family: var(--serif); font-weight: 600; font-size: clamp(34px, 5vw, 56px); line-height: 1.05; margin: 0 0 18px; letter-spacing: -0.01em; }
+  h1 em { font-style: italic; color: var(--amber); }
+  .lede { max-width: 760px; color: var(--ink-2); font-size: 16px; margin: 0 0 26px; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .pill { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-2); background: var(--bg-soft); }
+  .pill.ok { color: var(--ok); border-color: rgba(87,217,163,0.35); }
+
+  /* ---- section ---- */
+  section { padding: 56px 0 8px; }
+  .sec-head { display: flex; align-items: baseline; gap: 14px; margin: 0 0 8px; }
+  .sec-num { font-family: var(--mono); font-size: 12px; color: var(--amber); letter-spacing: 0.2em; }
+  h2 { font-family: var(--serif); font-weight: 600; font-size: 28px; margin: 0; letter-spacing: -0.01em; }
+  .sec-sub { color: var(--ink-3); font-size: 14px; margin: 4px 0 28px; }
+
+  /* ---- before/after ---- */
+  .ba { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  @media (max-width: 860px) { .ba { grid-template-columns: 1fr; } }
+  .shot { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--card); box-shadow: 0 24px 60px -30px rgba(0,0,0,0.8); }
+  .shot .cap { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line-soft); font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-2); }
+  .tag { font-family: var(--mono); font-size: 10px; padding: 3px 8px; border-radius: 6px; letter-spacing: 0.1em; }
+  .tag.before { background: rgba(255,122,144,0.14); color: var(--rose); border: 1px solid rgba(255,122,144,0.3); }
+  .tag.after  { background: rgba(52,216,196,0.14); color: var(--teal); border: 1px solid rgba(52,216,196,0.3); }
+  .shot img { display: block; width: 100%; height: auto; }
+
+  /* ---- decision table ---- */
+  .tbl { width: 100%; border-collapse: collapse; font-size: 14px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .tbl th, .tbl td { text-align: left; padding: 13px 16px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  .tbl th { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); background: var(--bg-soft); }
+  .tbl td:first-child { font-family: var(--mono); color: var(--amber); white-space: nowrap; }
+  .tbl tr:last-child td { border-bottom: none; }
+  .tbl .k { color: var(--teal); }
+  .tbl .x { color: var(--rose); }
+
+  /* ---- theme matrix ---- */
+  .matrix { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  @media (max-width: 860px) { .matrix { grid-template-columns: 1fr; } }
+  .tcard { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--card); }
+  .tcard .th { display: flex; align-items: center; justify-content: space-between; padding: 11px 15px; border-bottom: 1px solid var(--line-soft); }
+  .tcard .nm { font-family: var(--serif); font-size: 16px; }
+  .tcard .sg { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--ink-3); text-transform: uppercase; }
+  .tcard.sig .sg { color: var(--amber); }
+  .tcard img { width: 100%; display: block; }
+  .duo { display: grid; grid-template-columns: 1fr 1fr; }
+  .duo img { border-left: 1px solid var(--line-soft); }
+  .duo img:first-child { border-left: none; }
+
+  /* ---- callout ---- */
+  .note { border-left: 3px solid var(--teal); background: rgba(52,216,196,0.06); padding: 14px 18px; border-radius: 0 10px 10px 0; color: var(--ink-2); font-size: 14px; margin: 22px 0; }
+  .note.warn { border-color: var(--warn); background: rgba(255,193,94,0.06); }
+  .note strong { color: var(--ink); }
+
+  /* ---- coverage list ---- */
+  .cov { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 720px) { .cov { grid-template-columns: 1fr; } }
+  .cv { border: 1px solid var(--line); border-radius: 12px; padding: 16px; background: var(--bg-soft); }
+  .cv h4 { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--teal); margin: 0 0 10px; }
+  .cv ul { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 13px; }
+  .cv li { margin: 4px 0; }
+  .cv li .add { color: var(--amber); font-family: var(--mono); font-size: 10px; margin-left: 4px; }
+
+  footer { margin-top: 72px; padding-top: 26px; border-top: 1px solid var(--line); color: var(--ink-3); font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; }
+  a { color: var(--teal); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="wrap">
+
+  <header class="hero">
+    <p class="eyebrow">LumenX Studio · Tasty Sam · Settings Rework</p>
+    <h1>SettingsPage 重写<br /><em>Before / After</em> Review</h1>
+    <p class="lede">
+      把原本「单列长滚动 + 玻璃大卡」的设置页，重构为 <strong>Line A「Cyber Refined」</strong>
+      的三栏信息架构（全局轨 · 分类侧栏 · 主区），并把 <strong>Line B「Luminous Atelier」</strong>
+      签名（暖底浮起卡 / 光晕 / 颗粒 / 衬线标题）作为品牌刷新层，<em>仅</em>挂在 atelier 主题上。
+      全程零侵入既有数据契约，保留全部原设置项，并修复了「默认值不回灌项目」这一隐性 bug。
+    </p>
+    <div class="meta-row">
+      <span class="pill ok">typecheck · 0 error</span>
+      <span class="pill ok">check:colors · 100% tokenized</span>
+      <span class="pill">5 主题验证</span>
+      <span class="pill">6 设置分类</span>
+      <span class="pill">分支 feat/atelier-pilot-20260611-161001</span>
+    </div>
+  </header>
+
+  <!-- 01 IA -->
+  <section id="ia">
+    <div class="sec-head"><span class="sec-num">01</span><h2>信息架构的转变</h2></div>
+    <p class="sec-sub">从「一页到底、用户靠滚动找设置」到「左侧分类导航、主区聚焦单一主题」。</p>
+    <div class="ba">
+      <figure class="shot" style="margin:0">
+        <div class="cap"><span class="tag before">BEFORE</span> 单列长滚动 · 玻璃大卡堆叠</div>
+        <img src="settings-review-assets/OLD-atelier-dark-full.png" alt="旧设置页：单列长滚动" loading="lazy" />
+      </figure>
+      <figure class="shot" style="margin:0">
+        <div class="cap"><span class="tag after">AFTER</span> 三栏 · 分类侧栏 + SECTION 卡</div>
+        <img src="settings-review-assets/atelier-dark-general.png" alt="新设置页：三栏 Line A IA" loading="lazy" />
+      </figure>
+    </div>
+    <div class="note">
+      <strong>核心改动：</strong>新增 <code>SettingsSidebar</code>（220px，6 分类：通用 / 模型 / 默认 Prompt /
+      API 密钥 / 存储 OSS / 关于）+ <code>SettingsControls</code>（SectionCard 带 mono 数字眉标、200px 标签的
+      FormRow、可显隐+复制的 KeyField、Toggle、ModeSegment）。主区按分类切换，每屏只呈现一组设置，
+      告别盲目滚动。
+    </div>
+  </section>
+
+  <!-- 02 decisions -->
+  <section id="decisions">
+    <div class="sec-head"><span class="sec-num">02</span><h2>裁决记录（Q1–Q7）</h2></div>
+    <p class="sec-sub">改动前与你确认的 7 项决策，全部已落地。</p>
+    <table class="tbl">
+      <thead><tr><th>编号</th><th>决策</th><th>落地结果</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Q1</td>
+          <td>T2I / I2I 合并为单一图像模型选择器；阿里云 AK/SK 移入「存储 OSS」组；缓存/日志目录可发现</td>
+          <td><span class="k">已合并</span>——UI 单选 GroupedModelGrid，<code>handleSaveModelDefaults</code> 仍同时写 <code>t2i_model</code> / <code>i2i_model</code> / <code>image_model</code> 三字段；AK/SK 归位存储组；目录只读可复制</td>
+        </tr>
+        <tr>
+          <td>Q2</td>
+          <td>新增「关于 / About」页，带 FFmpeg 检测</td>
+          <td><span class="k">已新增</span>——版本 / 设计线 / 后端 API / 数据目录 / 日志目录 + 实时 FFmpeg 检测（<code>checkSystem</code>）+ 重新检测按钮</td>
+        </tr>
+        <tr>
+          <td>Q3</td>
+          <td>补齐 mock 里缺失的字段</td>
+          <td><span class="k">已补齐</span>——高保真还原，无 TODO 占位</td>
+        </tr>
+        <tr>
+          <td>Q4</td>
+          <td>保留 Provider Mode 双按钮 + 条件 vendor 字段</td>
+          <td><span class="k">保留</span>——Kling / Vidu ModeSegment + 条件 KeyField，Line A form-row 样式</td>
+        </tr>
+        <tr>
+          <td>Q5</td>
+          <td>本地缓存 / 数据目录 = 只读展示（不可编辑）</td>
+          <td><span class="k">只读</span>——PathField 仅展示 + 复制</td>
+        </tr>
+        <tr>
+          <td>Q6</td>
+          <td>真正把 Settings 默认值注入新建项目（修 bug）</td>
+          <td><span class="k">已修复</span>——<code>projectStore.createProject</code> 创建后调用 <code>injectDefaultsIntoProject</code> 回灌模型/Prompt 默认；失败仅 warn 不阻断</td>
+        </tr>
+        <tr>
+          <td>Q7</td>
+          <td>砍掉 FPS；新增 style_analysis + entity_extraction prompt</td>
+          <td><span class="k">已调整</span>——后端无 FPS 概念，<span class="x">移除</span>；Prompt 页扩为 5 段（实体抽取 / 风格分析 / 分镜润色 / 视频润色 / R2V 润色）</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="note warn">
+      <strong>不做项（按你的要求）：</strong>不加 PixVerse Key、不加 T2V 默认模型、不加 FPS 字段。
+    </div>
+  </section>
+
+  <!-- 03 coverage -->
+  <section id="coverage">
+    <div class="sec-head"><span class="sec-num">03</span><h2>功能点保全 + 新增</h2></div>
+    <p class="sec-sub">原页所有设置项 1:1 保留；带 <span style="color:var(--amber);font-family:var(--mono);font-size:11px">+NEW</span> 为本次新增。</p>
+    <div class="cov">
+      <div class="cv">
+        <h4>通用</h4>
+        <ul>
+          <li>界面语言（中 / EN）</li>
+          <li>主题：5 预设选择器</li>
+          <li>动效开关<span class="add">+NEW</span></li>
+        </ul>
+      </div>
+      <div class="cv">
+        <h4>模型</h4>
+        <ul>
+          <li>图像模型（T2I+I2I 合并）</li>
+          <li>角色 / 场景 / 道具画幅</li>
+          <li>分镜画幅</li>
+          <li>I2V 模型 · R2V 模型</li>
+        </ul>
+      </div>
+      <div class="cv">
+        <h4>默认 Prompt</h4>
+        <ul>
+          <li>实体抽取<span class="add">+NEW</span></li>
+          <li>风格分析<span class="add">+NEW</span></li>
+          <li>分镜润色 · 视频润色 · R2V 润色</li>
+        </ul>
+      </div>
+      <div class="cv">
+        <h4>API 密钥</h4>
+        <ul>
+          <li>DashScope Key</li>
+          <li>Kling / Vidu Provider Mode + vendor Key</li>
+          <li>MuleRun 一键登录 + 手动 CLI</li>
+          <li>高级 endpoints</li>
+        </ul>
+      </div>
+      <div class="cv">
+        <h4>存储 OSS</h4>
+        <ul>
+          <li>阿里云 AK / SK</li>
+          <li>OSS bucket / endpoint / basepath</li>
+          <li>数据目录 · 日志目录（只读）<span class="add">+NEW</span></li>
+        </ul>
+      </div>
+      <div class="cv">
+        <h4>关于<span class="add">+NEW</span></h4>
+        <ul>
+          <li>版本 / 设计线 / 后端 API</li>
+          <li>数据 / 日志目录</li>
+          <li>FFmpeg 实时检测 + 重检</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 tabs gallery -->
+  <section id="tabs">
+    <div class="sec-head"><span class="sec-num">04</span><h2>六大分类（atelier-dark）</h2></div>
+    <p class="sec-sub">默认主题下的每个设置分类。注意 SECTION 数字眉标、form-row 对齐、KeyField 掩码。</p>
+    <div class="ba">
+      <figure class="shot" style="margin:0"><div class="cap"><span class="tag after">AFTER</span> 模型</div><img src="settings-review-assets/atelier-dark-models.png" alt="模型分类" loading="lazy" /></figure>
+      <figure class="shot" style="margin:0"><div class="cap"><span class="tag after">AFTER</span> 默认 Prompt</div><img src="settings-review-assets/atelier-dark-prompts.png" alt="Prompt 分类" loading="lazy" /></figure>
+      <figure class="shot" style="margin:0"><div class="cap"><span class="tag after">AFTER</span> API 密钥</div><img src="settings-review-assets/atelier-dark-apikeys.png" alt="API 密钥分类" loading="lazy" /></figure>
+      <figure class="shot" style="margin:0"><div class="cap"><span class="tag after">AFTER</span> 存储 OSS</div><img src="settings-review-assets/atelier-dark-storage.png" alt="存储分类" loading="lazy" /></figure>
+      <figure class="shot" style="margin:0; grid-column: 1 / -1"><div class="cap"><span class="tag after">AFTER</span> 关于 · FFmpeg 检测</div><img src="settings-review-assets/atelier-dark-about.png" alt="关于分类" loading="lazy" /></figure>
+    </div>
+  </section>
+
+  <!-- 05 theme matrix -->
+  <section id="themes">
+    <div class="sec-head"><span class="sec-num">05</span><h2>五主题验证</h2></div>
+    <p class="sec-sub">同一 IA 在 5 个预设下的呈现。左=通用，右=模型。Atelier 双主题带签名层（暖底 / 浮起卡 / 衬线 / 颗粒），其余为 Cyber 平面层。</p>
+    <div class="matrix">
+      <div class="tcard sig">
+        <div class="th"><span class="nm">Atelier 暗 ★ 默认</span><span class="sg">SIGNATURE · TEAL↔AMBER</span></div>
+        <div class="duo"><img src="settings-review-assets/atelier-dark-general.png" alt="atelier-dark 通用" loading="lazy" /><img src="settings-review-assets/atelier-dark-models.png" alt="atelier-dark 模型" loading="lazy" /></div>
+      </div>
+      <div class="tcard sig">
+        <div class="th"><span class="nm">Atelier 亮</span><span class="sg">SIGNATURE · PAPER</span></div>
+        <div class="duo"><img src="settings-review-assets/atelier-light-general.png" alt="atelier-light 通用" loading="lazy" /><img src="settings-review-assets/atelier-light-models.png" alt="atelier-light 模型" loading="lazy" /></div>
+      </div>
+      <div class="tcard">
+        <div class="th"><span class="nm">Warm Bridge 暗</span><span class="sg">CYBER · NEUTRAL</span></div>
+        <div class="duo"><img src="settings-review-assets/bridge-dark-general.png" alt="bridge-dark 通用" loading="lazy" /><img src="settings-review-assets/bridge-dark-models.png" alt="bridge-dark 模型" loading="lazy" /></div>
+      </div>
+      <div class="tcard">
+        <div class="th"><span class="nm">Brand 暗</span><span class="sg">CYBER · BRAND BLUE</span></div>
+        <div class="duo"><img src="settings-review-assets/brand-dark-general.png" alt="brand-dark 通用" loading="lazy" /><img src="settings-review-assets/brand-dark-models.png" alt="brand-dark 模型" loading="lazy" /></div>
+      </div>
+      <div class="tcard">
+        <div class="th"><span class="nm">Brand 亮</span><span class="sg">CYBER · BRAND LIGHT</span></div>
+        <div class="duo"><img src="settings-review-assets/brand-light-general.png" alt="brand-light 通用" loading="lazy" /><img src="settings-review-assets/brand-light-models.png" alt="brand-light 模型" loading="lazy" /></div>
+      </div>
+    </div>
+    <div class="note">
+      <strong>签名隔离验证通过：</strong>对比 Atelier 与 Brand/Bridge 两组卡片可见——atelier 的浮起阴影、暖纸底、
+      衬线标题、teal↔amber 配色仅出现在 atelier-dark / atelier-light；非 atelier 主题为平面 Cyber 外观，
+      签名 CSS 由 <code>html.atelier-dark / html.atelier-light</code> 门控，未泄漏。
+    </div>
+  </section>
+
+  <!-- 06 risk -->
+  <section id="risk">
+    <div class="sec-head"><span class="sec-num">06</span><h2>验证与残余风险</h2></div>
+    <table class="tbl">
+      <thead><tr><th>维度</th><th>结果</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>类型</td><td class="k">PASS</td><td><code>npm run typecheck</code> 退出码 0，无错误</td></tr>
+        <tr><td>颜色</td><td class="k">PASS</td><td><code>npm run check:colors</code> 退出码 0，全树 100% token 化，无硬编码 hex / white-alpha</td></tr>
+        <tr><td>功能</td><td class="k">视觉验证</td><td>6 分类 × 截图渲染正常；ModeSegment / Toggle / KeyField / 主题选择器交互结构正确</td></tr>
+        <tr><td>主题</td><td class="k">PASS</td><td>5 预设全部切换并截图，签名门控正确</td></tr>
+        <tr><td>响应式</td><td class="warn">未覆盖</td><td>本轮仅在 1440×900 桌面视口验证；移动 / 平板断点未截图</td></tr>
+        <tr><td>后端联调</td><td class="warn">环境受限</td><td>本地后端无 DashScope key，配置加载呈 loadError 态；表单填充态需在配齐 env 的环境复验</td></tr>
+        <tr><td>Q6 回灌</td><td class="warn">需 E2E</td><td>注入逻辑已落地并通过类型检查；建议在真实后端跑一次「建项目→查项目模型设置」端到端确认</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <footer>
+    LUMENX STUDIO · TASTY SAM · SETTINGS BEFORE/AFTER REVIEW · 2026-06-11 · ZERO-INTRUSION · LINE A IA + LINE B SIGNATURE
+  </footer>
+
+</div>
+</body>
+</html>

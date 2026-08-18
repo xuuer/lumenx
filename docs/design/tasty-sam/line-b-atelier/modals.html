@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LumenX Studio · Line B (Luminous Atelier) — 弹层组件</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--color-bg-base);color:var(--color-text-primary);font-family:var(--font-body);font-size:var(--text-body);line-height:var(--leading-body);-webkit-font-smoothing:antialiased;min-height:100vh;position:relative}
+body::before{content:'';position:fixed;inset:0;background:var(--bloom-teal),var(--bloom-amber);pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1;opacity:var(--grain-opacity);background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");mix-blend-mode:overlay}
+/* page-level dim to evoke overlay environment */
+.dim{position:fixed;inset:0;background:var(--color-overlay);backdrop-filter:blur(2px);pointer-events:none;z-index:1}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--p-graphite-700);border-radius:8px;border:3px solid transparent;background-clip:padding-box}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px;border-radius:8px}
+
+.page{position:relative;z-index:3;max-width:1180px;margin:0 auto;padding:40px 32px 80px}
+.page-head{margin-bottom:36px}
+.eyebrow{font-family:var(--font-mono);font-size:9.5px;text-transform:uppercase;letter-spacing:0.22em;color:var(--color-text-muted)}
+.eyebrow .n{color:var(--color-primary);font-weight:600}
+.page-title{font-family:var(--font-display);font-size:var(--text-hero);font-weight:600;letter-spacing:-0.02em;margin-top:6px;line-height:1.05}
+.page-sub{font-size:var(--text-body-lg);color:var(--color-text-secondary);margin-top:10px;max-width:560px}
+
+.sec-label{display:flex;align-items:center;gap:12px;margin:48px 0 18px}
+.sec-label .sl{font-family:var(--font-mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.18em;color:var(--color-text-secondary)}
+.sec-label .ln{flex:1;height:1px;background:var(--color-border-subtle)}
+
+.btn{display:inline-flex;align-items:center;gap:7px;border-radius:var(--btn-radius);font-size:var(--text-body);font-weight:600;cursor:pointer;transition:all var(--dur-base) var(--ease-out);border:1px solid transparent;padding:9px 18px}
+.btn svg{width:14px;height:14px}
+.btn-primary{background:var(--color-primary);color:var(--color-on-accent);box-shadow:var(--glow-teal)}
+.btn-primary:hover{background:var(--color-primary-hover);transform:translateY(-1px);box-shadow:0 0 32px -4px rgba(52,216,196,0.6)}
+.btn-soft{background:var(--color-bg-surface);color:var(--color-text-primary);box-shadow:var(--shadow-rest)}
+.btn-soft:hover{background:var(--color-bg-elevated);transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--color-text-secondary)}
+.btn-ghost:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.btn-danger{background:var(--color-destructive);color:#fff;box-shadow:0 0 0 1px rgba(255,107,107,0.3)}
+.btn-danger:hover{transform:translateY(-1px)}
+.btn-sm{padding:7px 14px;font-size:var(--text-body-sm)}
+.ico-btn{width:32px;height:32px;border-radius:var(--radius-md);display:grid;place-items:center;border:none;background:transparent;color:var(--color-text-muted);cursor:pointer;transition:all var(--dur-base) var(--ease-out)}
+.ico-btn:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.ico-btn svg{width:16px;height:16px}
+
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:var(--radius-pill);font-family:var(--font-mono);font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em}
+.badge .led{width:5px;height:5px;border-radius:50%}
+.badge.pending{color:var(--status-pending-fg);background:var(--status-pending-bg);border:1px solid var(--status-pending-border)}.badge.pending .led{background:var(--status-pending-fg)}
+.badge.processing{color:var(--status-processing-fg);background:var(--status-processing-bg);border:1px solid var(--status-processing-border)}.badge.processing .led{background:var(--status-processing-fg);animation:pulse 1.2s infinite}
+.badge.completed{color:var(--status-completed-fg);background:var(--status-completed-bg);border:1px solid var(--status-completed-border)}.badge.completed .led{background:var(--status-completed-fg)}
+.badge.failed{color:var(--status-failed-fg);background:var(--status-failed-bg);border:1px solid var(--status-failed-border)}.badge.failed .led{background:var(--status-failed-fg)}
+.badge.starred{color:var(--status-starred-fg);background:var(--status-starred-bg);border:1px solid var(--status-starred-border);box-shadow:var(--glow-amber)}.badge.starred .led{background:var(--status-starred-solid)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* generic modal shell rendered inline */
+.modal{background:var(--color-bg-elevated);border-radius:var(--radius-xl);box-shadow:var(--shadow-float);border:1px solid var(--color-border-default);overflow:hidden;position:relative}
+.modal::before{content:'';position:absolute;inset:0;background:var(--bloom-teal),var(--bloom-amber);opacity:0.5;pointer-events:none}
+.modal>*{position:relative;z-index:1}
+.modal-head{display:flex;align-items:flex-start;gap:14px;padding:22px 24px 16px}
+.modal-head .mt{flex:1;min-width:0}
+.modal-head .eb{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.18em;color:var(--color-text-muted)}
+.modal-head .ti{font-family:var(--font-display);font-size:var(--text-display);font-weight:600;letter-spacing:-0.02em;margin-top:4px;line-height:1.1}
+.modal-head .x{width:34px;height:34px;border-radius:var(--radius-md);display:grid;place-items:center;border:none;background:var(--color-bg-hover);color:var(--color-text-secondary);cursor:pointer;transition:all var(--dur-base) var(--ease-out);flex-shrink:0}
+.modal-head .x:hover{background:var(--color-bg-surface);color:var(--color-text-primary)}
+.modal-head .x svg{width:16px;height:16px}
+.modal-body{padding:0 24px 18px}
+.modal-foot{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:16px 24px 22px;border-top:1px solid var(--color-border-subtle)}
+
+.field{margin-bottom:16px}
+.field label{display:block;font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);margin-bottom:7px}
+.field input,.field textarea,.field select{width:100%;background:var(--color-bg-input);border:1px solid var(--color-border-subtle);border-radius:var(--radius-md);padding:11px 14px;color:var(--color-text-primary);font-family:var(--font-body);font-size:var(--text-body);outline:none;transition:all var(--dur-base) var(--ease-out);resize:none}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--color-primary);box-shadow:0 0 0 3px rgba(52,216,196,0.12)}
+.field input::placeholder,.field textarea::placeholder{color:var(--color-text-muted)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.series-pick{display:flex;gap:8px;flex-wrap:wrap}
+.spick{padding:8px 14px;border-radius:var(--radius-pill);font-size:var(--text-body-sm);font-weight:500;background:var(--color-bg-inset);border:1px solid var(--color-border-subtle);color:var(--color-text-secondary);cursor:pointer;transition:all var(--dur-base) var(--ease-out)}
+.spick:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.spick.on{background:rgba(52,216,196,0.1);border-color:rgba(52,216,196,0.4);color:var(--p-teal-bright)}
+
+.gallery{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+
+/* Lightbox */
+.lightbox{max-width:100%;background:var(--color-bg-elevated);border-radius:var(--radius-lg);box-shadow:var(--shadow-float);border:1px solid var(--color-border-default);overflow:hidden}
+.lb-media{position:relative;aspect-ratio:16/9;background:var(--color-bg-inset)}
+.lb-media img{width:100%;height:100%;object-fit:contain;background:#000}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:rgba(8,7,10,0.6);backdrop-filter:blur(6px);color:var(--color-text-primary);border:none;cursor:pointer;transition:all var(--dur-base) var(--ease-out)}
+.lb-nav:hover{background:rgba(8,7,10,0.85)}
+.lb-nav.prev{left:14px}.lb-nav.next{right:14px}
+.lb-nav svg{width:20px;height:20px}
+.lb-x{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:50%;background:rgba(8,7,10,0.6);backdrop-filter:blur(6px);color:var(--color-text-primary);border:none;display:grid;place-items:center;cursor:pointer}
+.lb-x svg{width:16px;height:16px}
+.lb-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px}
+.lb-bar .lbl{font-family:var(--font-mono);font-size:10px;color:var(--color-text-secondary);letter-spacing:0.06em}
+.lb-bar .acts{display:flex;gap:6px}
+
+/* Compare */
+.compare{background:var(--color-bg-elevated);border-radius:var(--radius-lg);box-shadow:var(--shadow-float);border:1px solid var(--color-border-default);overflow:hidden}
+.cmp-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--color-border-subtle)}
+.cmp-head .ti{font-family:var(--font-display);font-size:var(--text-display-sm);font-weight:600}
+.cmp-body{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--color-border-subtle)}
+.cmp-take{background:var(--color-bg-elevated);padding:14px}
+.cmp-take.win{position:relative}
+.cmp-media{aspect-ratio:16/9;border-radius:var(--radius-md);overflow:hidden;position:relative;box-shadow:var(--shadow-rest)}
+.cmp-media img{width:100%;height:100%;object-fit:cover}
+.cmp-take.win .cmp-media::after{content:'';position:absolute;inset:0;box-shadow:inset 0 0 50px -10px rgba(255,169,77,0.45);pointer-events:none;border-radius:var(--radius-md)}
+.cmp-take.win .cmp-media{box-shadow:var(--glow-amber),var(--shadow-rest)}
+.cmp-meta{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+.cmp-meta .lbl{font-family:var(--font-mono);font-size:9.5px;color:var(--color-text-secondary);letter-spacing:0.06em}
+.cmp-foot{display:flex;justify-content:center;gap:12px;padding:16px 18px;border-top:1px solid var(--color-border-subtle)}
+
+/* Task queue */
+.taskq{background:var(--color-bg-elevated);border-radius:var(--radius-lg);box-shadow:var(--shadow-float);border:1px solid var(--color-border-default);overflow:hidden}
+.tq-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--color-border-subtle)}
+.tq-head .ti{font-family:var(--font-display);font-size:var(--text-display-sm);font-weight:600;display:flex;align-items:center;gap:10px}
+.tq-head .ti .cnt{font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--color-accent)}
+.tq-list{padding:8px}
+.tq-item{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:var(--radius-md);transition:background var(--dur-base) var(--ease-out)}
+.tq-item:hover{background:var(--color-bg-hover)}
+.tq-thumb{width:48px;height:30px;border-radius:var(--radius-sm);overflow:hidden;flex-shrink:0;background:var(--color-bg-inset);position:relative}
+.tq-thumb img{width:100%;height:100%;object-fit:cover}
+.tq-info{flex:1;min-width:0}
+.tq-info .tn{font-size:var(--text-body-sm);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tq-info .tm{font-family:var(--font-mono);font-size:9px;color:var(--color-text-muted);margin-top:2px;letter-spacing:0.04em}
+.tq-prog{width:80px;flex-shrink:0}
+.bar-track{height:5px;border-radius:var(--radius-pill);background:var(--color-bg-inset);overflow:hidden}
+.bar-fill{height:100%;border-radius:var(--radius-pill);background:linear-gradient(90deg,var(--p-amber-deep),var(--p-amber))}
+.tq-pct{font-family:var(--font-mono);font-size:9px;color:var(--color-accent);text-align:right;margin-top:4px;letter-spacing:0.04em}
+
+/* Toasts */
+.toast-stack{display:flex;flex-direction:column;gap:12px}
+.toast{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border-radius:var(--radius-md);background:var(--color-bg-elevated);box-shadow:var(--shadow-lift);border:1px solid var(--color-border-subtle);position:relative;overflow:hidden}
+.toast::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+.toast.success::before{background:var(--status-completed-fg)}
+.toast.error::before{background:var(--status-failed-fg)}
+.toast.info::before{background:var(--status-pending-fg)}
+.toast.warning::before{background:var(--status-processing-fg)}
+.toast .ti-ico{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;flex-shrink:0}
+.toast.success .ti-ico{background:var(--status-completed-bg);color:var(--status-completed-fg)}
+.toast.error .ti-ico{background:var(--status-failed-bg);color:var(--status-failed-fg)}
+.toast.info .ti-ico{background:var(--status-pending-bg);color:var(--status-pending-fg)}
+.toast.warning .ti-ico{background:var(--status-processing-bg);color:var(--status-processing-fg)}
+.toast .ti-ico svg{width:16px;height:16px}
+.toast .tc{flex:1;min-width:0}
+.toast .tt{font-weight:600;font-size:var(--text-body)}
+.toast .td{font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-top:2px}
+.toast .tx{width:24px;height:24px;border-radius:var(--radius-sm);display:grid;place-items:center;border:none;background:transparent;color:var(--color-text-muted);cursor:pointer;flex-shrink:0}
+.toast .tx:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.toast .tx svg{width:13px;height:13px}
+
+/* Offline banner */
+.offline{display:flex;align-items:center;gap:12px;padding:13px 18px;border-radius:var(--radius-md);background:var(--status-failed-bg);border:1px solid var(--status-failed-border);color:var(--status-failed-fg);font-size:var(--text-body-sm)}
+.offline svg{width:18px;height:18px;flex-shrink:0}
+.offline .ot{flex:1;color:var(--color-text-primary)}
+.offline .ot b{color:var(--status-failed-fg)}
+.offline .obtn{font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--status-failed-fg);background:transparent;border:1px solid var(--status-failed-border);border-radius:var(--radius-pill);padding:5px 12px;cursor:pointer;letter-spacing:0.04em;transition:all var(--dur-base) var(--ease-out)}
+.offline .obtn:hover{background:rgba(255,107,107,0.12)}
+
+.full{grid-column:1 / -1}
+
+.note{margin-top:48px;font-family:var(--font-mono);font-size:9.5px;color:var(--color-text-muted);letter-spacing:0.04em;display:flex;gap:16px;flex-wrap:wrap}
+.note b{color:var(--color-primary)}
+.note .amber{color:var(--color-accent)}
+
+@media (max-width:880px){.gallery,.cmp-body,.row2{grid-template-columns:1fr}}
+@media (prefers-reduced-motion: reduce){*{animation-duration:0.001ms!important;transition-duration:0.001ms!important}}
+</style>
+</head>
+<body>
+<div class="dim" aria-hidden="true"></div>
+
+<div class="page">
+  <header class="page-head">
+    <div class="eyebrow">COMPONENTS · <span class="n">弹层与覆盖</span></div>
+    <h1 class="page-title">弹层组件画廊</h1>
+    <p class="page-sub">所有模态、抽屉、提示与横幅，铺陈在变暗的光晕页面上 —— 让每个覆盖层的氛围与质感一目了然。</p>
+  </header>
+
+  <!-- 新建项目 modal -->
+  <div class="sec-label"><span class="sl">新建项目 · NEW PROJECT MODAL</span><span class="ln"></span></div>
+  <div class="modal" style="max-width:540px" role="dialog" aria-modal="true" aria-labelledby="np-title">
+    <div class="modal-head">
+      <div class="mt">
+        <div class="eb">CREATE PROJECT</div>
+        <div class="ti" id="np-title">新建项目</div>
+      </div>
+      <button class="x" aria-label="关闭"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label for="np-name">项目名称</label>
+        <input id="np-name" type="text" value="雨夜街头" placeholder="给你的故事起个名字…">
+      </div>
+      <div class="field">
+        <label for="np-script">剧本 / 脚本</label>
+        <textarea id="np-script" rows="4" placeholder="粘贴你的剧本，AI 将自动解析场景、角色与镜头…">雨，是这座城市唯一不说谎的东西。夜里十一点，霓虹把积水染成一片碎裂的彩色。陈侦探压低帽檐，走过空无一人的后巷……</textarea>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="np-mode">生成模式</label>
+          <select id="np-mode"><option>直接 R2V（参考视频驱动）</option><option>T2I → I2V（先图后视频）</option></select>
+        </div>
+        <div class="field">
+          <label for="np-res">分辨率</label>
+          <select id="np-res"><option>720P</option><option>1080P</option></select>
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>所属系列</label>
+        <div class="series-pick">
+          <button class="spick on">霓虹追凶</button>
+          <button class="spick">潮汐之城</button>
+          <button class="spick">暗室手记</button>
+          <button class="spick">+ 新系列</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost">取消</button>
+      <button class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3v4M3 5h4M13 3l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/></svg>创建并解析</button>
+    </div>
+  </div>
+
+  <!-- Lightbox + Compare -->
+  <div class="sec-label"><span class="sl">Lightbox & Compare · 灯箱与对比</span><span class="ln"></span></div>
+  <div class="gallery">
+    <!-- Lightbox -->
+    <div class="lightbox" role="dialog" aria-modal="true" aria-label="图片灯箱">
+      <div class="lb-media">
+        <img src="../assets/shot-01.png" alt="灯箱大图：雨夜霓虹侦探特写">
+        <button class="lb-nav prev" aria-label="上一张"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <button class="lb-nav next" aria-label="下一张"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button class="lb-x" aria-label="关闭灯箱"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="lb-bar">
+        <span class="lbl">SHOT 01 · 大特写 · 0:04 · WAN-R2V · 3 / 12</span>
+        <div class="acts">
+          <button class="ico-btn" aria-label="加星"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg></button>
+          <button class="ico-btn" aria-label="下载"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Compare -->
+    <div class="compare" role="dialog" aria-modal="true" aria-label="对比两个 take">
+      <div class="cmp-head">
+        <span class="ti">对比 Take</span>
+        <button class="x ico-btn" aria-label="关闭对比"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="cmp-body">
+        <div class="cmp-take win">
+          <div class="cmp-media"><img src="../assets/shot-01.png" alt="Take A"></div>
+          <div class="cmp-meta"><span class="lbl">TAKE A · WAN-R2V</span><span class="badge starred"><span class="led"></span>选中</span></div>
+        </div>
+        <div class="cmp-take">
+          <div class="cmp-media"><img src="../assets/shot-03.png" alt="Take B"></div>
+          <div class="cmp-meta"><span class="lbl">TAKE B · KLING</span><button class="btn btn-soft btn-sm">设为选中</button></div>
+        </div>
+      </div>
+      <div class="cmp-foot">
+        <button class="btn btn-ghost btn-sm">关闭</button>
+        <button class="btn btn-primary btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>采用 Take A</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task Queue + Toasts -->
+  <div class="sec-label"><span class="sl">任务队列 & Toasts · 反馈</span><span class="ln"></span></div>
+  <div class="gallery">
+    <!-- Task queue -->
+    <div class="taskq" role="region" aria-label="任务队列">
+      <div class="tq-head">
+        <span class="ti">任务队列 <span class="cnt">4 ACTIVE</span></span>
+        <button class="btn btn-ghost btn-sm">全部清除</button>
+      </div>
+      <div class="tq-list">
+        <div class="tq-item">
+          <div class="tq-thumb"><img src="../assets/shot-02.png" alt=""></div>
+          <div class="tq-info"><div class="tn">SHOT 02 · 中景横移</div><div class="tm">WAN-R2V · 5s</div></div>
+          <div class="tq-prog"><div class="bar-track"><div class="bar-fill" style="width:62%"></div></div><div class="tq-pct">62%</div></div>
+          <span class="badge processing"><span class="led"></span>生成中</span>
+        </div>
+        <div class="tq-item">
+          <div class="tq-thumb"><img src="../assets/shot-05.png" alt=""></div>
+          <div class="tq-info"><div class="tn">SHOT 06 · 首帧 T2I</div><div class="tm">Qwen-Image · 2 张</div></div>
+          <div class="tq-prog"><div class="bar-track"><div class="bar-fill" style="width:18%"></div></div><div class="tq-pct">18%</div></div>
+          <span class="badge processing"><span class="led"></span>生成中</span>
+        </div>
+        <div class="tq-item">
+          <div class="tq-thumb"><img src="../assets/shot-03.png" alt="" style="opacity:0.4"></div>
+          <div class="tq-info"><div class="tn">SHOT 07 · 大远景</div><div class="tm">排队中 · 等待 GPU</div></div>
+          <div class="tq-prog"><div class="bar-track"><div class="bar-fill" style="width:0%"></div></div><div class="tq-pct" style="color:var(--status-pending-fg)">待处理</div></div>
+          <span class="badge pending"><span class="led"></span>待生成</span>
+        </div>
+        <div class="tq-item">
+          <div class="tq-thumb"><img src="../assets/shot-01.png" alt=""></div>
+          <div class="tq-info"><div class="tn">SHOT 01 · 大特写</div><div class="tm">WAN-R2V · 完成于 0:04</div></div>
+          <div class="tq-prog"><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--status-completed-fg)"></div></div><div class="tq-pct" style="color:var(--status-completed-fg)">100%</div></div>
+          <span class="badge completed"><span class="led"></span>已完成</span>
+        </div>
+        <div class="tq-item">
+          <div class="tq-thumb"><img src="../assets/shot-03.png" alt="" style="opacity:0.3"></div>
+          <div class="tq-info"><div class="tn">SHOT 04 · 近景升降</div><div class="tm">内容安全拦截 · 可重试</div></div>
+          <div class="tq-prog"><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--status-failed-fg)"></div></div><div class="tq-pct" style="color:var(--status-failed-fg)">失败</div></div>
+          <span class="badge failed"><span class="led"></span>失败</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toasts -->
+    <div class="toast-stack" aria-live="polite">
+      <div class="toast success" role="status">
+        <span class="ti-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg></span>
+        <div class="tc"><div class="tt">已保存到资产库</div><div class="td">「雨夜后巷」已加入 霓虹追凶 · 场景。</div></div>
+        <button class="tx" aria-label="关闭提示"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="toast error" role="alert">
+        <span class="ti-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span>
+        <div class="tc"><div class="tt">生成失败</div><div class="td">SHOT 04 触发内容安全拦截，请调整提示词后重试。</div></div>
+        <button class="tx" aria-label="关闭提示"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="toast info" role="status">
+        <span class="ti-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span>
+        <div class="tc"><div class="tt">已加入队列</div><div class="td">SHOT 07 排队中，前面还有 2 个任务。</div></div>
+        <button class="tx" aria-label="关闭提示"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="toast warning" role="alert">
+        <span class="ti-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg></span>
+        <div class="tc"><div class="tt">额度即将用尽</div><div class="td">本月剩余 12 次视频生成，前往设置查看用量。</div></div>
+        <button class="tx" aria-label="关闭提示"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Offline banner -->
+  <div class="sec-label"><span class="sl">离线横幅 · OFFLINE BANNER</span><span class="ln"></span></div>
+  <div class="offline full" role="status">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l22 22M16.7 11.1A6 6 0 0 0 12 9M5 12.5a10 10 0 0 1 4-2.6M8.5 16a3 3 0 0 1 4 0M12 20h.01"/></svg>
+    <span class="ot"><b>网络已断开</b> —— 无法连接 DashScope 生成服务。你仍可浏览与编辑已有内容，联网后任务会自动恢复。</span>
+    <button class="obtn">重新连接</button>
+  </div>
+
+  <div class="note">
+    <span><b>Line B · Luminous Atelier</b> — 弹层在变暗光晕页上陈列 · 玻璃 modal · 状态徽章全谱</span>
+    <span class="amber">Signature：对比胜出 take amber halation</span>
+    <span>氛围：胶片颗粒 + 双角落光晕泄漏 + overlay 变暗</span>
+  </div>
+</div>
+</body>
+</html>

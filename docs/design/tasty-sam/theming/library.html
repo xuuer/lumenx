@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="atelier-dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LumenX Studio · 资产库（定稿）</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--color-bg-base);color:var(--color-text-primary);font-family:var(--font-inter);
+    -webkit-font-smoothing:antialiased;font-size:13px;transition:background .4s cubic-bezier(.22,1,.36,1),color .4s;overflow-x:hidden}
+  body::before{content:"";position:fixed;inset:0;background:var(--bloom);pointer-events:none;z-index:0;transition:background .4s}
+  body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--grain-op);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");transition:opacity .4s}
+  .wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:30px 28px 80px}
+
+  .top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand img{width:38px;height:38px;object-fit:contain;filter:var(--logo-filter);transition:filter .4s}
+  .brand .nm{font-family:var(--font-display);font-size:21px;font-weight:600;letter-spacing:-.01em}
+  .brand .nm .x{color:var(--color-primary)}
+  .themepick{display:flex;gap:5px;background:var(--color-bg-inset);padding:4px;border-radius:10px;border:1px solid var(--color-border-subtle)}
+  .tdot{width:22px;height:22px;border-radius:7px;cursor:pointer;border:2px solid transparent;transition:.15s}
+  .tdot:hover{transform:scale(1.12)}.tdot.on{border-color:var(--color-text-primary)}
+  .tdot[data-t="atelier-dark"]{background:linear-gradient(135deg,#0c0b0e 50%,#34d8c4 50%)}
+  .tdot[data-t="bridge-dark"]{background:linear-gradient(135deg,#0a0a0d 50%,#646cff 50%)}
+  .tdot[data-t="brand-dark"]{background:linear-gradient(135deg,#050508 50%,#ff0080 50%)}
+  .tdot[data-t="atelier-light"]{background:linear-gradient(135deg,#f6f1e9 50%,#1d9c8d 50%)}
+  .tdot[data-t="brand-light"]{background:linear-gradient(135deg,#f8f9fa 50%,#646cff 50%)}
+
+  .lead{font-family:var(--font-display);font-size:28px;font-weight:600;letter-spacing:-.02em;margin-bottom:4px}
+  .sub{color:var(--color-text-secondary);font-size:13px;margin-bottom:20px}
+
+  .bar{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+  .search{flex:1;min-width:200px;background:var(--input-bg);border:1px solid var(--input-border);border-radius:10px;padding:9px 13px;font-size:12.5px;color:var(--color-text-primary)}
+  .tabs{display:flex;gap:4px;background:var(--color-bg-inset);padding:4px;border-radius:10px;border:1px solid var(--color-border-subtle)}
+  .tab{font-family:var(--font-jetbrains-mono);font-size:10px;letter-spacing:.06em;padding:7px 13px;border-radius:7px;border:none;background:none;color:var(--color-text-muted);cursor:pointer;display:flex;align-items:center;gap:6px}
+  .tab.on{background:var(--color-primary);color:var(--btn-pri-fg)}
+  .tab .n{opacity:.7}
+
+  /* 来源分组 */
+  .group{margin-bottom:26px}
+  .group-h{display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:12px}
+  .group-h .chev{color:var(--color-text-muted);font-size:11px}
+  .group-h h3{font-family:var(--font-display);font-size:15px}
+  .group-h .badge{font-family:var(--font-jetbrains-mono);font-size:8.5px;padding:2px 8px;border-radius:999px;
+    background:var(--color-primary);color:var(--btn-pri-fg)}
+  .group-h .cnt{font-family:var(--font-jetbrains-mono);font-size:9px;color:var(--color-text-muted);margin-left:auto}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+  .acard{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--card-radius);overflow:hidden;
+    transition:transform .15s,box-shadow .25s,background .4s,border-color .4s;cursor:pointer}
+  .acard:hover{transform:translateY(-3px);box-shadow:var(--glow-primary)}
+  .athumb{aspect-ratio:3/4;background:var(--color-bg-inset);overflow:hidden;position:relative}
+  .athumb img{width:100%;height:100%;object-fit:cover}
+  .athumb .lock{position:absolute;top:7px;right:7px;font-size:11px;background:var(--color-overlay);width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff}
+  .athumb .vbadge{position:absolute;bottom:7px;left:7px;font-family:var(--font-jetbrains-mono);font-size:8px;padding:2px 7px;border-radius:999px;background:var(--color-overlay);color:#fff}
+  .athumb .vid{position:absolute;bottom:7px;right:7px;font-size:11px;background:var(--color-primary);color:var(--btn-pri-fg);width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center}
+  .abody{padding:10px 12px}
+  .abody h4{font-size:13px;font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:6px}
+  .abody .persona{font-family:var(--font-jetbrains-mono);font-size:8px;padding:1px 6px;border-radius:5px;background:var(--color-bg-inset);color:var(--color-text-muted)}
+  .abody .meta{font-size:10.5px;color:var(--color-text-secondary);line-height:1.4}
+  /* variant 选择条 */
+  .variants{display:flex;gap:4px;margin-top:9px}
+  .variants .v{width:26px;height:26px;border-radius:6px;overflow:hidden;border:2px solid var(--color-border-subtle);cursor:pointer}
+  .variants .v.sel{border-color:var(--color-primary)}
+  .variants .v img{width:100%;height:100%;object-fit:cover}
+  .variants .more{width:26px;height:26px;border-radius:6px;border:1px dashed var(--color-border-default);color:var(--color-text-muted);font-size:9px;display:flex;align-items:center;justify-content:center}
+  .voicechip{display:inline-flex;align-items:center;gap:4px;font-family:var(--font-jetbrains-mono);font-size:8px;margin-top:8px;
+    padding:2px 7px;border-radius:999px;border:1px solid var(--color-border-subtle);color:var(--color-text-secondary)}
+
+  .empty{border:1px dashed var(--color-border-default);border-radius:var(--card-radius);padding:30px;text-align:center;color:var(--color-text-secondary);background:var(--color-bg-inset)}
+  .hint{font-family:var(--font-jetbrains-mono);font-size:9px;color:var(--color-text-muted);text-align:center;margin-top:24px;letter-spacing:.1em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <img id="logo" src="assets/logo-dark.png" alt="LumenX">
+      <div class="nm">Lumen<span class="x">X</span> 资产库</div>
+    </div>
+    <div class="themepick" id="themepick">
+      <span class="tdot on" data-t="atelier-dark" title="Full Atelier"></span>
+      <span class="tdot" data-t="bridge-dark" title="Warm Bridge"></span>
+      <span class="tdot" data-t="brand-dark" title="Brand-True"></span>
+      <span class="tdot" data-t="atelier-light" title="暖亮 Atelier"></span>
+      <span class="tdot" data-t="brand-light" title="品牌亮色"></span>
+    </div>
+  </div>
+
+  <div class="lead">全局资产库</div>
+  <div class="sub">按来源分组 · 角色 / 场景 / 道具 · 多变体选择（selected_id）· 系列共享标记</div>
+
+  <div class="bar">
+    <input class="search" placeholder="搜索资产名称 / persona…">
+    <div class="tabs">
+      <button class="tab on">🎭 角色 <span class="n">6</span></button>
+      <button class="tab">🏙 场景 <span class="n">5</span></button>
+      <button class="tab">🎒 道具 <span class="n">4</span></button>
+    </div>
+  </div>
+
+  <!-- 来源分组 1：系列共享池 -->
+  <div class="group">
+    <div class="group-h">
+      <span class="chev">▾</span>
+      <h3>雨夜追踪 · 系列共享池</h3>
+      <span class="badge">SERIES 共享</span>
+      <span class="cnt">3 角色</span>
+    </div>
+    <div class="grid">
+      <!-- 角色卡 · 多变体 + 语音绑定 -->
+      <div class="acard">
+        <div class="athumb">
+          <span class="lock">🔒</span>
+          <span class="vbadge">reference_sheet</span>
+          <span class="vid">▶</span>
+          <img src="assets/char-detective.png" alt="">
+        </div>
+        <div class="abody">
+          <h4>林默 <span class="persona">主角组</span></h4>
+          <div class="meta">侦探 · 男 · 视觉权重 5</div>
+          <div class="variants">
+            <span class="v sel"><img src="assets/char-detective.png" alt=""></span>
+            <span class="v"><img src="assets/shot-01.png" alt=""></span>
+            <span class="v"><img src="assets/shot-02.png" alt=""></span>
+            <span class="more">+4</span>
+          </div>
+          <span class="voicechip">🔊 cosyvoice · clone</span>
+        </div>
+      </div>
+
+      <div class="acard">
+        <div class="athumb">
+          <span class="vbadge">reference_sheet</span>
+          <img src="assets/shot-05.png" alt="">
+        </div>
+        <div class="abody">
+          <h4>苏雨 <span class="persona">主角组</span></h4>
+          <div class="meta">记者 · 女 · 视觉权重 4</div>
+          <div class="variants">
+            <span class="v sel"><img src="assets/shot-05.png" alt=""></span>
+            <span class="v"><img src="assets/shot-03.png" alt=""></span>
+            <span class="more">+2</span>
+          </div>
+          <span class="voicechip">🔊 qwen3 · design</span>
+        </div>
+      </div>
+
+      <div class="acard">
+        <div class="athumb">
+          <span class="vbadge">三视图（legacy）</span>
+          <img src="assets/shot-02.png" alt="">
+        </div>
+        <div class="abody">
+          <h4>老陈 <span class="persona">配角组</span></h4>
+          <div class="meta">线人 · 男 · 视觉权重 2</div>
+          <div class="variants">
+            <span class="v sel"><img src="assets/shot-02.png" alt=""></span>
+            <span class="v"><img src="assets/shot-01.png" alt=""></span>
+          </div>
+          <span class="voicechip">🔊 系统音色</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 来源分组 2：单集本地 -->
+  <div class="group">
+    <div class="group-h">
+      <span class="chev">▾</span>
+      <h3>霓虹告别 · 单集本地资产</h3>
+      <span class="cnt">3 角色</span>
+    </div>
+    <div class="grid">
+      <div class="acard">
+        <div class="athumb"><span class="vbadge">reference_sheet</span><img src="assets/shot-01.png" alt=""></div>
+        <div class="abody">
+          <h4>路人甲</h4>
+          <div class="meta">群演 · 视觉权重 1</div>
+          <div class="variants"><span class="v sel"><img src="assets/shot-01.png" alt=""></span></div>
+        </div>
+      </div>
+      <div class="acard">
+        <div class="athumb"><span class="vbadge">reference_sheet</span><img src="assets/shot-03.png" alt=""></div>
+        <div class="abody">
+          <h4>店主</h4>
+          <div class="meta">配角 · 视觉权重 2</div>
+          <div class="variants"><span class="v sel"><img src="assets/shot-03.png" alt=""></span><span class="more">+1</span></div>
+          <span class="voicechip">🔊 系统音色</span>
+        </div>
+      </div>
+      <!-- 空态卡 -->
+      <div class="acard" style="display:flex;align-items:center;justify-content:center">
+        <div class="empty" style="border:none;padding:20px">
+          ＋ 新建角色<br><span style="font-size:10px">该类型暂无更多资产</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">// 切右上角主题点换肤 + Logo 联动 · 映射 AssetUnit / ImageVariant / VideoVariant · selected_image_id 高亮 · series-shared 徽章</div>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement,logo=document.getElementById('logo');
+  var LOGO={'atelier-dark':'assets/logo-dark.png','bridge-dark':'assets/logo-dark.png','brand-dark':'assets/logo-dark.png','atelier-light':'assets/logo-light-teal.png','brand-light':'assets/logo-light.png'};
+  document.querySelectorAll('.tdot').forEach(function(d){d.addEventListener('click',function(){
+    var t=d.dataset.t;root.setAttribute('data-theme',t);
+    document.querySelectorAll('.tdot').forEach(function(x){x.classList.remove('on')});d.classList.add('on');
+    logo.src=LOGO[t];
+  });});
+  document.querySelectorAll('.tabs .tab').forEach(function(t){t.addEventListener('click',function(){
+    document.querySelectorAll('.tabs .tab').forEach(function(x){x.classList.remove('on')});t.classList.add('on');
+  });});
+})();
+</script>
+</body>
+</html>

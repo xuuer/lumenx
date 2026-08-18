@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh" data-theme="atelier-dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>R2V Workflow Refactor · Before / After</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0b0e; --surface:#131116; --inset:#0a090c; --elevated:#1b1920;
+    --primary:#34d8c4; --accent:#ffa94d; --failed:#f87171;
+    --text:#ece9e1; --text-2:#a8a29b; --muted:#6b6660; --border:rgba(236,233,225,0.06);
+    --shadow:0 8px 28px -12px rgba(0,0,0,0.6);
+    --font-display:Fraunces,Georgia,serif; --font-sans:Space Grotesk,system-ui,sans-serif; --font-mono:JetBrains Mono,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{font-size:112.5%}
+  body{font-family:var(--font-sans);background:var(--bg);color:var(--text);line-height:1.5;
+    background-image:radial-gradient(ellipse 80% 50% at 0% 0%,rgba(52,216,196,0.06),transparent),radial-gradient(ellipse 60% 40% at 100% 0%,rgba(255,169,77,0.05),transparent);background-attachment:fixed}
+  .wrap{max-width:1280px;margin:0 auto;padding:48px 28px 80px}
+  header.pg{margin-bottom:40px}
+  .eyebrow{font-family:var(--font-mono);font-size:0.625rem;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+  .eyebrow .acc{color:var(--primary);font-weight:600}
+  h1{font-family:var(--font-display);font-size:2.125rem;font-weight:600;letter-spacing:-0.02em;line-height:1.05;margin-bottom:14px}
+  .lede{color:var(--text-2);font-size:0.9375rem;max-width:64ch}
+  .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  .tag{font-family:var(--font-mono);font-size:0.625rem;letter-spacing:0.06em;padding:4px 10px;border-radius:99px;border:1px solid var(--border);background:var(--surface);color:var(--text-2)}
+  .tag b{color:var(--primary)}
+  .sec{margin-top:44px}
+  .sec-h{font-family:var(--font-mono);font-size:0.6875rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-2);margin-bottom:8px;display:flex;align-items:center;gap:10px}
+  .sec-h::after{content:"";flex:1;height:1px;background:var(--border)}
+  .sec-sub{color:var(--muted);font-size:0.8125rem;margin-bottom:18px}
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:30px}
+  @media(max-width:820px){.pair{grid-template-columns:1fr}}
+  .shot{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--inset);box-shadow:var(--shadow)}
+  .shot-lab{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;font-family:var(--font-mono);font-size:0.625rem;letter-spacing:0.1em;text-transform:uppercase;border-bottom:1px solid var(--border)}
+  .shot-lab.bef{color:var(--failed)} .shot-lab.aft{color:var(--primary)}
+  .shot-lab .commit{color:var(--muted);text-transform:none;letter-spacing:0;font-size:0.6rem}
+  .shot img{display:block;width:100%;height:auto}
+  .shot-tall img{max-height:540px;object-fit:cover;object-position:top}
+  .delta{font-size:0.8125rem;color:var(--text-2);margin-top:10px;padding:10px 14px;background:var(--surface);border-radius:8px;border-left:2px solid var(--primary);line-height:1.55}
+  .delta b{color:var(--text)}
+  .delta code{font-family:var(--font-mono);font-size:0.6875rem;background:var(--inset);padding:1px 5px;border-radius:4px;color:var(--primary)}
+  .note{font-size:0.75rem;color:var(--muted);margin-top:32px;padding:14px 18px;border:1px dashed var(--border);border-radius:10px;line-height:1.6}
+  .note b{color:var(--text-2)}
+  .stages{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .stages a{font-family:var(--font-mono);font-size:0.625rem;color:var(--text-2);text-decoration:none;padding:4px 10px;border-radius:99px;border:1px solid var(--border);background:var(--surface)}
+  .stages a:hover{color:var(--primary);border-color:var(--primary)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="pg">
+    <div class="eyebrow">R2V WORKFLOW · <span class="acc">前端重构</span> · Before / After 实拍</div>
+    <h1>R2V 工作台全面前端重构</h1>
+    <p class="lede">在同一 R2V 项目（fe6d51f3 · 60 帧 · EP01）的同一视图上，分别用 <code>pre-r2v-refactor</code> 与重构后 HEAD 两次实拍。左 Before / 右 After，同一页面同一状态。</p>
+    <div class="tags">
+      <span class="tag">实拍项目 <b>fe6d51f3</b> · 60 shots</span>
+      <span class="tag">回退锚点 <b>pre-r2v-refactor</b></span>
+      <span class="tag">门禁 typecheck · check:colors · vitest 124/124 · i18n parity</span>
+    </div>
+    <div class="stages">
+      <a href="#rail">① 侧栏阶段状态</a>
+      <a href="#sb">② 分镜台（模型下拉 + 生成条）</a>
+      <a href="#summary">③ 改动清单</a>
+    </div>
+  </header>
+
+  <div class="sec" id="rail">
+    <div class="sec-h">① 侧栏 · per-step 阶段状态（Stage 13）</div>
+    <div class="sec-sub">同一项目的左栏步骤导航。Before 只有序号；After 每步加三态点 + 状态标签 + 软门槛锁。</div>
+    <div class="pair">
+      <div class="shot shot-tall">
+        <div class="shot-lab bef">Before · :3009 pre-r2v-refactor <span class="commit">4eb3bab</span></div>
+        <img src="review-assets/r2v-rail-before.png" alt="rail before — no status">
+      </div>
+      <div class="shot shot-tall">
+        <div class="shot-lab aft">After · :3008 HEAD <span class="commit">2e21688</span></div>
+        <img src="review-assets/r2v-rail-after.png" alt="rail after — status dots/labels">
+      </div>
+    </div>
+    <div class="delta"><b>DOM 实测：</b>Before <code>railStatus=false</code>（只序号）；After <code>railStatus=true</code>。Cast 显 <code>● 5 角色 · 5 已绑定</code>；Storyboard <code>● 60 镜</code>；Assembly <code>待合成</code>；底部项目卡真实标题 + EP.01（取代「Project Alpha」桩）。两图来自 :3009（老代码独立 dev server）与 :3008（新代码），非 HMR。</div>
+  </div>
+
+  <div class="sec" id="sb">
+    <div class="sec-h">② R2V 分镜台 · 模型下拉 + 生成条（Stage 6 / 10）· 全部展开</div>
+    <div class="sec-sub">同一项目第 4 步「Storyboard」，点了「全部展开」让每个镜头面板都打开 —— 模型选择器的差异最直观。Before 每个镜头一排 pills；After 每个镜头一个下拉。</div>
+    <div class="pair">
+      <div class="shot">
+        <div class="shot-lab bef">Before · :3009 pre-r2v-refactor <span class="commit">4eb3bab</span></div>
+        <img src="review-assets/r2v-sb-before.png" alt="storyboard before — pill-walls">
+      </div>
+      <div class="shot">
+        <div class="shot-lab aft">After · :3008 HEAD <span class="commit">6ff0485 + 3ab5dd3</span></div>
+        <img src="review-assets/r2v-sb-after.png" alt="storyboard after — dropdowns">
+      </div>
+    </div>
+    <div class="delta"><b>DOM 实测（puppeteer 在实时 DOM 上量）：</b>Before <code>dropdownCount=0</code>、<code>genSum=none</code>；After <code>dropdownCount=60</code>（60 个镜头各一个下拉）、<code>genSum="HappyHorse R2V · 4s"</code>。<b>Δ 模型选择器</b>：pill-wall（<code>flex-wrap</code>）→ tonal 下拉框。<b>Δ 生成条</b>：常驻 <code>● HappyHorse R2V · 4s</code> 摘要。两图来自不同 dev server（:3009 老代码 / :3008 新代码），非 HMR，无时序竞争。</div>
+  </div>
+
+  <div class="sec" id="summary">
+    <div class="sec-h">③ 全部改动清单（7 项实质 + 6 项验证 no-op）</div>
+    <div class="sec-sub">下表为本次重构的全部 commit。纯皮阶段（5/7/8/9/11/12）经代码比对确认现有组件已贴近 mock，零回归。</div>
+    <div class="stages">
+      <a>Stage 2 · 靛蓝 glow→token · 75c11f8</a>
+      <a>Stage 3 · 状态色→token · 73e9c8f</a>
+      <a>Stage 4 · 中文 toast→i18n · a59f756</a>
+      <a>Stage 6 · 模型下拉 · 6ff0485</a>
+      <a>Stage 10 · 生成条 gen-sum · 3ab5dd3</a>
+      <a>Stage 13 · 侧栏状态 · 2e21688</a>
+      <a>no-op · 5/7/8/9/11/12</a>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>关于「:3008 看到老样式」：</b>重构代码已确认 LIVE 在 :3008（DOM 实测：gen-sum「HappyHorse R2V · 4s」、模型下拉 <code>aria-expanded</code> 触发器、侧栏「5 角色 · 5 已绑定 / 60 镜 / 待合成」均在渲染）。若仍见老样式，请<b>硬刷新</b>（Cmd+Shift+R）清浏览器缓存，或确认打开的是 R2V 项目（<code>workflow_mode=r2v</code>）的分镜步骤 —— legacy 项目走 StoryboardComposer（未纳入本次重构）。Before 截图通过 <code>git checkout pre-r2v-refactor -- frontend/</code> 临时回退源码、借 dev server HMR 实拍后即时恢复 HEAD，工作树已确认干净。
+  </div>
+</div>
+</body>
+</html>

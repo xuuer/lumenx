@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="atelier-dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LumenX Studio · CompareModal（补稿）</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--color-bg-base);color:var(--color-text-primary);font-family:var(--font-inter);
+    -webkit-font-smoothing:antialiased;font-size:13px;transition:background .4s cubic-bezier(.22,1,.36,1),color .4s;min-height:100%}
+  body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--grain-op);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");transition:opacity .4s}
+
+  /* page chrome */
+  .pagetop{position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:16px;
+    padding:18px 26px;border-bottom:1px solid var(--color-border-subtle);flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:11px}
+  .brand img{width:34px;height:34px;object-fit:contain;filter:var(--logo-filter);transition:filter .4s}
+  .brand .nm{font-family:var(--font-display);font-size:18px;font-weight:600;letter-spacing:-.01em}
+  .brand .nm .x{color:var(--color-primary)}
+  .meta{font-family:var(--font-jetbrains-mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-text-muted)}
+  .themepick{display:flex;gap:5px;background:var(--color-bg-inset);padding:4px;border-radius:10px;border:1px solid var(--color-border-subtle)}
+  .tdot{width:22px;height:22px;border-radius:7px;cursor:pointer;border:2px solid transparent;transition:.15s}
+  .tdot:hover{transform:scale(1.12)}.tdot.on{border-color:var(--color-text-primary)}
+  .tdot[data-t="atelier-dark"]{background:linear-gradient(135deg,#0c0b0e 50%,#34d8c4 50%)}
+  .tdot[data-t="bridge-dark"]{background:linear-gradient(135deg,#0a0a0d 50%,#646cff 50%)}
+  .tdot[data-t="brand-dark"]{background:linear-gradient(135deg,#050508 50%,#ff0080 50%)}
+  .tdot[data-t="atelier-light"]{background:linear-gradient(135deg,#f6f1e9 50%,#1d9c8d 50%)}
+  .tdot[data-t="brand-light"]{background:linear-gradient(135deg,#f8f9fa 50%,#646cff 50%)}
+
+  .caption{position:relative;z-index:3;max-width:1240px;margin:0 auto;padding:18px 26px 6px}
+  .caption h1{font-family:var(--font-display);font-size:22px;font-weight:600;letter-spacing:-.02em}
+  .caption p{color:var(--color-text-secondary);font-size:12.5px;margin-top:4px;max-width:760px;line-height:1.55}
+
+  /* stage that hosts the modal in-context */
+  .stage{position:relative;z-index:1;max-width:1240px;margin:14px auto 30px;padding:0 26px}
+  .scrim{position:relative;border-radius:16px;overflow:hidden;min-height:660px;
+    background:var(--color-bg-inset);border:1px solid var(--color-border-subtle)}
+  .scrim .backdrop{position:absolute;inset:0;background:var(--color-overlay);backdrop-filter:blur(4px)}
+
+  /* the modal */
+  .modal{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:min(1040px,92%);height:600px;display:flex;flex-direction:column;
+    border-radius:12px;border:1px solid var(--card-border);background:var(--color-bg-elevated);
+    box-shadow:0 24px 60px -22px rgba(0,0,0,.9);overflow:hidden}
+  .mhead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--color-border-subtle)}
+  .mhleft{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .mtitle{font-family:var(--font-display);font-size:16px;font-weight:600;letter-spacing:-.01em}
+  .mstate{font-family:var(--font-jetbrains-mono);font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-muted)}
+  .mhbtns{display:flex;align-items:center;gap:6px}
+  .hbtn{height:32px;min-width:68px;padding:0 11px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    font-family:var(--font-jetbrains-mono);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    border:1px solid var(--color-border-default);background:var(--color-bg-hover);color:var(--color-text-secondary);transition:.15s}
+  .hbtn:hover{color:var(--color-text-primary)}
+  .hbtn.act{border-color:var(--color-primary);color:var(--color-primary);background:color-mix(in srgb,var(--color-primary) 12%,transparent)}
+  .hbtn.x{min-width:0;width:36px;height:36px;padding:0}
+  .ico{width:13px;height:13px;display:inline-block;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+  .grid{display:grid;flex:1;gap:8px;padding:12px;overflow:hidden;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+  .cell{position:relative;overflow:hidden;border-radius:8px;border:1px solid var(--color-border-subtle);
+    background:linear-gradient(135deg,#11131b,#080a10)}
+  .cell .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-jetbrains-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.32)}
+  .cell img{width:100%;height:100%;object-fit:cover;opacity:.92}
+  .cell.solo{outline:2px solid var(--color-primary);outline-offset:-2px}
+  .chip{position:absolute;display:inline-flex;align-items:center;gap:6px;border-radius:5px;background:rgba(0,0,0,.65);
+    padding:3px 7px;font-family:var(--font-jetbrains-mono);font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#fff}
+  .chip.tl{left:8px;top:8px}.chip.bl{left:8px;bottom:8px;font-weight:400;letter-spacing:0}
+  .chip .star{color:var(--color-status-starred-fg)}
+  .muteflag{position:absolute;right:8px;top:8px;font-family:var(--font-jetbrains-mono);font-size:9px;color:rgba(255,255,255,.5);background:rgba(0,0,0,.55);padding:2px 6px;border-radius:4px}
+
+  .mfoot{display:flex;align-items:center;gap:12px;padding:11px 16px;border-top:1px solid var(--color-border-subtle)}
+  .playbtn{width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;display:grid;place-items:center;
+    background:var(--color-bg-hover);color:var(--color-text-primary)}
+  .range{flex:1;height:6px;border-radius:999px;background:var(--color-bg-inset);position:relative}
+  .range .fill{position:absolute;left:0;top:0;bottom:0;width:38%;border-radius:999px;background:var(--color-primary)}
+  .range .knob{position:absolute;left:38%;top:50%;transform:translate(-50%,-50%);width:13px;height:13px;border-radius:50%;background:var(--color-primary);box-shadow:0 0 0 4px color-mix(in srgb,var(--color-primary) 25%,transparent)}
+  .indepcap{flex:1;text-align:center;font-family:var(--font-jetbrains-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-muted)}
+  .legend{font-family:var(--font-jetbrains-mono);font-size:10px;letter-spacing:.02em;color:var(--color-text-muted);white-space:nowrap}
+
+  /* delta / risk panel */
+  .delta{position:relative;z-index:3;max-width:1240px;margin:0 auto 60px;padding:0 26px}
+  .delta .box{border-radius:14px;border:1px solid var(--color-status-failed-border);background:var(--color-status-failed-bg);padding:18px 20px}
+  .delta h2{font-family:var(--font-display);font-size:15px;margin-bottom:4px;display:flex;align-items:center;gap:8px;color:var(--color-text-primary)}
+  .delta .lead{font-size:12px;color:var(--color-text-secondary);margin-bottom:14px}
+  .delta table{width:100%;border-collapse:collapse;font-size:12px}
+  .delta th,.delta td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--color-border-subtle);vertical-align:top;line-height:1.5}
+  .delta th{font-family:var(--font-jetbrains-mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-text-muted)}
+  .delta td b{color:var(--color-text-primary)}
+  .rk{font-family:var(--font-jetbrains-mono);font-size:9px;padding:2px 7px;border-radius:999px;white-space:nowrap}
+  .rk.same{color:var(--color-status-completed-fg);background:var(--color-status-completed-bg);border:1px solid var(--color-status-completed-border)}
+  .rk.low{color:var(--color-status-processing-fg);background:var(--color-status-processing-bg);border:1px solid var(--color-status-processing-border)}
+  .rk.med{color:var(--color-status-starred-fg);background:var(--color-status-starred-bg);border:1px solid var(--color-status-starred-border)}
+</style>
+</head>
+<body>
+<div class="pagetop">
+  <div class="brand">
+    <img id="logo" src="assets/logo-dark.png" alt="LumenX">
+    <div class="nm">Lumen<span class="x">X</span> · CompareModal</div>
+  </div>
+  <div class="themepick" id="themepick">
+    <span class="tdot on" data-t="atelier-dark" title="Full Atelier"></span>
+    <span class="tdot" data-t="bridge-dark" title="Warm Bridge"></span>
+    <span class="tdot" data-t="brand-dark" title="Brand-True"></span>
+    <span class="tdot" data-t="atelier-light" title="暖亮 Atelier"></span>
+    <span class="tdot" data-t="brand-light" title="品牌亮色"></span>
+  </div>
+</div>
+
+<div class="caption">
+  <h1>候选对比模态 · CompareModal</h1>
+  <p>对同一镜头的多条视频候选并排对比。Shift+点击候选缩略图加入对比集（≥2 触发）。源组件 <code>shot-panel/CompareModal.tsx</code>，最多 4 路、纯视频（不含图像对比）、主从同步时钟。</p>
+</div>
+
+<div class="stage">
+  <div class="scrim">
+    <div class="backdrop"></div>
+    <div class="modal" role="dialog" aria-label="Compare candidates">
+      <div class="mhead">
+        <div class="mhleft">
+          <span class="mtitle">Compare 4 candidates</span>
+          <span class="mstate" id="stateBadge">synced · all muted</span>
+        </div>
+        <div class="mhbtns">
+          <button class="hbtn act" id="syncBtn" title="切到独立时间轴">
+            <svg class="ico" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Synced</button>
+          <button class="hbtn" id="soloBtn" title="循环 Solo 各路音轨">
+            <svg class="ico" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>Mute</button>
+          <button class="hbtn x" aria-label="Close" title="关闭 (Esc)">
+            <svg class="ico" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+      </div>
+
+      <div class="grid" id="grid">
+        <div class="cell" data-i="0">
+          <img src="assets/shot-01.png" alt="">
+          <span class="chip tl">#1 · wan2.5-i2v <span class="star">★</span></span>
+          <span class="chip bl">take A · seed 8842</span>
+        </div>
+        <div class="cell" data-i="1">
+          <img src="assets/shot-02.png" alt="">
+          <span class="chip tl">#2 · wan2.5-i2v</span>
+          <span class="chip bl">take B · seed 1190</span>
+        </div>
+        <div class="cell" data-i="2">
+          <img src="assets/shot-03.png" alt="">
+          <span class="chip tl">#3 · kling-v2</span>
+          <span class="chip bl">take C · seed 5521</span>
+        </div>
+        <div class="cell" data-i="3">
+          <span class="ph">no video url</span>
+          <span class="chip tl">#4 · vidu-q1</span>
+        </div>
+      </div>
+
+      <div class="mfoot">
+        <button class="playbtn" id="playBtn" aria-label="Play">
+          <svg class="ico" viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;stroke:none"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+        </button>
+        <div class="range" id="range"><div class="fill"></div><div class="knob"></div></div>
+        <div class="indepcap" id="indepCap" style="display:none">Independent timelines · each video controls itself</div>
+        <div class="legend">Space play/pause · S solo · Esc close</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="delta">
+  <div class="box">
+    <h2>⚠ 与现状的差异 & 交互风险（落地前必读）</h2>
+    <p class="lead">本补稿严格还原现有 <code>CompareModal.tsx</code>，仅做主题化换肤。以下逐项标注与「现状/我先前假设」的差异及风险等级。</p>
+    <table>
+      <thead><tr><th style="width:20%">维度</th><th style="width:30%">现状（真实组件）</th><th style="width:34%">本补稿处理</th><th style="width:16%">风险</th></tr></thead>
+      <tbody>
+        <tr><td><b>媒体类型</b></td><td>纯视频对比（仅渲染 <code>&lt;video&gt;</code>），图像对比走 Lightbox，不在此模态</td><td>用静态图占位代替视频帧，明确标注「纯视频」；保留 <code>no video url</code> 降级格</td><td><span class="rk same">一致</span></td></tr>
+        <tr><td><b>对比路数</b></td><td>硬上限 4；布局 1 列 / 2 列 / 2×2（3 与 4 同为 2×2）</td><td>展示满 4 路 2×2，含一格降级；未做 1×3 行布局（与代码一致）</td><td><span class="rk same">一致</span></td></tr>
+        <tr><td><b>同步/独立</b></td><td>默认 Synced（#1 为主时钟，漂移&gt;50ms 校正）；切 Indep. 后底部进度条变文字</td><td>顶部 Sync 按钮 + 状态徽章联动；底部进度条 ↔ 「Independent timelines」文案切换（演示用 JS）</td><td><span class="rk low">低</span></td></tr>
+        <tr><td><b>Solo 行为</b></td><td>S 键循环 0→1→…→N-1→null（全静音）；选中格 unmute，其余静音</td><td>Solo 按钮文字 Mute↔Solo N，选中格描边高亮；逻辑与键盘 S 等价</td><td><span class="rk low">低</span></td></tr>
+        <tr><td><b>星标只读</b></td><td>★ 仅作只读展示（top-left chip），<u>此模态内无星标/Pin 切换</u>，操作在 CandidateThumb</td><td>★ 仅展示，不放任何切换控件（防误导）</td><td><span class="rk same">一致</span></td></tr>
+        <tr><td><b>标题文案</b></td><td>「Compare N candidates」为<u>硬编码英文</u>，非 i18n</td><td>补稿沿用原文仅为视觉保真；落地 MUST 抽取为 i18n 键（next-intl）并补 CN/EN，硬编码英文属待修复缺陷</td><td><span class="rk med">落地须 i18n 化</span></td></tr>
+        <tr><td><b>布局变化</b></td><td>—</td><td>整体结构、层级、控件位置 1:1 还原，仅颜色走 token。<b>无布局重构</b></td><td><span class="rk same">一致</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement,logo=document.getElementById('logo');
+  var LOGO={'atelier-dark':'assets/logo-dark.png','bridge-dark':'assets/logo-dark.png','brand-dark':'assets/logo-dark.png','atelier-light':'assets/logo-light-teal.png','brand-light':'assets/logo-light.png'};
+  document.querySelectorAll('.tdot').forEach(function(d){d.addEventListener('click',function(){
+    var t=d.dataset.t;root.setAttribute('data-theme',t);
+    document.querySelectorAll('.tdot').forEach(function(x){x.classList.remove('on')});d.classList.add('on');logo.src=LOGO[t];
+  });});
+
+  // sync toggle
+  var sync=true, solo=null, playing=false;
+  var syncBtn=document.getElementById('syncBtn'),soloBtn=document.getElementById('soloBtn');
+  var range=document.getElementById('range'),indep=document.getElementById('indepCap'),state=document.getElementById('stateBadge');
+  var cells=[].slice.call(document.querySelectorAll('.cell'));
+  function render(){
+    syncBtn.classList.toggle('act',sync);
+    syncBtn.lastChild.textContent=sync?'Synced':'Indep.';
+    range.style.display=sync?'block':'none';
+    indep.style.display=sync?'none':'block';
+    soloBtn.lastChild.textContent=(solo===null)?'Mute':('Solo '+(solo+1));
+    cells.forEach(function(c,i){c.classList.toggle('solo',solo===i)});
+    var s=sync?'synced':'independent';
+    var m=(solo===null)?'all muted':('solo #'+(solo+1));
+    state.textContent=s+' · '+m;
+  }
+  syncBtn.addEventListener('click',function(){sync=!sync;render();});
+  soloBtn.addEventListener('click',function(){solo=(solo===null)?0:(solo+1>=cells.length?null:solo+1);render();});
+  var playBtn=document.getElementById('playBtn');
+  playBtn.addEventListener('click',function(){playing=!playing;
+    playBtn.innerHTML=playing
+      ?'<svg class="ico" viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;stroke:none"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>'
+      :'<svg class="ico" viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;stroke:none"><polygon points="6 4 20 12 6 20 6 4"/></svg>';
+  });
+  render();
+})();
+</script>
+</body>
+</html>

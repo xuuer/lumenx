@@ -1,0 +1,139 @@
+family: happyhorse
+display_name: "HappyHorse (快乐马)"
+provider: aliyun
+routing_prefixes:
+  - happyhorse-1.0-
+  - happyhorse-1.1-
+supported_backends:
+  - dashscope
+default_backend: dashscope
+credential_sources:
+  dashscope:
+    - DASHSCOPE_API_KEY
+supported_modalities:
+  - t2v
+  - i2v
+  - r2v
+  - v2v
+transport:
+  image_input_mode:
+    dashscope: dashscope_temp_file_url
+  audio_input_mode:
+    dashscope: dashscope_temp_file_url
+  reference_video_input_mode:
+    dashscope: dashscope_temp_file_url
+docs:
+  official_snapshot_ids:
+    - aliyun/happyhorse/2026-04-28
+models:
+  # Model line: I2V + R2V (paired via modes) — upgraded to 1.1
+  - id: happyhorse/happyhorse-1.1-video
+    display_name: HappyHorse 1.1 Video
+    description: HappyHorse video generation with I2V and R2V modes
+    status: active
+    release_stage: stable
+    docs:
+      context_hub_doc_ids:
+        - aliyun/happyhorse-video
+    runtime:
+      dashscope:
+        gateway: dashscope
+    modes:
+      i2v:
+        legacy_id: happyhorse-1.1-i2v
+        display_name: HappyHorse I2V
+        description: Image-to-video with reference character support
+        capabilities: [i2v]
+        ui:
+          selection_group: i2v
+          visible_in: [project_settings, series_settings, video_sidebar, global_settings]
+          order: 120
+          recommended: true
+        duration:
+          type: slider
+          min: 3
+          max: 15
+          step: 1
+          default: 5
+        params:
+          resolution:
+            options: [720p, 1080p]
+            default: 1080p
+          seed: true
+          negativePrompt: true
+          promptExtend: true
+          watermark: true
+        inputs:
+          reference_images:
+            max: 9
+      r2v:
+        legacy_id: happyhorse-1.1-r2v
+        display_name: HappyHorse R2V
+        description: Reference images to video generation
+        capabilities: [r2v]
+        ui:
+          selection_group: r2v
+          visible_in: [project_settings, series_settings, video_sidebar, global_settings]
+          order: 80
+          recommended: true
+        duration:
+          type: slider
+          min: 3
+          max: 15
+          step: 1
+          default: 5
+        params:
+          resolution:
+            options: [720p, 1080p]
+            default: 1080p
+          seed: true
+          negativePrompt: true
+          promptExtend: true
+          watermark: true
+        inputs:
+          reference_images:
+            max: 9
+  # Standalone: T2V (hidden) — upgraded to 1.1
+  - id: happyhorse-1.1-t2v
+    display_name: HappyHorse T2V
+    description: Text-to-video generation (hidden)
+    status: hidden
+    release_stage: stable
+    capabilities: [t2v]
+    docs:
+      context_hub_doc_ids:
+        - aliyun/happyhorse-video
+    ui:
+      selection_group: i2v
+      visible_in: []
+      recommended: true
+    params:
+      resolution:
+        options: [720p, 1080p]
+        default: 1080p
+      seed: true
+      negativePrompt: true
+      promptExtend: true
+      watermark: true
+  # Standalone: V2V (hidden) — stays on 1.0 (no 1.1 video-edit yet)
+  - id: happyhorse-1.0-video-edit
+    display_name: HappyHorse V2V
+    description: Video editing with reference images (hidden, still 1.0)
+    status: hidden
+    release_stage: stable
+    capabilities: [v2v]
+    docs:
+      context_hub_doc_ids:
+        - aliyun/happyhorse-video
+    ui:
+      selection_group: i2v
+      visible_in: []
+      recommended: true
+    params:
+      resolution:
+        options: [720p, 1080p]
+        default: 1080p
+      seed: true
+      negativePrompt: true
+      promptExtend: true
+      watermark: true

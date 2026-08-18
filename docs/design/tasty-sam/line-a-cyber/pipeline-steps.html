@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LumenX Studio · Line A (Cyber Refined) — 制作流程</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--color-bg-base);color:var(--color-text-primary);font-family:var(--font-body);font-size:var(--text-body);line-height:var(--leading-body);-webkit-font-smoothing:antialiased;height:100vh;overflow:hidden}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--p-gray-700);border-radius:6px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:var(--p-gray-500)}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px;border-radius:4px}
+
+.shell{display:flex;height:100vh}
+
+/* Global rail */
+.global-rail{width:56px;flex-shrink:0;background:var(--color-bg-base);border-right:1px solid var(--color-border-subtle);display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:6px}
+.brand-mark{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,rgba(100,108,255,0.18),rgba(255,0,128,0.10));border:1px solid rgba(100,108,255,0.4);display:grid;place-items:center;font-family:var(--font-mono);font-weight:800;color:var(--color-primary);font-size:15px;margin-bottom:12px}
+.rail-ico{width:38px;height:38px;border-radius:9px;display:grid;place-items:center;color:var(--color-text-muted);cursor:pointer;transition:all var(--dur-fast) var(--ease-out);border:1px solid transparent}
+.rail-ico:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.rail-ico.active{background:rgba(100,108,255,0.10);border-color:rgba(100,108,255,0.25);color:var(--color-primary)}
+.rail-ico svg{width:18px;height:18px}
+.rail-spacer{flex:1}
+
+/* Pipeline sidebar */
+.pipe-sb{width:var(--sidebar-w);flex-shrink:0;background:var(--color-bg-surface);border-right:1px solid var(--color-border-default);display:flex;flex-direction:column}
+.pipe-head{padding:14px 16px;border-bottom:1px solid var(--color-border-subtle)}
+.pipe-crumb{font-family:var(--font-mono);font-size:10px;color:var(--color-text-muted);letter-spacing:0.06em;display:flex;align-items:center;gap:4px}
+.pipe-crumb .cur{color:var(--color-text-primary);font-weight:600}
+.pipe-proj{font-family:var(--font-display);font-size:var(--text-display);font-weight:600;margin-top:6px;letter-spacing:-0.01em}
+.pipe-meta{font-family:var(--font-mono);font-size:9.5px;color:var(--color-text-muted);margin-top:3px;letter-spacing:0.04em}
+.pipe-nav{flex:1;padding:10px 8px;display:flex;flex-direction:column;gap:2px}
+.pipe-step{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:var(--radius-md);cursor:pointer;transition:all var(--dur-fast) var(--ease-out);border:1px solid transparent;position:relative;text-decoration:none}
+.pipe-step:hover{background:var(--color-bg-hover)}
+.pipe-step.active{background:rgba(100,108,255,0.08);border-color:rgba(100,108,255,0.18)}
+.pipe-step.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:18px;background:var(--color-primary);border-radius:0 3px 3px 0}
+.pipe-step .pn{font-family:var(--font-mono);font-size:9px;color:var(--color-text-muted);width:16px}
+.pipe-step.active .pn{color:var(--color-primary)}
+.pipe-step .pl{font-size:var(--text-body);font-weight:500;color:var(--color-text-secondary)}
+.pipe-step.active .pl{color:var(--color-text-primary);font-weight:600}
+.pipe-step .pdone{margin-left:auto;color:var(--status-completed-fg)}
+.pipe-step .pdone svg{width:13px;height:13px}
+.pipe-foot{padding:12px;border-top:1px solid var(--color-border-subtle)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;border-radius:var(--btn-radius);font-size:var(--text-body);font-weight:600;cursor:pointer;transition:all var(--dur-fast) var(--ease-out);border:1px solid transparent;padding:7px 14px}
+.btn svg{width:13px;height:13px}
+.btn-primary{background:var(--color-primary);border-color:var(--p-blue-dim);color:var(--color-on-primary);box-shadow:var(--glow-primary)}
+.btn-primary:hover{background:var(--color-primary-hover);box-shadow:0 0 24px -4px rgba(100,108,255,0.7)}
+.btn-glass{background:var(--color-bg-elevated);border-color:var(--color-border-default);color:var(--color-text-primary)}
+.btn-glass:hover{background:var(--p-gray-800);border-color:var(--color-border-strong)}
+.btn-ghost{background:transparent;color:var(--color-text-secondary)}
+.btn-ghost:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.btn-sm{padding:5px 10px;font-size:var(--text-body-sm)}
+
+/* workbench */
+.wb{flex:1;display:flex;flex-direction:column;min-width:0}
+.wb-topbar{height:56px;flex-shrink:0;border-bottom:1px solid var(--color-border-default);display:flex;align-items:center;padding:0 20px;gap:12px;background:var(--color-bg-surface)}
+.wb-topbar .tt{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.18em;color:var(--color-text-muted)}
+.wb-topbar .tt b{color:var(--color-text-primary);font-weight:700}
+.wb-scroll{flex:1;overflow-y:auto;padding:24px 28px 60px;display:flex;flex-direction:column;gap:28px;background:
+  radial-gradient(120% 60% at 50% -8%, rgba(100,108,255,0.04), transparent 55%),
+  var(--color-bg-base)}
+.step-block{max-width:980px;width:100%;margin:0 auto;scroll-margin-top:20px}
+
+/* StepHeader (wb-head pattern) */
+.step-head{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--color-border-default);margin-bottom:18px}
+.step-icon{width:40px;height:40px;border-radius:50%;background:rgba(100,108,255,0.08);border:1px solid rgba(100,108,255,0.3);display:grid;place-items:center;flex-shrink:0}
+.step-icon svg{width:17px;height:17px;color:#b9bdff}
+.step-titles{flex:1;min-width:0}
+.step-eyebrow{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.2em;color:var(--color-text-muted)}
+.step-eyebrow .n{color:var(--color-primary);font-weight:700}
+.step-title{font-family:var(--font-display);font-size:var(--text-display-lg);font-weight:600;letter-spacing:-0.01em;margin-top:2px}
+.step-actions{display:flex;align-items:center;gap:8px}
+
+/* status badge */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em}
+.badge .led{width:5px;height:5px;border-radius:50%}
+.badge.pending{color:var(--status-pending-fg);background:var(--status-pending-bg);border:1px solid var(--status-pending-border)}.badge.pending .led{background:var(--status-pending-fg)}
+.badge.processing{color:var(--status-processing-fg);background:var(--status-processing-bg);border:1px solid var(--status-processing-border)}.badge.processing .led{background:var(--status-processing-fg);animation:pulse 1.2s infinite}
+.badge.completed{color:var(--status-completed-fg);background:var(--status-completed-bg);border:1px solid var(--status-completed-border)}.badge.completed .led{background:var(--status-completed-fg)}
+.badge.starred{color:var(--status-starred-fg);background:var(--status-starred-bg);border:1px solid var(--status-starred-border)}.badge.starred .led{background:var(--status-starred-solid)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* generic card */
+.card{background:var(--card-bg);border:1px solid var(--color-border-default);border-radius:var(--card-radius);box-shadow:var(--shadow-rest)}
+.card-pad{padding:var(--space-md)}
+
+/* ── STEP 01 — Script ── */
+.script-grid{display:grid;grid-template-columns:1fr 300px;gap:16px}
+.script-area{display:flex;flex-direction:column}
+.script-label{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.16em;color:var(--color-text-muted);margin-bottom:8px}
+.script-box{width:100%;min-height:240px;background:var(--color-bg-input);border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:14px 16px;color:var(--color-text-primary);font-family:var(--font-body);font-size:13px;line-height:1.7;resize:vertical;outline:none;transition:border-color var(--dur-fast) var(--ease-out)}
+.script-box:focus{border-color:rgba(100,108,255,0.4)}
+.script-foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.script-stat{font-family:var(--font-mono);font-size:9.5px;color:var(--color-text-muted);letter-spacing:0.04em}
+.scene-panel{background:var(--color-bg-surface);border:1px solid var(--color-border-default);border-radius:var(--radius-lg);overflow:hidden;display:flex;flex-direction:column}
+.scene-panel-h{padding:11px 14px;border-bottom:1px solid var(--color-border-subtle);font-family:var(--font-mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;color:var(--color-text-secondary);display:flex;justify-content:space-between;align-items:center}
+.scene-list{display:flex;flex-direction:column;overflow-y:auto;max-height:240px}
+.scene-item{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--color-border-subtle);cursor:pointer;transition:background var(--dur-fast) var(--ease-out)}
+.scene-item:last-child{border-bottom:none}
+.scene-item:hover{background:var(--color-bg-hover)}
+.scene-no{font-family:var(--font-mono);font-size:10px;font-weight:700;color:var(--color-primary);width:24px;flex-shrink:0}
+.scene-body .sc-t{font-size:12px;font-weight:600}
+.scene-body .sc-s{font-size:11px;color:var(--color-text-muted);margin-top:2px}
+
+/* ── STEP 02 — Art direction ── */
+.art-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.sub-label{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.16em;color:var(--color-text-muted);margin-bottom:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.style-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:var(--radius-pill);font-size:12px;font-weight:500;border:1px solid var(--color-border-default);background:var(--color-bg-inset);color:var(--color-text-secondary);cursor:pointer;transition:all var(--dur-fast) var(--ease-out)}
+.style-chip:hover{border-color:var(--color-border-strong);color:var(--color-text-primary)}
+.style-chip.on{border-color:rgba(100,108,255,0.55);background:rgba(100,108,255,0.12);color:var(--color-primary)}
+.style-chip .dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.palette{display:flex;gap:10px;margin-top:6px}
+.sw{flex:1;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--color-border-default)}
+.sw .chip{height:48px}
+.sw .lbl{font-family:var(--font-mono);font-size:8.5px;text-align:center;padding:4px 2px;color:var(--color-text-secondary);letter-spacing:0.04em;background:var(--color-bg-inset)}
+.ref-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ref{position:relative;aspect-ratio:1;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--color-border-default);cursor:pointer;transition:all var(--dur-fast) var(--ease-out)}
+.ref:hover{border-color:var(--color-border-strong);transform:translateY(-2px)}
+.ref img{width:100%;height:100%;object-fit:cover}
+.ref .tag{position:absolute;bottom:0;left:0;right:0;padding:4px 6px;background:linear-gradient(transparent,rgba(0,0,0,0.8));font-family:var(--font-mono);font-size:8px;color:#fff;letter-spacing:0.04em}
+
+/* ── STEP 03 — Cast ── */
+.cast-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.cast-card{background:var(--color-bg-surface);border:1px solid var(--color-border-default);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-rest);transition:border-color var(--dur-fast) var(--ease-out),box-shadow var(--dur-fast) var(--ease-out)}
+.cast-card:hover{border-color:var(--color-border-strong);box-shadow:var(--shadow-lift)}
+.cast-card .portrait{position:relative;aspect-ratio:3/4;background:var(--color-bg-inset);overflow:hidden}
+.cast-card .portrait img{width:100%;height:100%;object-fit:cover}
+.cast-card .lock{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:7px;display:grid;place-items:center;background:rgba(5,5,8,0.6);border:1px solid var(--color-border-strong);color:var(--color-text-secondary);cursor:pointer;backdrop-filter:blur(2px);transition:all var(--dur-fast) var(--ease-out)}
+.cast-card .lock:hover{color:var(--color-text-primary)}
+.cast-card .lock.locked{color:var(--status-starred-fg);border-color:var(--status-starred-border);background:var(--status-starred-bg)}
+.cast-card .lock svg{width:13px;height:13px}
+.cast-card .vcount{position:absolute;bottom:8px;left:8px;padding:3px 8px;border-radius:5px;background:rgba(5,5,8,0.65);font-family:var(--font-mono);font-size:9px;color:var(--color-text-primary);backdrop-filter:blur(2px)}
+.cast-card .cc-body{padding:12px 14px}
+.cast-card .cc-name{font-family:var(--font-display);font-size:var(--text-display-sm);font-weight:600}
+.cast-card .cc-role{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);margin-top:3px}
+.cast-card .cc-desc{font-size:11.5px;color:var(--color-text-secondary);margin-top:8px;line-height:1.5}
+.cast-card .cc-foot{display:flex;align-items:center;justify-content:space-between;margin-top:11px}
+
+/* ── STEP 05 — Assembly ── */
+.assembly-grid{display:grid;grid-template-columns:1fr 300px;gap:16px}
+.timeline{background:var(--color-bg-surface);border:1px solid var(--color-border-default);border-radius:var(--radius-lg);padding:14px}
+.tl-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.tl-head .tl-t{font-family:var(--font-mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;color:var(--color-text-secondary)}
+.tl-track{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px}
+.tl-shot{position:relative;flex-shrink:0;width:128px;aspect-ratio:16/9;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--color-border-default);cursor:pointer;transition:all var(--dur-fast) var(--ease-out)}
+.tl-shot:hover{border-color:var(--color-border-strong);transform:translateY(-2px)}
+.tl-shot.sel{border-color:rgba(100,108,255,0.55);box-shadow:0 0 0 1px rgba(100,108,255,0.35)}
+.tl-shot img{width:100%;height:100%;object-fit:cover}
+.tl-shot .no{position:absolute;top:4px;left:4px;font-family:var(--font-mono);font-size:9px;font-weight:700;color:#fff;background:rgba(5,5,8,0.65);padding:1px 5px;border-radius:4px}
+.tl-shot .dur{position:absolute;bottom:4px;right:4px;font-family:var(--font-mono);font-size:8px;color:#fff;background:rgba(5,5,8,0.65);padding:1px 5px;border-radius:4px}
+.tl-trans{flex-shrink:0;align-self:center;font-family:var(--font-mono);font-size:8px;color:var(--color-text-muted);writing-mode:vertical-rl;letter-spacing:0.1em;padding:0 2px}
+.export-panel{background:var(--color-bg-surface);border:1px solid var(--color-border-default);border-radius:var(--radius-lg);padding:16px;display:flex;flex-direction:column;gap:14px}
+.field label{display:block;font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);margin-bottom:5px}
+.field select,.field input{width:100%;background:var(--color-bg-input);border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:8px 10px;color:var(--color-text-primary);font-family:var(--font-body);font-size:12px;outline:none;transition:border-color var(--dur-fast) var(--ease-out)}
+.field select:focus,.field input:focus{border-color:rgba(100,108,255,0.4)}
+.render-prog{background:var(--color-bg-inset);border:1px solid var(--color-border-subtle);border-radius:var(--radius-md);padding:12px}
+.render-prog .rp-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.render-prog .rp-lbl{font-family:var(--font-mono);font-size:9.5px;color:var(--status-processing-fg);letter-spacing:0.06em}
+.render-prog .rp-pct{font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--color-text-primary)}
+.ptrack{height:6px;border-radius:99px;background:var(--color-bg-base);overflow:hidden;border:1px solid var(--color-border-subtle)}
+.pfill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--p-blue-dim),var(--color-primary));box-shadow:0 0 8px -2px var(--color-primary)}
+.render-prog .rp-foot{font-family:var(--font-mono);font-size:9px;color:var(--color-text-muted);margin-top:7px;letter-spacing:0.04em}
+
+@media (max-width:880px){.script-grid,.assembly-grid,.art-grid{grid-template-columns:1fr}.cast-grid{grid-template-columns:repeat(2,1fr)}}
+@media (prefers-reduced-motion: reduce){*{animation-duration:0.001ms!important;transition-duration:0.001ms!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- Global rail -->
+  <nav class="global-rail" aria-label="全局导航">
+    <div class="brand-mark" aria-hidden="true">X</div>
+    <a class="rail-ico" href="workspace.html" title="工作区" aria-label="工作区"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></a>
+    <a class="rail-ico active" href="pipeline-steps.html" title="制作流程" aria-label="制作流程" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg></a>
+    <a class="rail-ico" href="library.html" title="资产库" aria-label="资产库"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4M3 17l9 4 9-4"/></svg></a>
+    <a class="rail-ico" href="playground.html" title="Playground" aria-label="Playground"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></a>
+    <div class="rail-spacer"></div>
+    <a class="rail-ico" href="settings.html" title="设置" aria-label="设置"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.5-2.3 1a7 7 0 0 0-1.7-1l-.3-2.5h-4l-.3 2.5a7 7 0 0 0-1.7 1l-2.3-1-2 3.5 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.5 2.3-1a7 7 0 0 0 1.7 1l.3 2.5h4l.3-2.5a7 7 0 0 0 1.7-1l2.3 1 2-3.5-2-1.5c.1-.3.1-.7.1-1z"/></svg></a>
+  </nav>
+
+  <!-- Pipeline sidebar -->
+  <aside class="pipe-sb">
+    <div class="pipe-head">
+      <div class="pipe-crumb">霓虹追凶 <span>/</span> <span class="cur">EP.01</span></div>
+      <div class="pipe-proj">雨夜街头</div>
+      <div class="pipe-meta">R2V · 12 SHOTS · 720P</div>
+    </div>
+    <nav class="pipe-nav" aria-label="制作步骤">
+      <a class="pipe-step active" href="#step-01"><span class="pn">01</span><span class="pl">脚本</span><span class="pdone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg></span></a>
+      <a class="pipe-step" href="#step-02"><span class="pn">02</span><span class="pl">美术方向</span><span class="pdone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg></span></a>
+      <a class="pipe-step" href="#step-03"><span class="pn">03</span><span class="pl">Cast 角色</span><span class="pdone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg></span></a>
+      <a class="pipe-step" href="storyboard-r2v.html"><span class="pn">04</span><span class="pl">分镜 R2V</span></a>
+      <a class="pipe-step" href="#step-05"><span class="pn">05</span><span class="pl">合成导出</span></a>
+    </nav>
+    <div class="pipe-foot">
+      <button class="btn btn-glass btn-sm" style="width:100%;justify-content:center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>新增分镜</button>
+    </div>
+  </aside>
+
+  <!-- Workbench -->
+  <main class="wb">
+    <div class="wb-topbar">
+      <span class="tt">制作流程 · <b>PIPELINE OVERVIEW</b></span>
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <button class="btn btn-glass btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>自动保存</button>
+        <button class="btn btn-primary btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>继续到分镜</button>
+      </div>
+    </div>
+
+    <div class="wb-scroll">
+
+      <!-- ═══ STEP 01 — SCRIPT ═══ -->
+      <section class="step-block" id="step-01" aria-labelledby="s01-t">
+        <div class="step-head">
+          <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
+          <div class="step-titles">
+            <div class="step-eyebrow">STEP <span class="n">01</span> · SCRIPT INPUT</div>
+            <h2 class="step-title" id="s01-t">脚本</h2>
+          </div>
+          <div class="step-actions">
+            <span class="badge completed"><span class="led"></span>已解析</span>
+            <button class="btn btn-glass btn-sm">重新解析</button>
+          </div>
+        </div>
+        <div class="script-grid">
+          <div class="script-area">
+            <div class="script-label">SCRIPT TEXT · 剧本原文</div>
+            <textarea class="script-box" aria-label="剧本原文">【场景一 · 雨夜街头 — 外景 / 夜】
+雨水砸在霓虹招牌上，电蓝与品红的光在湿漉漉的柏油路面流淌。陈侦探立于街口，风衣领口竖起，雨水沿帽檐滑落。
+陈侦探（低声）："这座城市，从不下完一场干净的雨。"
+
+【场景二 · 后巷追踪 — 外景 / 夜】
+脚步声在狭窄后巷回荡，霓虹倒影在积水中破碎。陈侦探快步穿行，手按在腰间。
+
+【场景三 · 档案室 — 内景 / 夜】
+昏黄台灯下，证物袋摊开。陈侦探凝视一枚带血指纹的卡片，眼神锐利。
+陈侦探："凶手留下的，从来都不是巧合。"</textarea>
+            <div class="script-foot">
+              <span class="script-stat">3 SCENES · 412 字 · 自动断句完成</span>
+              <button class="btn btn-primary btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9V3z"/></svg>解析场景</button>
+            </div>
+          </div>
+          <div class="scene-panel">
+            <div class="scene-panel-h"><span>PARSED SCENES</span><span style="color:var(--color-primary)">3</span></div>
+            <div class="scene-list">
+              <div class="scene-item"><span class="scene-no">S1</span><div class="scene-body"><div class="sc-t">雨夜街头</div><div class="sc-s">外景 / 夜 · 陈侦探 · 建立镜头</div></div></div>
+              <div class="scene-item"><span class="scene-no">S2</span><div class="scene-body"><div class="sc-t">后巷追踪</div><div class="sc-s">外景 / 夜 · 陈侦探 · 紧张追逐</div></div></div>
+              <div class="scene-item"><span class="scene-no">S3</span><div class="scene-body"><div class="sc-t">档案室</div><div class="sc-s">内景 / 夜 · 陈侦探 · 证物特写</div></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ STEP 02 — ART DIRECTION ═══ -->
+      <section class="step-block" id="step-02" aria-labelledby="s02-t">
+        <div class="step-head">
+          <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><circle cx="8.5" cy="9" r="1.3"/><circle cx="15.5" cy="9" r="1.3"/><circle cx="9" cy="15" r="1.3"/><path d="M12 3a9 9 0 0 1 0 18"/></svg></div>
+          <div class="step-titles">
+            <div class="step-eyebrow">STEP <span class="n">02</span> · ART DIRECTION</div>
+            <h2 class="step-title" id="s02-t">美术方向</h2>
+          </div>
+          <div class="step-actions">
+            <span class="badge completed"><span class="led"></span>已确认</span>
+            <button class="btn btn-glass btn-sm">AI 分析风格</button>
+          </div>
+        </div>
+        <div class="art-grid">
+          <div class="card card-pad">
+            <div class="sub-label">STYLE PRESETS · 风格预设</div>
+            <div class="chips">
+              <button class="style-chip on"><span class="dot"></span>霓虹黑色电影</button>
+              <button class="style-chip"><span class="dot"></span>赛博朋克</button>
+              <button class="style-chip"><span class="dot"></span>写实电影感</button>
+              <button class="style-chip"><span class="dot"></span>水墨漫画</button>
+              <button class="style-chip"><span class="dot"></span>美式硬汉</button>
+            </div>
+            <div class="sub-label" style="margin-top:18px">COLOR PALETTE · 调色板</div>
+            <div class="palette">
+              <div class="sw"><div class="chip" style="background:#050508"></div><div class="lbl">深空黑</div></div>
+              <div class="sw"><div class="chip" style="background:#646cff"></div><div class="lbl">电蓝</div></div>
+              <div class="sw"><div class="chip" style="background:#ff0080"></div><div class="lbl">品红</div></div>
+              <div class="sw"><div class="chip" style="background:#14b8a6"></div><div class="lbl">青蓝</div></div>
+              <div class="sw"><div class="chip" style="background:#f59e0b"></div><div class="lbl">暖琥珀</div></div>
+            </div>
+          </div>
+          <div class="card card-pad">
+            <div class="sub-label">REFERENCE IMAGES · 风格参考</div>
+            <div class="ref-grid">
+              <div class="ref"><img src="../assets/shot-01.png" alt="风格参考：侦探霓虹特写"><span class="tag">霓虹特写</span></div>
+              <div class="ref"><img src="../assets/scene-skyline.png" alt="风格参考：城市天际线"><span class="tag">天际线</span></div>
+              <div class="ref"><img src="../assets/shot-03.png" alt="风格参考：潮湿后巷"><span class="tag">潮湿后巷</span></div>
+              <div class="ref"><img src="../assets/shot-02.png" alt="风格参考：积水倒影"><span class="tag">积水倒影</span></div>
+              <div class="ref"><img src="../assets/shot-05.png" alt="风格参考：冷暖光交织"><span class="tag">冷暖交织</span></div>
+              <div class="ref" style="display:grid;place-items:center;background:var(--color-bg-inset);color:var(--color-text-muted)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:22px;height:22px"><path d="M12 5v14M5 12h14"/></svg></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ STEP 03 — CAST ═══ -->
+      <section class="step-block" id="step-03" aria-labelledby="s03-t">
+        <div class="step-head">
+          <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></div>
+          <div class="step-titles">
+            <div class="step-eyebrow">STEP <span class="n">03</span> · CAST &amp; ASSETS</div>
+            <h2 class="step-title" id="s03-t">Cast 角色</h2>
+          </div>
+          <div class="step-actions">
+            <span class="badge processing"><span class="led"></span>1 生成中</span>
+            <button class="btn btn-primary btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>新增角色</button>
+          </div>
+        </div>
+        <div class="cast-grid">
+          <!-- locked character -->
+          <article class="cast-card">
+            <div class="portrait">
+              <img src="../assets/char-detective.png" alt="角色 陈侦探 立绘">
+              <button class="lock locked" aria-label="锁定角色 陈侦探" aria-pressed="true" title="已锁定"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
+              <span class="vcount">4 变体</span>
+            </div>
+            <div class="cc-body">
+              <div class="cc-name">陈侦探</div>
+              <div class="cc-role">PROTAGONIST · 男 / 40s</div>
+              <div class="cc-desc">疲惫而锐利的城市侦探，米色风衣、压低的礼帽，雨水常驻肩头。</div>
+              <div class="cc-foot"><span class="badge starred"><span class="led"></span>已锁定</span><button class="btn btn-ghost btn-sm">变体 ›</button></div>
+            </div>
+          </article>
+          <!-- scene reference card -->
+          <article class="cast-card">
+            <div class="portrait">
+              <img src="../assets/scene-skyline.png" alt="场景 霓虹街口 参考">
+              <button class="lock" aria-label="锁定场景 霓虹街口" aria-pressed="false" title="未锁定"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/></svg></button>
+              <span class="vcount">3 变体</span>
+            </div>
+            <div class="cc-body">
+              <div class="cc-name">霓虹街口</div>
+              <div class="cc-role">SCENE · 外景 / 夜</div>
+              <div class="cc-desc">十字街口，密集霓虹招牌，湿润路面反射电蓝与品红光晕，作为建立镜头基底。</div>
+              <div class="cc-foot"><span class="badge completed"><span class="led"></span>已完成</span><button class="btn btn-ghost btn-sm">变体 ›</button></div>
+            </div>
+          </article>
+          <!-- generating character -->
+          <article class="cast-card">
+            <div class="portrait">
+              <img src="../assets/shot-05.png" alt="角色 线人 生成中" style="opacity:0.4">
+              <button class="lock" aria-label="锁定角色 线人" aria-pressed="false" title="未锁定" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/></svg></button>
+              <span class="vcount">生成中</span>
+            </div>
+            <div class="cc-body">
+              <div class="cc-name">线人 · 阿水</div>
+              <div class="cc-role">SUPPORTING · 男 / 30s</div>
+              <div class="cc-desc">街头消息贩子，破旧夹克，眼神闪烁，霓虹光下半藏在阴影里。</div>
+              <div class="cc-foot"><span class="badge processing"><span class="led"></span>生成中 · 60%</span><button class="btn btn-ghost btn-sm" disabled>变体 ›</button></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ═══ STEP 05 — ASSEMBLY / EXPORT ═══ -->
+      <section class="step-block" id="step-05" aria-labelledby="s05-t">
+        <div class="step-head">
+          <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M7 6v12M17 6v12M2 10h5M2 14h5M17 10h5M17 14h5"/></svg></div>
+          <div class="step-titles">
+            <div class="step-eyebrow">STEP <span class="n">05</span> · ASSEMBLY &amp; EXPORT</div>
+            <h2 class="step-title" id="s05-t">合成导出</h2>
+          </div>
+          <div class="step-actions">
+            <span class="badge processing"><span class="led"></span>渲染中</span>
+            <button class="btn btn-primary btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>导出成片</button>
+          </div>
+        </div>
+        <div class="assembly-grid">
+          <div class="timeline">
+            <div class="tl-head">
+              <span class="tl-t">TIMELINE · 12 SHOTS · 总时长 0:48</span>
+              <button class="btn btn-ghost btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9V3z"/></svg>预览</button>
+            </div>
+            <div class="tl-track">
+              <div class="tl-shot sel"><img src="../assets/shot-01.png" alt="镜头 1"><span class="no">01</span><span class="dur">0:04</span></div>
+              <span class="tl-trans">叠化</span>
+              <div class="tl-shot"><img src="../assets/shot-02.png" alt="镜头 2"><span class="no">02</span><span class="dur">0:05</span></div>
+              <span class="tl-trans">切</span>
+              <div class="tl-shot"><img src="../assets/shot-03.png" alt="镜头 3"><span class="no">03</span><span class="dur">0:04</span></div>
+              <span class="tl-trans">切</span>
+              <div class="tl-shot"><img src="../assets/shot-05.png" alt="镜头 4"><span class="no">04</span><span class="dur">0:03</span></div>
+              <span class="tl-trans">叠化</span>
+              <div class="tl-shot"><img src="../assets/scene-skyline.png" alt="镜头 5"><span class="no">05</span><span class="dur">0:06</span></div>
+            </div>
+            <div class="tl-head" style="margin:14px 0 10px">
+              <span class="tl-t">AUDIO · 旁白 + 环境音 + BGM</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="height:22px;border-radius:5px;background:linear-gradient(90deg,rgba(100,108,255,0.18),rgba(100,108,255,0.06));border:1px solid rgba(100,108,255,0.25);display:flex;align-items:center;padding:0 8px;font-family:var(--font-mono);font-size:9px;color:#b9bdff">NARRATION · 陈侦探旁白</div>
+              <div style="height:22px;border-radius:5px;background:linear-gradient(90deg,rgba(20,184,166,0.15),rgba(20,184,166,0.05));border:1px solid rgba(20,184,166,0.25);display:flex;align-items:center;padding:0 8px;font-family:var(--font-mono);font-size:9px;color:#99f6e4">AMBIENT · 雨声 / 街道</div>
+              <div style="height:22px;border-radius:5px;background:linear-gradient(90deg,rgba(255,0,128,0.15),rgba(255,0,128,0.05));border:1px solid rgba(255,0,128,0.25);display:flex;align-items:center;padding:0 8px;font-family:var(--font-mono);font-size:9px;color:#ff9ec9">BGM · 爵士黑色电影</div>
+            </div>
+          </div>
+          <div class="export-panel">
+            <div class="field"><label>分辨率</label><select><option>1080P · 1920×1080</option><option selected>720P · 1280×720</option><option>480P · 854×480</option></select></div>
+            <div class="field"><label>帧率</label><select><option>24 FPS · 电影感</option><option>30 FPS · 标准</option></select></div>
+            <div class="field"><label>编码格式</label><select><option>H.264 / MP4</option><option>H.265 / MP4</option><option>ProRes / MOV</option></select></div>
+            <div class="field"><label>水印</label><select><option>无水印</option><option>LumenX 角标</option></select></div>
+            <div class="render-prog">
+              <div class="rp-top"><span class="rp-lbl">RENDERING · 合成中</span><span class="rp-pct">72%</span></div>
+              <div class="ptrack"><div class="pfill" style="width:72%"></div></div>
+              <div class="rp-foot">合成 8/12 镜头 · 预计剩余 1:20 · 720P / H.264</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>

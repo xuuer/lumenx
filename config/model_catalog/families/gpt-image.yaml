@@ -1,0 +1,54 @@
+family: gpt-image
+display_name: "GPT Image (OpenAI)"
+provider: mulerouter
+routing_prefixes:
+  - gpt-image-
+supported_backends:
+  - mulerouter
+default_backend: mulerouter
+credential_sources:
+  mulerouter:
+    - MULEROUTER_API_KEY
+supported_modalities:
+  - t2i
+  - i2i
+docs:
+  official_snapshot_ids:
+    - mulerouter/gpt-image-2/2026-06-03
+transport:
+  image_input_mode:
+    mulerouter: mulerouter_base64_image
+  audio_input_mode:
+    mulerouter: mulerouter_audio_url
+  reference_video_input_mode:
+    mulerouter: mulerouter_video_url
+models:
+  - id: gpt-image-2
+    display_name: GPT Image 2
+    description: OpenAI GPT-Image-2 via MuleRouter (T2I + I2I editing)
+    status: active
+    release_stage: stable
+    capabilities: [t2i, i2i]
+    docs:
+      context_hub_doc_ids:
+        - mulerouter/gpt-image-2
+    runtime:
+      mulerouter:
+        gateway: mulerouter
+    ui:
+      selection_group: image
+      visible_in: [project_settings, series_settings, global_settings]
+      order: 95
+      recommended: true
+      badges: [new]
+    params:
+      size:
+        options: ["1024x1024", "1536x1024", "1024x1536", "2048x2048", "2048x1152", "3840x2160", "2160x3840"]
+        default: "1024x1024"
+      quality:
+        options: ["high", "medium", "low"]
+        default: "high"
+      negativePrompt: false
+      seed: false
+      promptExtend: false
+      watermark: false

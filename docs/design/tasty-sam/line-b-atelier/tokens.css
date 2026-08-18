@@ -1,0 +1,162 @@
+/*
+ * LumenX Studio — Line B "Luminous Atelier" Design Tokens
+ * by Tasty Sam · Token architecture: seed → semantic → component
+ *
+ * Thesis: A film tool should speak film's native visual language.
+ *   - Base   : warm graphite (#0c0b0e) — the darkroom, not the operating theatre
+ *   - Accent : cinematic teal ↔ amber complementary — the colorist's grammar
+ *   - Type   : high-contrast serif display (Fraunces) + grotesque body (Space Grotesk)
+ *   - Surface: near-frameless floating cards; media glows, chrome recedes
+ *   - Mood   : fine film grain + halation bloom + generous gallery breathing room
+ *
+ * Three unshakeable constraints honored: dark-first · content-is-king · creator cockpit.
+ */
+
+:root {
+  /* ═══════════ SEED LAYER — brand DNA ═══════════ */
+  --seed-bg:        #0c0b0e;   /* warm deep graphite */
+  --seed-fg:        #f2ede4;   /* warm bone white */
+  --seed-teal:      #34d8c4;   /* shadow / cool accent (cinematic teal)  */
+  --seed-amber:     #ffa94d;   /* highlight / warm accent (amber)        */
+  --seed-rose:      #ff6b6b;   /* alert / brand moment                    */
+  --seed-radius:    14px;
+
+  /* ═══════════ PRIMITIVE LAYER ═══════════ */
+  --p-graphite-950: #0c0b0e;
+  --p-graphite-900: #131116;
+  --p-graphite-850: #181620;
+  --p-graphite-800: #1e1b26;
+  --p-graphite-700: #292430;
+  --p-graphite-600: #38323f;
+  --p-mist-500:     #8b8597;
+  --p-mist-400:     #a8a2b0;
+  --p-mist-300:     #c8c2ce;
+  --p-teal-bright:  #5ee9d6;
+  --p-teal:         #34d8c4;
+  --p-teal-deep:    #1d9c8d;
+  --p-amber:        #ffa94d;
+  --p-amber-deep:   #e8852b;
+  --p-rose:         #ff6b6b;
+
+  /* ═══════════ SEMANTIC: BACKGROUND ═══════════ */
+  --color-bg-base:      var(--seed-bg);
+  --color-bg-surface:   var(--p-graphite-900);   /* floating card body */
+  --color-bg-elevated:  var(--p-graphite-850);   /* modal / popover    */
+  --color-bg-inset:     var(--p-graphite-950);   /* media wells, nested */
+  --color-bg-hover:     rgba(255,255,255,0.045);
+  --color-bg-input:     rgba(0,0,0,0.28);
+
+  /* ═══════════ SEMANTIC: TEXT ═══════════ */
+  --color-text-primary:   var(--seed-fg);
+  --color-text-secondary: var(--p-mist-400);
+  --color-text-muted:     var(--p-mist-500);
+  --color-on-accent:      #0c0b0e;
+
+  /* ═══════════ SEMANTIC: BORDER ═══════════
+     Near-frameless: borders are whispers, separation comes from light & shadow */
+  --color-border-default: rgba(255,255,255,0.06);
+  --color-border-subtle:  rgba(255,255,255,0.03);
+  --color-border-focus:   var(--p-teal);
+
+  /* ═══════════ SEMANTIC: INTERACTIVE ═══════════ */
+  --color-primary:        var(--p-teal);       /* primary actions = cool teal */
+  --color-primary-hover:  var(--p-teal-bright);
+  --color-accent:         var(--p-amber);      /* warm highlight / selected   */
+  --color-accent-hover:   var(--p-amber-deep);
+  --color-destructive:    var(--p-rose);
+  --color-overlay:        rgba(8,7,10,0.78);
+
+  /* ═══════════ SEMANTIC: STATUS (OKLCH, warm-tuned) ═══════════ */
+  --status-pending-fg:     oklch(0.82 0.06 250);
+  --status-pending-border: oklch(0.72 0.08 250 / 0.40);
+  --status-pending-bg:     oklch(0.72 0.08 250 / 0.10);
+
+  --status-processing-fg:     oklch(0.86 0.14 75);   /* amber — generating */
+  --status-processing-border: oklch(0.78 0.16 75 / 0.45);
+  --status-processing-bg:     oklch(0.78 0.16 75 / 0.12);
+
+  --status-completed-fg:     oklch(0.85 0.13 180);   /* teal — done */
+  --status-completed-border: oklch(0.75 0.14 180 / 0.45);
+  --status-completed-bg:     oklch(0.75 0.14 180 / 0.12);
+
+  --status-failed-fg:     oklch(0.75 0.18 22);
+  --status-failed-border: oklch(0.66 0.19 22 / 0.45);
+  --status-failed-bg:     oklch(0.66 0.19 22 / 0.12);
+
+  --status-starred-fg:     oklch(0.88 0.14 85);      /* warm gold — selected take */
+  --status-starred-border: oklch(0.83 0.15 85 / 0.55);
+  --status-starred-bg:     oklch(0.83 0.15 85 / 0.16);
+  --status-starred-solid:  oklch(0.83 0.15 85);
+
+  /* ═══════════ TYPOGRAPHY ═══════════ */
+  --font-display: 'Fraunces', 'Newsreader', Georgia, serif;   /* high-contrast serif — the author's voice */
+  --font-body:    'Space Grotesk', system-ui, sans-serif;     /* humanist grotesque */
+  --font-mono:    'JetBrains Mono', monospace;                /* technical metadata only */
+
+  --text-chrome-sm: 10px;
+  --text-chrome:    11px;
+  --text-body-sm:   12px;
+  --text-body:      13px;
+  --text-body-lg:   15px;
+  --text-display-sm: 18px;
+  --text-display:    24px;
+  --text-display-lg: 34px;
+  --text-hero:       48px;
+
+  --tracking-chrome:  0.16em;
+  --tracking-display: -0.02em;   /* serif display tightens up */
+  --leading-body:     1.6;       /* generous, editorial */
+  --leading-display:  1.1;
+
+  /* ═══════════ SPACING — 4px base, gallery-generous ═══════════ */
+  --space-2xs: 4px;
+  --space-xs:  8px;
+  --space-sm:  12px;
+  --space-md:  20px;
+  --space-lg:  32px;
+  --space-xl:  52px;
+  --space-2xl: 84px;
+
+  /* ═══════════ RADIUS — softer, more organic ═══════════ */
+  --radius-sm: 8px;
+  --radius-md: var(--seed-radius);
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-pill: 999px;
+
+  /* ═══════════ ELEVATION — light, not boxes ═══════════
+     Cards lift via soft ambient shadow + faint top highlight, never hard borders */
+  --shadow-rest:     0 2px 8px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.04);
+  --shadow-lift:     0 12px 40px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06);
+  --shadow-float:    0 28px 80px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.07);
+  --glow-teal:       0 0 0 1px rgba(52,216,196,0.30), 0 0 24px -6px rgba(52,216,196,0.45);
+  --glow-amber:      0 0 0 1px rgba(255,169,77,0.35), 0 0 28px -6px rgba(255,169,77,0.50);
+
+  /* ═══════════ MOTION ═══════════ */
+  --dur-fast: 160ms;
+  --dur-base: 280ms;
+  --dur-slow: 460ms;
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);  /* gentle overshoot for reveals */
+
+  /* ═══════════ ATMOSPHERE — the signature layer ═══════════ */
+  --grain-opacity: 0.045;
+  --bloom-teal:  radial-gradient(60% 50% at 20% 0%, rgba(52,216,196,0.10), transparent 70%);
+  --bloom-amber: radial-gradient(55% 45% at 85% 100%, rgba(255,169,77,0.08), transparent 70%);
+
+  /* ═══════════ COMPONENT TOKENS ═══════════ */
+  --card-bg:      var(--color-bg-surface);
+  --card-radius:  var(--radius-lg);
+  --card-shadow:  var(--shadow-rest);
+  --card-pad:     var(--space-md);
+
+  --btn-radius:   var(--radius-pill);
+  --btn-pad-x:    var(--space-md);
+  --btn-pad-y:    10px;
+
+  --input-bg:     var(--color-bg-input);
+  --input-radius: var(--radius-md);
+
+  --sidebar-w:    248px;
+  --media-radius: var(--radius-md);
+}

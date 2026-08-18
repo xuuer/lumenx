@@ -1,0 +1,122 @@
+family: seedance
+display_name: "Seedance (即梦)"
+provider: mulerouter
+routing_prefixes:
+  - seedance-2.0-
+  - seedance/seedance-
+supported_backends:
+  - mulerouter
+default_backend: mulerouter
+credential_sources:
+  mulerouter:
+    - MULEROUTER_API_KEY
+supported_modalities:
+  - t2v
+  - i2v
+  - r2v
+docs:
+  official_snapshot_ids:
+    - mulerouter/seedance-2.0/2026-06-03
+transport:
+  image_input_mode:
+    mulerouter: mulerouter_base64_image
+  audio_input_mode:
+    mulerouter: mulerouter_audio_url
+  reference_video_input_mode:
+    mulerouter: mulerouter_video_url
+models:
+  - id: seedance/seedance-2.0-video
+    display_name: Seedance 2.0
+    description: ByteDance Seedance 2.0 video generation via MuleRouter
+    status: active
+    release_stage: stable
+    docs:
+      context_hub_doc_ids:
+        - mulerouter/seedance-2.0
+    runtime:
+      mulerouter:
+        gateway: mulerouter
+    modes:
+      t2v:
+        legacy_id: seedance-2.0-t2v
+        display_name: Seedance 2.0 T2V
+        description: Text-to-video generation
+        capabilities: [t2v]
+        ui:
+          selection_group: t2v
+          visible_in: [project_settings, series_settings, video_sidebar, global_settings]
+          order: 85
+          badges: [new]
+        duration:
+          type: slider
+          min: 4
+          max: 15
+          step: 1
+          default: 5
+        params:
+          resolution:
+            options: [720p, 1080p]
+            default: 1080p
+          seed: true
+          negativePrompt: false
+          promptExtend: false
+          watermark: true
+      i2v:
+        legacy_id: seedance-2.0-i2v
+        display_name: Seedance 2.0 I2V
+        description: Image-to-video generation
+        capabilities: [i2v]
+        ui:
+          selection_group: i2v
+          visible_in: [project_settings, series_settings, video_sidebar, global_settings]
+          order: 90
+          badges: [new]
+        duration:
+          type: slider
+          min: 4
+          max: 15
+          step: 1
+          default: 5
+        params:
+          resolution:
+            options: [720p, 1080p]
+            default: 1080p
+          seed: true
+          negativePrompt: false
+          promptExtend: false
+          watermark: true
+        inputs:
+          reference_images:
+            max: 1
+            reference_type: image
+      r2v:
+        legacy_id: seedance-2.0-r2v
+        display_name: Seedance 2.0 R2V
+        description: Reference-to-video with multi-image input
+        capabilities: [r2v]
+        ui:
+          selection_group: r2v
+          visible_in: [project_settings, series_settings, video_sidebar, global_settings]
+          order: 80
+          badges: [new]
+        duration:
+          type: slider
+          min: 4
+          max: 15
+          step: 1
+          default: 5
+        params:
+          resolution:
+            options: [720p, 1080p]
+            default: 1080p
+          seed: true
+          negativePrompt: false
+          promptExtend: false
+          watermark: true
+        docs:
+          context_hub_doc_ids:
+            - mulerouter/seedance-2.0
+        inputs:
+          reference_images:
+            max: 9
+            reference_type: image
