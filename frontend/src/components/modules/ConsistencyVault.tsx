@@ -19,6 +19,7 @@ export default function ConsistencyVault() {
     const tStep = useTranslations("stepHeader");
     const currentProject = useProjectStore((state) => state.currentProject);
     const updateProject = useProjectStore((state) => state.updateProject);
+    const selectProject = useProjectStore((state) => state.selectProject);
 
 
 
@@ -326,8 +327,14 @@ export default function ConsistencyVault() {
         if (!confirmed) return;
 
         try {
-            const updatedProject = await api.syncDescriptions(currentProject.id);
-            updateProject(currentProject.id, updatedProject);
+            await api.syncDescriptions(currentProject.id);
+            // Re-fetch the project via the same code path as "open project"
+            // so currentProject keeps the exact shape the rest of the UI
+            // expects (e.g. originalText). Spreading the raw backend Script
+            // here previously left characters/scenes/props in an
+            // inconsistent shape and the asset grid appeared empty until
+            // a manual refresh.
+            await selectProject(currentProject.id);
             alert(tv("syncSuccess"));
         } catch (error: any) {
             console.error("Failed to sync descriptions:", error);

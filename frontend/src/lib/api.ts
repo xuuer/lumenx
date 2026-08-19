@@ -264,7 +264,7 @@ export const api = {
 
     syncDescriptions: async (scriptId: string) => {
         const res = await axios.post(`${API_URL}/projects/${scriptId}/sync_descriptions`);
-        return res.data;
+        return { ...res.data, originalText: res.data.original_text };
     },
 
     generateAssets: async (scriptId: string) => {

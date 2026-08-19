@@ -79,8 +79,28 @@ export default function ArtDirection() {
 
     const projectStyle = currentProject?.art_direction?.style_config ?? null;
     const inSeries = !!currentProject?.series_id;
-    const isInherit = inSeries && !!seriesBaseline && !projectStyle;
-    const isOverridden = inSeries && !!seriesBaseline && !!projectStyle;
+
+    // Two StyleConfigs are "the same style" iff they would produce the
+    // same generation result: same preset id AND identical positive and
+    // negative prompts. Name/description/thumbnail don't affect output.
+    // Without this strict equality, picking the same preset as the
+    // series baseline would still trigger the "overriding baseline"
+    // banner because projectStyle is non-null.
+    const styleEquals = (a: StyleConfig | null | undefined, b: StyleConfig | null | undefined): boolean => {
+        if (!a || !b) return false;
+        return a.id === b.id
+            && (a.positive_prompt ?? "") === (b.positive_prompt ?? "")
+            && (a.negative_prompt ?? "") === (b.negative_prompt ?? "");
+    };
+
+    // isInherit: project has no own style, OR project's style is
+    // byte-identical to the series baseline (e.g. user unlocked the
+    // editor and re-saved the baseline preset unchanged). Both cases
+    // are semantically "inherit", not "override".
+    const isInherit = inSeries && !!seriesBaseline && (!projectStyle || styleEquals(projectStyle, seriesBaseline));
+    // isOverridden: project has its own style AND it actually differs
+    // from the series baseline.
+    const isOverridden = inSeries && !!seriesBaseline && !!projectStyle && !styleEquals(projectStyle, seriesBaseline);
     const canPromote = inSeries && !seriesBaseline && !!projectStyle;
     const isPreview = isInherit && overrideAccepted;
 
